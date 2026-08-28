@@ -48,236 +48,301 @@
   "holes": {
     "/": {
       "title": "Directory of GOPHER AI",
+      "title_es": "Directorio de GOPHER AI",
       "items": [
         {
           "n": "1",
           "type": "1",
           "name": "Docs/",
+          "name_es": "Docs/",
           "path": "/docs",
-          "hint": "about, play, legal, faq"
+          "hint": "about, play, legal, faq",
+          "hint_es": "acerca, jugar, legal, faq"
         },
         {
           "n": "5",
           "type": "1",
           "name": "FETCH/",
+          "name_es": "FETCH/",
           "path": "/fetch",
-          "hint": "PLAY NOW \u2014 100-stage maze"
+          "hint": "PLAY NOW \u2014 100-stage maze",
+          "hint_es": "JUEGA YA \u2014 laberinto de 100 etapas"
         },
         {
           "n": "6",
           "type": "7",
           "name": "Waitlist",
+          "name_es": "Lista de espera",
           "path": "/waitlist",
-          "hint": "get in"
+          "hint": "get in",
+          "hint_es": "entra"
         },
         {
           "n": "8",
           "type": "1",
           "name": "Games/",
+          "name_es": "Juegos/",
           "path": "/games",
-          "hint": "more holes"
+          "hint": "more holes",
+          "hint_es": "m\u00e1s huecos"
         },
         {
           "n": "9",
           "type": "1",
           "name": "User/",
+          "name_es": "Usuario/",
           "path": "/user",
-          "hint": "enter your hole"
+          "hint": "enter your hole",
+          "hint_es": "entra a tu hueco"
         }
       ]
     },
     "/docs": {
       "title": "1 Docs/",
+      "title_es": "1 Docs/",
       "items": [
         {
           "n": "1",
           "type": "0",
           "name": "About",
+          "name_es": "Acerca",
           "path": "/about",
-          "hint": "what this is"
+          "hint": "what this is",
+          "hint_es": "qu\u00e9 es esto"
         },
         {
           "n": "2",
           "type": "0",
           "name": "How",
+          "name_es": "C\u00f3mo",
           "path": "/how",
-          "hint": "order in, fetch, reply"
+          "hint": "order in, fetch, reply",
+          "hint_es": "pedido entra, fetch, respuesta"
         },
         {
           "n": "3",
           "type": "0",
           "name": "Capabilities",
+          "name_es": "Capacidades",
           "path": "/caps",
-          "hint": "what it does"
+          "hint": "what it does",
+          "hint_es": "qu\u00e9 hace"
         },
         {
           "n": "4",
           "type": "0",
           "name": "Play",
+          "name_es": "Jugar",
           "path": "/play",
-          "hint": "how to play FETCH"
+          "hint": "how to play FETCH",
+          "hint_es": "c\u00f3mo jugar FETCH"
         },
         {
           "n": "5",
           "type": "0",
           "name": "Pricing",
+          "name_es": "Precios",
           "path": "/pricing",
-          "hint": "waitlist, no fake prices"
+          "hint": "waitlist, no fake prices",
+          "hint_es": "lista de espera, sin precios inventados"
         },
         {
           "n": "6",
           "type": "1",
           "name": "Legal/",
+          "name_es": "Legal/",
           "path": "/legal",
-          "hint": "privacy, terms, security"
+          "hint": "privacy, terms, security",
+          "hint_es": "privacidad, t\u00e9rminos, seguridad"
         },
         {
           "n": "7",
           "type": "0",
           "name": "FAQ",
+          "name_es": "FAQ",
           "path": "/faq",
-          "hint": "six short answers"
+          "hint": "six short answers",
+          "hint_es": "seis respuestas cortas"
         },
         {
           "n": "8",
           "type": "1",
           "name": "Site/",
+          "name_es": "Sitio/",
           "path": "/docs/site",
-          "hint": "changelog, ship, install, quest, log"
+          "hint": "changelog, ship, install, quest, log",
+          "hint_es": "changelog, ship, install, quest, log"
         },
         {
           "n": "9",
           "type": "0",
           "name": "Keys",
+          "name_es": "Teclas",
           "path": "/keys",
-          "hint": "1-9 / ? esc"
+          "hint": "1-9 / ? esc",
+          "hint_es": "1-9 / ? esc"
         }
       ]
     },
     "/docs/site": {
       "title": "8 Site/",
+      "title_es": "8 Sitio/",
       "items": [
         {
           "n": "1",
           "type": "0",
           "name": "Changelog",
+          "name_es": "Cambios",
           "path": "/changelog",
-          "hint": "2026-08-28"
+          "hint": "2026-08-28",
+          "hint_es": "2026-08-28"
         },
         {
           "n": "2",
           "type": "0",
           "name": "Contact",
+          "name_es": "Contacto",
           "path": "/contact",
-          "hint": "github + waitlist"
+          "hint": "github + waitlist",
+          "hint_es": "github + lista de espera"
         },
         {
           "n": "3",
           "type": "0",
           "name": "Status",
+          "name_es": "Estado",
           "path": "/status",
-          "hint": "Pages vs local"
+          "hint": "Pages vs local",
+          "hint_es": "Pages vs local"
         },
         {
           "n": "4",
           "type": "0",
           "name": "Ship",
+          "name_es": "Ship",
           "path": "/ship",
-          "hint": "live vs next"
+          "hint": "live vs next",
+          "hint_es": "en vivo vs siguiente"
         },
         {
           "n": "5",
           "type": "0",
           "name": "Press",
+          "name_es": "Prensa",
           "path": "/press",
-          "hint": "blurb + shots"
+          "hint": "blurb + shots",
+          "hint_es": "texto + capturas"
         },
         {
           "n": "6",
           "type": "0",
           "name": "Jobs",
+          "name_es": "Empleo",
           "path": "/jobs",
-          "hint": "not hiring"
+          "hint": "not hiring",
+          "hint_es": "no contratamos"
         },
         {
           "n": "7",
           "type": "0",
           "name": "ES",
+          "name_es": "ES",
           "path": "/es",
-          "hint": "espa\u00f1ol stub"
+          "hint": "espa\u00f1ol stub",
+          "hint_es": "hueco en espa\u00f1ol"
         },
         {
           "n": "8",
           "type": "0",
           "name": "Install",
+          "name_es": "Instalar",
           "path": "/install",
-          "hint": "PWA on a phone"
+          "hint": "PWA on a phone",
+          "hint_es": "PWA en el tel\u00e9fono"
         },
         {
           "n": "9",
           "type": "0",
           "name": "Promote",
+          "name_es": "Promover",
           "path": "/promote",
-          "hint": "stage then prod"
+          "hint": "stage then prod",
+          "hint_es": "stage luego prod"
         },
         {
           "n": "10",
           "type": "0",
           "name": "Brand",
+          "name_es": "Marca",
           "path": "/brand",
-          "hint": "BRAND.md"
+          "hint": "BRAND.md",
+          "hint_es": "BRAND.md"
         },
         {
           "n": "11",
           "type": "0",
           "name": "Quest",
+          "name_es": "Misi\u00f3n",
           "path": "/quest",
-          "hint": "three local orders"
+          "hint": "three local orders",
+          "hint_es": "tres pedidos locales"
         },
         {
           "n": "12",
           "type": "0",
           "name": "Log",
+          "name_es": "Log",
           "path": "/log",
-          "hint": "errors stay here"
+          "hint": "errors stay here",
+          "hint_es": "los errores se quedan aqu\u00ed"
         }
       ]
     },
     "/games": {
       "title": "5 Games/",
+      "title_es": "5 Juegos/",
       "items": [
         {
           "n": "1",
           "type": "0",
           "name": "How to play",
+          "name_es": "C\u00f3mo jugar",
           "path": "/play",
-          "hint": "100-stage maze"
+          "hint": "100-stage maze",
+          "hint_es": "laberinto de 100 etapas"
         },
         {
           "n": "2",
           "type": "1",
           "name": "DIG/",
+          "name_es": "DIG/",
           "path": "/dig",
-          "hint": "PLAY \u2014 8 stages, rocks fall"
+          "hint": "PLAY \u2014 8 stages, rocks fall",
+          "hint_es": "JUEGA \u2014 8 etapas, caen rocas"
         },
         {
           "n": "3",
           "type": "0",
           "name": "Scores",
+          "name_es": "Puntos",
           "path": "/scores",
-          "hint": "device best; python board"
+          "hint": "device best; python board",
+          "hint_es": "mejor del dispositivo; tabla python"
         },
         {
           "n": "5",
           "type": "1",
           "name": "FETCH/",
+          "name_es": "FETCH/",
           "path": "/fetch",
-          "hint": "100-stage maze"
+          "hint": "100-stage maze",
+          "hint_es": "laberinto de 100 etapas"
         }
       ]
     },
     "/about": {
       "title": "1 About/",
+      "title_es": "1 Acerca/",
       "copy": [
         "GOPHER AI is a standalone phone assistant you pay for. You talk to a number. It turns the talk into an order, fetches, and brings the answer back to the same thread.",
         "The name is the point. Old Gopher was a menu, a selector, a fetch. No infinite scroll. No chat sludge. A modern prompt sits on that contract."
@@ -285,6 +350,7 @@
     },
     "/how": {
       "title": "2 How it works/",
+      "title_es": "2 C\u00f3mo funciona/",
       "steps": [
         "You send an order \u2014 voice, SMS, or the prompt.",
         "GOPHER AI files it as a selector: fetch, watch, draft, remind.",
@@ -294,6 +360,7 @@
     },
     "/caps": {
       "title": "3 Capabilities/",
+      "title_es": "3 Capacidades/",
       "caps": [
         "Voice and SMS in. A reply out.",
         "Orders, not chat. watch / remind / draft queue on this device (not SMS).",
@@ -306,10 +373,12 @@
     },
     "/privacy": {
       "title": "4 Privacy",
+      "title_es": "4 Privacidad",
       "copy": "We keep your waitlist email now; later, your number and order logs to do the job. Login on this page stays on this device. We don\u2019t sell any of it."
     },
     "/play": {
       "title": "How to play FETCH/",
+      "title_es": "C\u00f3mo jugar FETCH/",
       "copy": "FETCH is a 100-stage maze on this site. Alternate pathways. One tap, one tile \u2014 you never auto-run. Wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Free demo. Not the paid phone assistant. DIG is a separate 8-stage burrow (type dig or Games/). FETCH stays the 100-stage maze.",
       "steps": [
         "Press 5, type play, or open #/fetch.",
@@ -331,6 +400,7 @@
     },
     "/howto": {
       "title": "How to play FETCH/",
+      "title_es": "C\u00f3mo jugar FETCH/",
       "copy": "FETCH is a 100-stage maze on this site. Alternate pathways. One tap, one tile \u2014 you never auto-run. Wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Free demo. Not the paid phone assistant. DIG is a separate 8-stage burrow (type dig or Games/). FETCH stays the 100-stage maze.",
       "steps": [
         "Press 5, type play, or open #/fetch.",
@@ -352,6 +422,7 @@
     },
     "/pricing": {
       "title": "Pricing/",
+      "title_es": "Precios/",
       "copy": [
         "GOPHER AI is a paid phone assistant. You will talk to a number. You will pay for that number and the fetches it does.",
         "Prices are not public yet. There is no fake table, no invented monthly fee, no \u201cfrom $x\u201d.",
@@ -361,6 +432,7 @@
     },
     "/terms": {
       "title": "Terms/",
+      "title_es": "T\u00e9rminos/",
       "copy": [
         "This site is a public hole for GOPHER AI: a directory, a waitlist, FETCH, and DIG.",
         "Waitlist: you give an email. We keep it to tell you when the paid phone assistant is ready. No other contract yet.",
@@ -373,6 +445,7 @@
     },
     "/faq": {
       "title": "FAQ/",
+      "title_es": "FAQ/",
       "copy": [
         "What is GOPHER AI? A paid phone assistant named after the 1991 Gopher protocol. You send an order. It fetches. This site is the public hole, not the number yet.",
         "How do I play FETCH? Press 5 or open #/fetch. START. One tap, one tile \u2014 you never auto-run. Eat energy pellets (Huzaaa!). Walls Clunk!!! (\u22120.1 HP). Orange foxes Ouchies! (\u22121 HP). One star per stage: ZAP a fox or BLOCK a hit. KEY or K for the in-game key. Stage clear: VICTORY! Clock hits 0: TIME OVER! Clear all 100: GOPHER CHAMPION!, a trophy, Eternal GOPHER CHAMPIONS. Foxes speed up 0.01 per stage. Stage 100 is nearly impossible. MUTE defaults on (browser autoplay). DIG is a separate 8-stage burrow \u2014 type dig or Games/. FETCH stays the 100-stage maze.",
@@ -384,6 +457,7 @@
     },
     "/changelog": {
       "title": "Changelog/",
+      "title_es": "Cambios/",
       "copy": [
         "2026-08-28 \u2014 maze FETCH polish, playable DIG, device watch/remind/draft. 81/100.",
         "2026-08-27/28 \u2014 DIG playable: 8 stages, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze.",
@@ -410,6 +484,7 @@
     },
     "/contact": {
       "title": "Contact/",
+      "title_es": "Contacto/",
       "copy": [
         "Code: github.com/OxCryptobot/gopher",
         "Waitlist: use the email form on this site (selector 6). That is the inbox we read.",
@@ -418,6 +493,7 @@
     },
     "/status": {
       "title": "Status/",
+      "title_es": "Estado/",
       "caps": [
         "GitHub Pages is a static hole: oxcryptobot.github.io/gopher (directory, FETCH, DIG, device login, client waitlist). No python process on Pages.",
         "Staging exists: oxcryptobot.github.io/gopher-test. Production is frozen until promote.",
@@ -435,33 +511,41 @@
     },
     "/legal": {
       "title": "6 Legal/",
+      "title_es": "6 Legal/",
       "copy": "Short legal hole. Privacy, terms, how login is stored. No paid-service contract yet.",
       "items": [
         {
           "n": "1",
           "type": "0",
           "name": "Privacy",
+          "name_es": "Privacidad",
           "path": "/privacy",
-          "hint": "one line"
+          "hint": "one line",
+          "hint_es": "una l\u00ednea"
         },
         {
           "n": "2",
           "type": "0",
           "name": "Terms",
+          "name_es": "T\u00e9rminos",
           "path": "/terms",
-          "hint": "waitlist, no SLA, FETCH demo"
+          "hint": "waitlist, no SLA, FETCH demo",
+          "hint_es": "lista de espera, sin SLA, demo FETCH"
         },
         {
           "n": "3",
           "type": "0",
           "name": "Security",
+          "name_es": "Seguridad",
           "path": "/security",
-          "hint": "device login, no keys"
+          "hint": "device login, no keys",
+          "hint_es": "login del dispositivo, sin claves"
         }
       ]
     },
     "/security": {
       "title": "Security/",
+      "title_es": "Seguridad/",
       "copy": [
         "Login is PBKDF2 (SHA-256, 120000 iterations) in localStorage. Not cloud. The passphrase never leaves this device.",
         "No API keys in the page. No wallet keys. No phone number stored here.",
@@ -473,6 +557,7 @@
     },
     "/keys": {
       "title": "9 Keys/",
+      "title_es": "9 Teclas/",
       "caps": [
         "1\u20139 \u2014 selectors in the current directory (home: 1 Docs/, 5 FETCH, 6 waitlist, 8 Games/, 9 User/)",
         "/ \u2014 focus the prompt",
@@ -488,6 +573,7 @@
     },
     "/es": {
       "title": "ES/",
+      "title_es": "ES/",
       "copy": [
         "GOPHER AI es un asistente de tel\u00e9fono de pago, llamado as\u00ed por el protocolo Gopher de 1991. Hablas a un n\u00famero. Convierte el pedido, busca, y responde en el mismo hilo.",
         "C\u00f3mo jugar FETCH: pulsa 5 o abre #/fetch. START. Un toque, un tile \u2014 nunca corre solo. 100 etapas, laberinto con caminos alternos. Come pellets de energ\u00eda (Huzaaa!). Muros Clunk!!!. Zorros naranjas Ouchies! (3 HP). Reloj a 0: TIME OVER! Etapa clara: VICTORY! Las 100: GOPHER CHAMPION! MUTE por defecto (autoplay del navegador).",
@@ -497,6 +583,7 @@
     },
     "/ship": {
       "title": "Ship/",
+      "title_es": "Ship/",
       "copy": [
         "Honest list as of 2026-08-27/28. Staging https://oxcryptobot.github.io/gopher-test/ already exists. Production https://oxcryptobot.github.io/gopher/ is frozen until promote. LIVE below is in this tree (stage on test, then promote). NEXT is not pretend-shipped.",
         "Full 100-item phased list lives in SHIP.md. Type ship. Method: stage on test, then promote."
@@ -528,6 +615,7 @@
     },
     "/press": {
       "title": "Press/",
+      "title_es": "Prensa/",
       "copy": [
         "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. You send an order. It files a selector, fetches, and replies in the same thread. The public hole is a numbered directory plus FETCH, a 100-stage maze you can play in the browser (one tap, one tile), and DIG, an 8-stage burrow (type dig or Games/). Waitlist is open. Pricing is not public yet.",
         "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark)."
@@ -536,10 +624,12 @@
     },
     "/jobs": {
       "title": "Jobs/",
+      "title_es": "Empleo/",
       "copy": "Not hiring. There is no openings page and no fake roles. Join the waitlist instead \u2014 selector 6, or type waitlist."
     },
     "/scores": {
       "title": "Scores/",
+      "title_es": "Puntos/",
       "copy": [
         "Your local best lives on this device (localStorage). That is the score FETCH shows as best. Device best works on GitHub Pages and on the local python hole.",
         "The server-wide leaderboard is GET /api/scores when python3 server.py is serving the hole. Eternal GOPHER CHAMPIONS is GET /api/champions on that same server (append-only names who cleared all 100). GitHub Pages has no python process, so the live Pages hole cannot host a true global board or global champions list. Posts to /api/score and /api/champions no-op there. Device best and a local eternal list still work."
@@ -548,6 +638,7 @@
     },
     "/dig": {
       "title": "DIG/",
+      "title_es": "DIG/",
       "copy": [
         "DIG is playable. One tap, one tile. 8 stages. Dig dirt. Rocks fall. You never auto-run. Free demo. Not the paid phone assistant.",
         "FETCH is still the 100-stage maze.",
@@ -564,6 +655,7 @@
     },
     "/install": {
       "title": "Install/",
+      "title_es": "Instalar/",
       "copy": [
         "Put this hole on a phone home screen as a PWA. That is a bookmark with an icon, not a store app and not the paid phone assistant.",
         "Production: https://oxcryptobot.github.io/gopher/",
@@ -577,6 +669,7 @@
     },
     "/promote": {
       "title": "Promote/",
+      "title_es": "Promover/",
       "copy": "Runbook. Work on staging, then promote the same commit. No fake CI badge.",
       "steps": [
         "Work on staging.",
@@ -590,6 +683,7 @@
     },
     "/brand": {
       "title": "Brand/",
+      "title_es": "Marca/",
       "copy": [
         "Phosphor #39ff14 on #070908. Monospace.",
         "Short voice: orders not chat, selectors not sludge.",
@@ -599,6 +693,7 @@
     },
     "/watch": {
       "title": "Watch/",
+      "title_es": "Watch/",
       "copy": [
         "Type watch in the prompt. The hole queues that order on this device.",
         "Not SMS. There is no number. GOPHER AI does not text a watch.",
@@ -608,6 +703,7 @@
     },
     "/remind": {
       "title": "Remind/",
+      "title_es": "Remind/",
       "copy": [
         "Type remind in the prompt. The hole queues that order on this device.",
         "Not SMS. No reminder text. No alarm to a number.",
@@ -617,6 +713,7 @@
     },
     "/draft": {
       "title": "Draft/",
+      "title_es": "Draft/",
       "copy": [
         "Type draft in the prompt. The hole queues that order on this device.",
         "Not SMS. There is no SMS draft thread yet.",
@@ -626,6 +723,7 @@
     },
     "/quest": {
       "title": "Quest/",
+      "title_es": "Misi\u00f3n/",
       "copy": [
         "Onboarding is three orders. Local only. Nothing leaves this device."
       ],
@@ -638,6 +736,7 @@
     },
     "/log": {
       "title": "Log/",
+      "title_es": "Log/",
       "copy": [
         "Errors stay on this device. There is no cloud crash pipe. The hole does not POST faults anywhere.",
         "TRACK? is opt-in. Even on, it still sends nowhere. No analytics endpoint. No beacon. No cookie."

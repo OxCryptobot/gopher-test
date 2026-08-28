@@ -579,16 +579,19 @@
   function renderDir(path) {
     var nav = navHole(path);
     var hole = nav.hole || { items: [], title: "Directory" };
-    var html = "<p class='info dim'>" + esc(hole.title || "Directory") + "</p><div class='selectors'>";
+    var html = "<p class='info dim'>" + esc((document.documentElement.lang === "es" && hole.title_es) ? hole.title_es : (hole.title || "Directory")) + "</p><div class='selectors'>";
     if (nav.path !== "/") {
       html += "<button type='button' class='sel' data-path='" + parentPath(nav.path) + "' data-n='0'>" +
         "<span class='itype'>0</span> ../ <span class='path'>parent</span></button>";
     }
     (hole.items || []).forEach(function (it) {
       var active = path === it.path ? " active" : "";
+      var es = document.documentElement.lang === "es";
+      var nm = (es && it.name_es) ? it.name_es : it.name;
+      var hn = (es && it.hint_es) ? it.hint_es : (it.hint || "");
       html += "<button type='button' class='sel" + active + "' data-path='" + it.path + "' data-n='" + it.n + "'>" +
-        "<span class='itype'>" + esc(it.n) + "</span> " + esc(it.name) +
-        " <span class='path'>" + esc(it.hint || "") + "</span></button>";
+        "<span class='itype'>" + esc(it.n) + "</span> " + esc(nm) +
+        " <span class='path'>" + esc(hn) + "</span></button>";
     });
     html += "</div>";
     dirEl.innerHTML = html;
@@ -626,11 +629,12 @@
     $("host").textContent = "gopher://gopher.ai:70" + path;
     document.title = path === "/fetch"
       ? "FETCH — GOPHER AI"
-      : (path === "/" ? "GOPHER AI" : ("GOPHER AI " + path));
+      : (path === "/dig" ? "DIG — GOPHER AI" : (path === "/" ? "GOPHER AI" : ("GOPHER AI " + path)));
     paintStaging();
     renderDir(path);
     paintWho();
     hideSpecial();
+    if (dirEl) dirEl.hidden = (path === "/fetch" || path === "/dig");
 
     if (path === "/" || path === "/waitlist") {
       heroEl.hidden = false;
@@ -650,7 +654,7 @@
       return;
     }
     if (path === "/fetch") {
-      askEl.hidden = false;
+      askEl.hidden = true;
       gameEl.hidden = false;
       var canvas = $("fetch");
       if (canvas) canvas.setAttribute("aria-live", "polite");
@@ -659,7 +663,7 @@
       return;
     }
     if (path === "/dig") {
-      askEl.hidden = false;
+      askEl.hidden = true;
       if (digEl) digEl.hidden = false;
       bootDig();
       return;
@@ -919,6 +923,8 @@
   }
   function tutShow() {
     if (tutSeen()) return;
+    var path = pathNow();
+    if (path === "/fetch" || path === "/dig") return;
     var el = $("tutorial");
     if (el) el.hidden = false;
   }
