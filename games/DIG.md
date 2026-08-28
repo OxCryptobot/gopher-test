@@ -1,10 +1,10 @@
-# How to play DIG
+# How to play BURROW
 
-DIG is playable. An 8-stage burrow on this site. Dig dirt. Rocks fall. One tap, one tile — you never auto-run. Free demo. Not the paid phone assistant.
+BURROW is playable. A 30-stage burrow on this site. Dig dirt. Grab gems. Rocks fall. One tap, one tile — you never auto-run. Free demo. Not the paid phone assistant.
 
-FETCH is still the 100-stage maze.
+MAZE is still the 100-stage maze.
 
-Open it: type `dig`, or go to Games/ then DIG/. Hit START.
+Open it: type `burrow` or `dig`, or go to Play/ then BURROW/. Hit START.
 
 ## Move
 
@@ -13,14 +13,15 @@ Arrows, WASD, or the pad. One tap equals one tile. The player never auto-runs.
 ## Dig
 
 - Dig dirt.
-- Rocks fall.
-- 8 stages.
+- Grab gems. When the last gem is in, an EXIT appears.
+- Rocks fall. They crush.
+- 30 stages.
 - Lives start at 3.
 
 ## Sound
 
 MUTE still defaults on (browser autoplay).
 
-## Versus FETCH
+## Versus MAZE
 
-FETCH is the 100-stage maze (home selector 5, type `play`, or `#/fetch`). DIG is this 8-stage burrow. Type `dig` or open Games/.
+MAZE is the 100-stage maze (type `maze`, or `#/fetch`). BURROW is this 30-stage burrow. Type `burrow` or open Play/.

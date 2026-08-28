@@ -1,16 +1,17 @@
-/* DIG — 8-stage burrow. One tap, one tile. Dirt, not sludge. */
+/* BURROW — 30-stage dig. Gems, rocks, one tap one tile. */
 (function (global) {
   "use strict";
 
   var COLS = 20, ROWS = 16, TILE = 8;
   var DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-  var EMPTY = 0, WALL = 1, DIRT = 2, ROCK = 3;
-  var MAX_LVL = 8;
+  var EMPTY = 0, WALL = 1, DIRT = 2, ROCK = 3, GEM = 4, EXIT = 5;
+  var MAX_LVL = 30;
   var THEMES = [
     { wall: "#1c140c", dirt: "#6b3a18", dirt2: "#8a5224", pellet: "#c4a054", player: "#39ff14" },
     { wall: "#241808", dirt: "#7a4018", dirt2: "#9a5a28", pellet: "#d4b060", player: "#5cff38" },
     { wall: "#18120c", dirt: "#5a3014", dirt2: "#7a4420", pellet: "#b89048", player: "#6a8a32" }
   ];
+  var GEM_C = "#f0c840";
   var ROCK_C = "#8c8c8c";
   var ROCK_HI = "#c8c8c8";
   var ROCK_LO = "#5a5a5a";
@@ -59,7 +60,7 @@
       g[y][x] = WALL;
       n--;
     }
-    n = 2 + lvl;
+    n = 2 + Math.min(14, lvl);
     i = 0;
     while (n > 0 && i < 200) {
       i++;
@@ -73,6 +74,24 @@
       g[y][x] = ROCK;
       n--;
     }
+    n = Math.min(12, 3 + Math.floor((lvl - 1) / 3));
+    i = 0;
+    while (n > 0 && i < 240) {
+      i++;
+      x = 2 + Math.floor(rng() * (COLS - 4));
+      y = 2 + Math.floor(rng() * (ROWS - 4));
+      if (x <= 2 && y <= 3) continue;
+      if (g[y][x] !== DIRT) continue;
+      g[y][x] = GEM;
+      n--;
+    }
+    n = 0;
+    for (y = 1; y < ROWS - 1; y++) {
+      for (x = 1; x < COLS - 1; x++) {
+        if (g[y][x] === GEM) n++;
+      }
+    }
+    if (n === 0) g[ROWS - 2][COLS - 2] = GEM;
     return g;
   }
 
@@ -122,20 +141,24 @@
     this.hp = this.lives;
     this.grid = caveFor(this.lvl);
     this.falling = [];
-    var y, x, dirt = 0;
+    var y, x, gems = 0;
     for (y = 0; y < ROWS; y++) {
       this.falling[y] = [];
       for (x = 0; x < COLS; x++) {
         this.falling[y][x] = 0;
-        if (this.grid[y][x] === DIRT) dirt++;
+        if (this.grid[y][x] === GEM) gems++;
       }
     }
     this.sx = 1;
     this.sy = 1;
     this.px = this.sx;
     this.py = this.sy;
-    this.need = Math.max(1, Math.min(dirt, 6 + this.lvl * 2));
+    this.gemsNeed = Math.max(1, gems);
+    this.gemsLeft = this.gemsNeed;
+    this.need = this.gemsNeed;
     this.got = 0;
+    this.needLeft = this.gemsLeft;
+    this.exitOn = false;
     this.needLeft = this.need;
     this.dead = false;
     this.win = false;
@@ -294,6 +317,28 @@
     if (this.shoutLife > 0) this.shoutLife -= 1;
   };
 
+  DigGame.prototype.placeExit = function () {
+    var best = null, bestD = -1, x, y, t, d;
+    for (y = 1; y < ROWS - 1; y++) {
+      for (x = 1; x < COLS - 1; x++) {
+        t = this.grid[y][x];
+        if (t !== EMPTY && t !== DIRT) continue;
+        if (x === this.px && y === this.py) continue;
+        d = Math.abs(x - this.px) + Math.abs(y - this.py);
+        if (d > bestD) {
+          bestD = d;
+          best = [x, y];
+        }
+      }
+    }
+    if (!best) best = [COLS - 2, ROWS - 2];
+    if (best[0] === this.px && best[1] === this.py) {
+      best = [COLS - 2, ROWS - 2];
+    }
+    this.grid[best[1]][best[0]] = EXIT;
+    this.exitOn = true;
+    this.shout("EXIT!");
+  };
   DigGame.prototype.step = function (dx, dy) {
     var nx = this.px + dx;
     var ny = this.py + dy;
@@ -301,7 +346,7 @@
     if (t === WALL || t === ROCK) {
       this.beep(90, 0.07);
       this.buzz(8);
-      this.shout("Clunk!!!");
+      this.shout("CLUNK!");
       this.emit();
       this.paint();
       return;
@@ -310,17 +355,25 @@
     this.py = ny;
     if (t === DIRT) {
       this.grid[ny][nx] = EMPTY;
-      this.got++;
-      this.needLeft = Math.max(0, this.need - this.got);
-      this.score += 10 * this.lvl;
+      this.score += 5 * this.lvl;
       this.speck(nx, ny);
       this.shout("DIG!");
       this.beep(660);
       this.buzz(12);
-      if (this.got >= this.need && this.need > 0) {
-        this.stageWin();
-        return;
-      }
+    } else if (t === GEM) {
+      this.grid[ny][nx] = EMPTY;
+      this.got++;
+      this.gemsLeft = Math.max(0, this.gemsLeft - 1);
+      this.needLeft = this.gemsLeft;
+      this.score += 40 * this.lvl;
+      this.speck(nx, ny, GEM_C);
+      this.shout("GEM!");
+      this.beep(880);
+      this.buzz(16);
+      if (this.gemsLeft <= 0 && !this.exitOn) this.placeExit();
+    } else if (t === EXIT) {
+      this.stageWin();
+      return;
     }
     this.emit();
     this.paint();
@@ -384,7 +437,7 @@
   };
 
   DigGame.prototype.crush = function () {
-    this.shout("ROCK!");
+    this.shout("CRUSHED!");
     this.lives -= 1;
     if (this.lives < 0) this.lives = 0;
     this.hp = this.lives;
@@ -448,7 +501,7 @@
 
   DigGame.prototype.emit = function () {
     this.hp = this.lives;
-    this.needLeft = Math.max(0, this.need - this.got);
+    this.needLeft = this.gemsLeft;
     if (this.hooks.onHud) this.hooks.onHud(this);
   };
 
@@ -504,10 +557,17 @@
           c.fillRect(x * TILE, y * TILE, TILE, TILE);
           c.fillStyle = pal.dirt2;
           c.fillRect(x * TILE + 1, y * TILE + 1, 6, 6);
-          if (blink) {
-            c.fillStyle = pal.pellet;
-            c.fillRect(x * TILE + 3, y * TILE + 3, 2, 2);
-          }
+        } else if (t === GEM) {
+          c.fillStyle = pal.dirt;
+          c.fillRect(x * TILE, y * TILE, TILE, TILE);
+          c.fillStyle = blink ? GEM_C : pal.pellet;
+          c.fillRect(x * TILE + 3, y * TILE + 3, 2, 2);
+          c.fillRect(x * TILE + 2, y * TILE + 4, 4, 1);
+        } else if (t === EXIT) {
+          c.fillStyle = pal.player;
+          c.fillRect(x * TILE + 1, y * TILE + 1, 6, 6);
+          c.fillStyle = "#070908";
+          c.fillRect(x * TILE + 3, y * TILE + 3, 2, 3);
         } else if (t === ROCK) {
           this.drawRock(x, y);
         }
@@ -521,7 +581,7 @@
     }
     c.font = "8px monospace";
     if (this.shoutLife > 0 && this.shoutText) {
-      c.fillStyle = /ROCK|Clunk|BURIED/.test(this.shoutText) ? ERR : pal.pellet;
+      c.fillStyle = /CRUSHED|CLUNK|BURIED|ROCK|Clunk/.test(this.shoutText) ? ERR : pal.pellet;
       this.centerText(this.shoutText, 20);
     }
     if (this.cleared) {

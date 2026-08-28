@@ -377,7 +377,8 @@ button.ghost {
 }
 button.ghost:hover { border-color: var(--fg); color: var(--fg-bright); }
 .game-wrap { margin-top: 0.6rem; }
-#fetch {
+#fetch,
+#dig-canvas {
   width: 100%;
   max-width: 480px;
   height: auto;
@@ -399,7 +400,7 @@ button.ghost:hover { border-color: var(--fg); color: var(--fg-bright); }
 .dpad { display: grid; gap: 0.35rem; justify-items: center; margin: 0.6rem 0 0.8rem; }
 .dpad-mid { display: flex; gap: 0.35rem; }
 .dpad button {
-  min-width: 3.2rem;
+  min-width: 3.6rem;
   letter-spacing: 0;
 }
 #dir .info { margin-bottom: 0.35rem; }
@@ -861,7 +862,6 @@ body.home-on .shell {
   text-shadow: var(--glow);
   background: rgba(57, 255, 20, 0.07);
 }
-body.game-on .hero,
 body.game-on #dir,
 body.game-on #wait-form { display: none; }
 body.game-on #ask {
@@ -880,3 +880,67 @@ body.game-on #chrome {
     min-height: 44px;
   }
 }
+
+/* sticky mascot + ask under chrome while you scroll tasks */
+.stick-head {
+  position: sticky;
+  top: 0;
+  z-index: 21;
+  background: var(--bg);
+  padding-bottom: 0.2rem;
+}
+body.staging .stick-head { top: 1.6rem; }
+.stick-head #chrome {
+  position: static;
+  top: auto;
+}
+body.staging .stick-head #chrome { top: auto; }
+
+body:not(.home-on) .hero .mascot {
+  font-size: 0.52rem;
+  line-height: 1.08;
+  margin: 0 0 0.08rem;
+}
+body:not(.home-on) .hero .breath { display: none; }
+body.game-on .hero { margin-top: 0.25rem; margin-bottom: 0; }
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0.1rem;
+}
+.chip-row button.chip {
+  min-height: 32px;
+  min-width: auto;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--fg-dim);
+  font-weight: 700;
+}
+.chip-row button.chip.active,
+.chip-row button.chip:hover,
+.chip-row button.chip:focus-visible {
+  border-color: var(--fg);
+  color: var(--fg-bright);
+  background: rgba(57, 255, 20, 0.07);
+  outline: none;
+}
+.match-cap {
+  margin: 0.25rem 0 0;
+  font-size: 0.7rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.02em;
+}
+.task-group h3 {
+  margin: 0.85rem 0 0.2rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  color: var(--fg-mid);
+  text-transform: uppercase;
+}
+#view .task-counts { color: var(--fg-dim); font-size: 0.8rem; }
+#view .selectors button.sel.parked { color: var(--fg-dim); }

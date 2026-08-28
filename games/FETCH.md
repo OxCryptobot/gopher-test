@@ -2,7 +2,7 @@
 
 FETCH is a 100-stage maze on this site. Alternate pathways. One tap, one tile — you never auto-run. Free demo. Not the paid phone assistant.
 
-DIG is a separate 8-stage burrow (type `dig` or Games/). FETCH stays the 100-stage maze.
+BURROW is a separate 30-stage burrow (type `burrow` or Play/). MAZE stays the 100-stage maze.
 
 Open it: press 5, type `play`, or go to `#/fetch`. Hit START.
 

@@ -102,11 +102,28 @@
 
   function pathNow() {
     var h = (location.hash || "#/").replace(/^#/, "");
+    var cut;
     if (!h.startsWith("/")) h = "/" + h;
+    cut = h.search(/[?#]/);
+    if (cut >= 0) h = h.slice(0, cut);
     if (h.length > 1 && h.endsWith("/")) h = h.slice(0, -1);
     if (h === "/maze") h = "/fetch";
     if (h === "/burrow") h = "/dig";
     return h || "/";
+  }
+  function hashParam(name) {
+    var h = (location.hash || "").replace(/^#/, "");
+    var i = h.indexOf("?");
+    var q, parts, j, pair, key;
+    if (i < 0) return "";
+    q = h.slice(i + 1);
+    parts = q.split("&");
+    for (j = 0; j < parts.length; j++) {
+      pair = parts[j].split("=");
+      key = decodeURIComponent(pair[0] || "").replace(/\+/g, " ");
+      if (key === name) return decodeURIComponent((pair[1] || "").replace(/\+/g, " "));
+    }
+    return "";
   }
 
   function go(path) {
@@ -195,7 +212,8 @@
       think: "fetching…",
       ok: "ok",
       parked: "parked",
-      err: "err"
+      err: "err",
+      match: "GOPHER · match"
     };
     var label = labels[state] || (state || "ready");
     var bad = (state === "parked" || state === "err");
@@ -246,9 +264,9 @@
     en: {
       footer: "search · tasks · waitlist",
       fetchInfo: "MAZE. Side quest. 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Kill time between searches.",
-      digInfo: "BURROW. Side quest. One tap, one tile. Dig dirt. Rocks fall. 8 stages. Kill time between searches.",
+      digInfo: "Dig dirt. Grab gems. Rocks fall. One tap, one tile. 30 stages.",
       fetchStatus: "press START. one tap, one tile. eat pellets. dodge orange foxes. beat the clock.",
-      digStatus: "press START. dig dirt. rocks fall.",
+      digStatus: "press START. dig dirt. grab gems. rocks fall.",
       promptInfo: "GOPHER is on. Type an order. FETCH is search. DIG is a task.",
       promptLabel: "ask gopher:",
       emailLabel: "email:",
@@ -260,6 +278,8 @@
       heroLine: "Paid phone assistant. Search, then do the task.",
       heroGames: "side quest: MAZE · BURROW under play",
       sugCap: "GOPHER:",
+      sugCapMatch: "GOPHER · match",
+      matchCap: "GOPHER matches your order to a skill. Hosted model parked.",
       keysHint: "keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home",
       helpTitle: "keys",
       help5: "play",
@@ -290,7 +310,7 @@
       fetchPlay: "fetch pellets. dodge foxes. KEY for the map.",
       fetchDead: "404 hole. START to dig again.",
       fetchWin: "fetched. next hole…",
-      digPlay: "dig dirt. rocks fall.",
+      digPlay: "dig dirt. grab gems. rocks fall.",
       digDead: "buried. START to dig again.",
       digWin: "dug through.",
       digMissing: "BURROW engine not on this hole yet."
@@ -298,9 +318,9 @@
     es: {
       footer: "search · tasks · waitlist",
       fetchInfo: "MAZE. Side quest. 100 etapas. Un toque, una losa. Pellets Huzaaa!. Paredes Clunk!!!. Foxes naranjas Ouchies!. Mata el tiempo entre búsquedas.",
-      digInfo: "BURROW. Side quest. Un toque, una losa. Cava. Las rocas caen. 8 etapas. Mata el tiempo entre búsquedas.",
+      digInfo: "Cava tierra. Agarra gemas. Las rocas caen. Un toque, una losa. 30 etapas.",
       fetchStatus: "pulsa START. un toque, una losa. pellets. foxes naranjas. el reloj.",
-      digStatus: "pulsa START. cava tierra. las rocas caen.",
+      digStatus: "pulsa START. cava tierra. agarra gemas. las rocas caen.",
       promptInfo: "GOPHER está on. Escribe una orden. FETCH es search. DIG es una tarea.",
       promptLabel: "ask gopher:",
       emailLabel: "email:",
@@ -312,6 +332,8 @@
       heroLine: "Asistente de teléfono de pago. Search, then do the task.",
       heroGames: "side quest: MAZE · BURROW en play",
       sugCap: "GOPHER:",
+      sugCapMatch: "GOPHER · match",
+      matchCap: "GOPHER empareja tu orden con una skill. Modelo hospedado aparcado.",
       keysHint: "teclas: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menú · <kbd>?</kbd> ayuda · <kbd>esc</kbd> inicio",
       helpTitle: "teclas",
       help5: "play",
@@ -342,7 +364,7 @@
       fetchPlay: "pellets. foxes. KEY para el mapa.",
       fetchDead: "404 hueco. START para cavar otra vez.",
       fetchWin: "fetched. siguiente hueco…",
-      digPlay: "cava tierra. las rocas caen.",
+      digPlay: "cava tierra. agarra gemas. las rocas caen.",
       digDead: "enterrado. START para cavar otra vez.",
       digWin: "cavado.",
       digMissing: "BURROW aún no está en este hueco."
@@ -702,6 +724,148 @@
     });
   }
 
+  function taskGroupOf(row) {
+    if (!row) return "account";
+    if (row.kind === "parked" || row.run === "parked" || row.live === false) return "parked";
+    if (row.kind === "fetch") return "fetch";
+    if (row.kind === "queue") return "queue";
+    if (row.kind === "game") return "game";
+    return "account";
+  }
+  function catalogNormG(g) {
+    g = String(g || "all").toLowerCase();
+    if (g === "search") return "fetch";
+    if (g === "watch") return "queue";
+    if (g === "play") return "game";
+    if (g === "nav" || g === "set") return "account";
+    if (g === "skills" || g === "task" || g === "tasks") return "all";
+    return g;
+  }
+  function catalogRows() {
+    var live = [], parked = [], seen = {}, out = [], i, row, key;
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      if (!row || !row.id) continue;
+      if (row.kind === "parked" || row.run === "parked" || row.live === false) parked.push(row);
+      else live.push(row);
+    }
+    function add(list) {
+      for (i = 0; i < list.length; i++) {
+        row = list[i];
+        if (row.id === "tasks") continue;
+        key = row.path ? String(row.path) : ("#" + row.id);
+        if (row.id === "home" || row.id === "menu") key = "/";
+        if (row.id === "doc" || row.id === "docs") key = "/docs";
+        if (seen[key]) continue;
+        seen[key] = 1;
+        out.push(row);
+      }
+    }
+    add(live);
+    add(parked);
+    return out;
+  }
+  function liveParkedCounts() {
+    var live = 0, parked = 0, i, row;
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      if (!row) continue;
+      if (row.kind === "parked" || row.run === "parked" || row.live === false) parked++;
+      else live++;
+    }
+    return { live: live, parked: parked };
+  }
+  function paintHomeChips(on) {
+    var el = $("home-chips");
+    var chips, i, html, c;
+    if (!el) return;
+    if (!on) {
+      el.hidden = true;
+      el.innerHTML = "";
+      return;
+    }
+    chips = [
+      { href: "/tasks?g=fetch", label: "Search" },
+      { href: "/tasks?g=queue", label: "Watch" },
+      { href: "/tasks?g=game", label: "Play" },
+      { href: "/tasks", label: "All tasks" }
+    ];
+    html = "";
+    for (i = 0; i < chips.length; i++) {
+      c = chips[i];
+      html += "<button type='button' class='chip' data-path='" + esc(c.href) + "'>" + esc(c.label) + "</button>";
+    }
+    el.innerHTML = html;
+    el.hidden = false;
+    el.querySelectorAll("button.chip").forEach(function (b) {
+      b.addEventListener("click", function () { go(b.getAttribute("data-path")); });
+    });
+  }
+  function paintTasks() {
+    var g = catalogNormG(hashParam("g") || "all");
+    var groups = [
+      { id: "fetch", label: "Search" },
+      { id: "queue", label: "Watch" },
+      { id: "game", label: "Play" },
+      { id: "account", label: "Account" },
+      { id: "parked", label: "Parked" }
+    ];
+    var chips = [{ id: "fetch", label: "Search" }, { id: "queue", label: "Watch" }, { id: "game", label: "Play" }, { id: "account", label: "Account" }, { id: "parked", label: "Parked" }, { id: "all", label: "All" }];
+    var counts = liveParkedCounts();
+    var rows = catalogRows();
+    var buckets = { fetch: [], queue: [], game: [], account: [], parked: [] };
+    var html = "", i, row, grp, list, j, parked, title, hint, chip;
+    viewEl.hidden = false;
+    if (dirEl) dirEl.hidden = true;
+    for (i = 0; i < rows.length; i++) {
+      row = rows[i];
+      grp = taskGroupOf(row);
+      if (!buckets[grp]) buckets[grp] = [];
+      buckets[grp].push(row);
+    }
+    html += "<h2>Tasks/</h2>";
+    html += "<p class='info'>tap a skill. GOPHER runs it. Parked stay parked.</p>";
+    html += "<p class='info dim task-counts'>" + counts.live + " live · " + counts.parked + " parked</p>";
+    html += "<div class='chip-row' id='task-chips'>";
+    for (i = 0; i < chips.length; i++) {
+      chip = chips[i];
+      html += "<button type='button' class='chip" + (g === chip.id ? " active" : "") + "' data-g='" + chip.id + "'>" + esc(chip.label) + "</button>";
+    }
+    html += "</div>";
+    for (i = 0; i < groups.length; i++) {
+      grp = groups[i];
+      if (g !== "all" && g !== grp.id) continue;
+      list = buckets[grp.id] || [];
+      if (!list.length) continue;
+      html += "<div class='task-group' data-g='" + grp.id + "'>";
+      html += "<h3>" + esc(grp.label) + "</h3>";
+      html += "<div class='selectors'>";
+      for (j = 0; j < list.length; j++) {
+        row = list[j];
+        parked = (taskGroupOf(row) === "parked") ? " parked" : "";
+        title = taskTitle(row);
+        hint = taskHint(row);
+        html += "<button type='button' class='sel" + parked + "' data-tid='" + esc(row.id) + "'>" +
+          esc(title) + " <span class='path'>" + esc(hint) + "</span></button>";
+      }
+      html += "</div></div>";
+    }
+    viewEl.innerHTML = html;
+    viewEl.querySelectorAll("#task-chips button.chip").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-g") || "all";
+        go(id === "all" ? "/tasks" : "/tasks?g=" + id);
+      });
+    });
+    viewEl.querySelectorAll("button.sel[data-tid]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-tid");
+        var hit = findTaskByIdOrQ(id, id);
+        if (hit) runTask(hit);
+      });
+    });
+    viewEl.focus();
+  }
   function hideSpecial() {
     authEl.hidden = true;
     gameEl.hidden = true;
@@ -714,7 +878,7 @@
   function showType0(title, text) {
     replyOpen = true;
     resetPrompt();
-    if (heroEl) heroEl.hidden = true;
+    if (heroEl) heroEl.hidden = false;
     authEl.hidden = true;
     gameEl.hidden = true;
     if (digEl) digEl.hidden = true;
@@ -741,9 +905,9 @@
     paintWho();
     hideSpecial();
     replyOpen = false;
-    if (dirEl) dirEl.hidden = gameOn;
+    if (dirEl) dirEl.hidden = gameOn || path === "/";
     if (askEl) askEl.hidden = false;
-    if (heroEl) heroEl.hidden = path !== "/";
+    if (heroEl) heroEl.hidden = false;
     document.body.classList.toggle("home-on", path === "/");
     document.body.classList.toggle("game-on", gameOn);
     showWaitForm(path === "/waitlist");
@@ -753,6 +917,11 @@
       if (cmdGame && !(cmdGame.value || "").trim() && TASKS.length) paintSuggest(idleSlice(), { idle: true });
     }
 
+    paintHomeChips(path === "/");
+    if (path === "/tasks") {
+      paintTasks();
+      return;
+    }
     if (path === "/" || path === "/waitlist") {
       if (path === "/waitlist") {
         var em = $("email");
@@ -814,10 +983,10 @@
     if (path === "/plugins") appendLivePlugins();
   }
 
-  function shoutHud(msg) {
-    var el = $("g-shout");
+  function shoutHud(msg, id) {
+    var el = $(id || "g-shout");
     var text = String(msg == null ? "" : msg);
-    var ouch = /Ouchies|TIME OVER/.test(text);
+    var ouch = /Ouchies|TIME OVER|CRUSHED|CLUNK/.test(text);
     if (!el) return;
     el.textContent = text;
     el.className = "g-shout " + (ouch ? "ouch" : "ok");
@@ -997,13 +1166,15 @@
     if (!dig) {
       dig = new DigGame(canvas, {
         onHud: function (g) {
-          var a = $("d-score"), b = $("d-lvl"), c = $("d-lives");
+          var a = $("d-score"), b = $("d-lvl"), c = $("d-lives"), d = $("d-gems");
           if (a) a.textContent = "score " + (g.score || 0);
           if (b) b.textContent = "lvl " + (g.lvl || 1);
           if (c) c.textContent = "lives " + (g.lives || 0);
+          if (d) d.textContent = "gems " + (g.gemsLeft != null ? g.gemsLeft : 0);
           if (g.dead) setStatus($("d-status"), "err", t("digDead"));
           else if (g.win) setStatus($("d-status"), "ok", t("digWin"));
-        }
+        },
+        onShout: function (text) { shoutHud(text, "d-shout"); }
       });
     }
     if (dig.draw) dig.draw();
@@ -1082,16 +1253,31 @@
   function idleHard() {
     return [
       { id: "fetch-btc", q: "fetch btc", title: "fetch btc", title_es: "fetch btc", hint: "search / ticker", hint_es: "search / ticker", kind: "fetch", run: "ask", live: true },
-      { id: "tasks", q: "tasks", title: "tasks", title_es: "tareas", hint: "DIG catalog", hint_es: "catálogo DIG", kind: "nav", run: "nav", live: true, path: "/tasks" },
+      { id: "tasks", q: "tasks", title: "tasks", title_es: "tareas", hint: "100 skills · tap one", hint_es: "100 skills · toca una", kind: "nav", run: "nav", live: true, path: "/tasks" },
       { id: "waitlist", q: "waitlist", title: "waitlist", title_es: "waitlist", hint: "paid door", hint_es: "puerta de pago", kind: "nav", run: "nav", live: true, path: "/waitlist" }
     ];
   }
   function idleSlice() {
-    var hard = idleHard(), out = [], i, row, hit;
+    var hard = idleHard(), out = [], i, row, hit, use;
     for (i = 0; i < hard.length && out.length < SUG_IDLE; i++) {
       row = hard[i];
       hit = findTaskByIdOrQ(row.id, row.q);
-      out.push(hit || row);
+      use = hit || row;
+      if (row.id === "tasks") {
+        use = {
+          id: use.id || row.id,
+          q: use.q || row.q,
+          title: use.title || row.title,
+          title_es: use.title_es || row.title_es,
+          hint: row.hint,
+          hint_es: row.hint_es,
+          kind: use.kind || row.kind,
+          run: use.run || row.run,
+          live: true,
+          path: use.path || row.path
+        };
+      }
+      out.push(use);
     }
     return out.slice(0, SUG_IDLE);
   }
@@ -1202,6 +1388,10 @@
     el.innerHTML = html;
     el.hidden = false;
     el.classList.toggle("idle", !!opts.idle);
+    (function () {
+      var cap = $("sug-cap");
+      if (cap) cap.textContent = opts.idle ? t("sugCap") : t("sugCapMatch");
+    })();
     setSugExpanded(true);
     el.querySelectorAll("button.sel").forEach(function (b) {
       b.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
@@ -1448,15 +1638,29 @@
     stopIdleSpin();
     paintSuggest(idleSlice(), { idle: true });
   }
+  function paintMatchBrain(items) {
+    var row = items && items[0];
+    var cap = $("sug-cap");
+    if (cap) cap.textContent = t("sugCapMatch");
+    if (!row || row.id === "no-match") {
+      setBrain("match", "no match · tap a skill");
+      return;
+    }
+    setBrain("match", "matched · " + taskTitle(row));
+  }
   function onPromptInput() {
     var cmd = $("command");
     var q = cmd ? (cmd.value || "") : "";
+    var items;
     if (!q.trim()) {
       showIdleSuggest();
+      setBrain("ready");
       return;
     }
     stopIdleSpin();
-    paintSuggest(filterTasks(q), { idle: false });
+    items = filterTasks(q);
+    paintSuggest(items, { idle: false });
+    paintMatchBrain(items);
   }
   function onPromptFocus() {
     var cmd = $("command");
@@ -1743,7 +1947,7 @@
     return hit;
   }
   function helpDoc() {
-    showType0("GOPHER", "GOPHER can:\n\nfetch btc    search / ticker\ntasks        DIG catalog\nwaitlist     paid door\n\ntype an order or tap a row.");
+    showType0("GOPHER", "GOPHER can:\n\nfetch btc    search / ticker\ntasks        100 skills · tap one\nwaitlist     paid door\n\ntype an order or tap a row.");
     setBrain("ok", "try fetch btc \u00b7 tasks \u00b7 waitlist");
   }
   function clientBrain(q) {

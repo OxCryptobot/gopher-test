@@ -164,6 +164,13 @@ class HoleTests(unittest.TestCase):
     def test_tasks_hole_exists(self) -> None:
         self.assertIn("/tasks", self.holes)
         self.assertEqual(self.alias.get("tasks"), "/tasks")
+        hole = self.holes.get("/tasks") or {}
+        blob = " ".join(flatten_text(hole)).lower()
+        self.assertTrue(
+            any(w in blob for w in ("catalog", "skills", "skill", "tap")),
+            "/tasks should mention catalog/skills/tap, got: " + blob[:200],
+        )
+        self.assertNotIn("dig is do a task", blob)
 
 
 

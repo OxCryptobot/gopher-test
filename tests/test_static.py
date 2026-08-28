@@ -43,7 +43,7 @@ class StaticTests(unittest.TestCase):
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v11", src)
+        self.assertIn("gopher-v12", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
@@ -52,7 +52,7 @@ class StaticTests(unittest.TestCase):
         css = read("style.css")
         self.assertIn('id="ask"', html)
         self.assertIn('id="suggest"', html)
-        self.assertIn("gopher-v11", read("sw.js"))
+        self.assertIn("gopher-v12", read("sw.js"))
         self.assertTrue(
             "SUG_MAX = 3" in js or "SUG_IDLE = 3" in js,
             "app.js should cap visible answers at 3",
@@ -98,17 +98,21 @@ class StaticTests(unittest.TestCase):
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
         self.assertIn("#chrome", css)
-        self.assertIn("gopher-v11", read("sw.js"))
+        self.assertIn("gopher-v12", read("sw.js"))
         self.assertIn('class="mascot"', html)
         self.assertIn("<pre", html)
         self.assertTrue(
             'id="hero"' in html and "mascot" in html,
             "mascot pre should sit on home hero",
         )
-        self.assertTrue(
-            "heroEl.hidden = path !==" in js or 'heroEl.hidden = (path !== "/")' in js,
-            "hero should unhide on / only",
-        )
+        self.assertIn("heroEl.hidden = false", js)
+        self.assertNotIn("heroEl.hidden = path !==", js)
+        self.assertIn("paintTasks", js)
+        self.assertIn("100 skills", js)
+        self.assertIn("GOPHER · match", js)
+        self.assertIn("#dig-canvas", css)
+        self.assertIn("MAX_LVL = 30", read("dig.js"))
+        self.assertIn("GEM", read("dig.js"))
 
     def test_idle_answers_static_and_pages_ask(self) -> None:
         js = read("app.js")
@@ -124,7 +128,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn('q: "waitlist"', js)
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
-        self.assertIn("gopher-v11", read("sw.js"))
+        self.assertIn("gopher-v12", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")
@@ -167,6 +171,17 @@ class StaticTests(unittest.TestCase):
 
     def test_404_links_to_fetch(self) -> None:
         self.assertIn("#/fetch", read("404.html"))
+
+    def test_tasks_catalog_copy(self) -> None:
+        hole = read("hole.json").lower()
+        js = read("app.js").lower()
+        html = read("index.html").lower()
+        self.assertIn("tap a skill", hole)
+        self.assertTrue("catalog" in hole or "skill" in hole)
+        self.assertIn("painttasks", js)
+        self.assertIn("tap a skill", js)
+        self.assertIn("hosted model parked", html)
+        self.assertNotIn("gopher-v11", read("sw.js"))
 
     def test_no_banned_vendor_copy(self) -> None:
         banned = ("grok", "spacexai")

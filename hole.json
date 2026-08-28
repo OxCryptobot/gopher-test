@@ -337,8 +337,8 @@
           "name": "BURROW/",
           "name_es": "BURROW/",
           "path": "/dig",
-          "hint": "side quest · 8-stage burrow",
-          "hint_es": "side quest · madriguera de 8 etapas"
+          "hint": "side quest · 30-stage burrow",
+          "hint_es": "side quest · madriguera de 30 etapas"
         },
         {
           "n": "3",
@@ -398,7 +398,7 @@
         "DIG = do a task from the 100. watch / remind / draft queue on this device (not SMS). Parked products stay parked.",
         "Numbered menus + a modern ask box. Three answers under the prompt.",
         "MAZE, a 100-stage side quest. One tap, one tile. Kill time between searches.",
-        "BURROW, an 8-stage side quest. Dig dirt. Rocks fall.",
+        "BURROW, an 30-stage side quest. Dig dirt. Rocks fall.",
         "A log of what was asked and what came back. Paid SaaS. Waitlist is the door. No invented prices."
       ],
       "caps_es": [
@@ -406,7 +406,7 @@
         "DIG = haz una tarea de las 100. watch / remind / draft se encolan en este dispositivo (no SMS). Lo aparcado sigue aparcado.",
         "Menús numerados + una caja de pregunta moderna. Tres respuestas bajo el prompt.",
         "MAZE, un side quest de 100 etapas. Un toque, un tile. Mata el tiempo entre búsquedas.",
-        "BURROW, un side quest de 8 etapas. Cava tierra. Caen rocas.",
+        "BURROW, un side quest de 30 etapas. Cava tierra. Caen rocas.",
         "Un log de lo que se pidió y lo que volvió. SaaS de pago. La waitlist es la puerta. Sin precios inventados."
       ],
       "note": "Not a general chatbot. Not a free public menu.",
@@ -421,8 +421,8 @@
     "/play": {
       "title": "How to play MAZE/",
       "title_es": "Cómo jugar MAZE/",
-      "copy": "MAZE is a 100-stage side quest on this site. Kill time between searches. Alternate pathways. One tap, one tile — you never auto-run. Wall −0.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Free demo. Not the paid phone assistant. BURROW is a separate 8-stage burrow (type burrow or Play/). FETCH is search. DIG is a task.",
-      "copy_es": "MAZE es un side quest de 100 etapas en este sitio. Mata el tiempo entre búsquedas. Caminos alternos. Un toque, un tile — nunca corre solo. Muro −0.1 HP, estrella ZAP/BLOCK, KEY, trofeo, Eternal GOPHER CHAMPIONS. Demo gratis. No es el asistente de teléfono de pago. BURROW es una madriguera aparte de 8 etapas (escribe burrow o Play/). FETCH es search. DIG es una tarea.",
+      "copy": "MAZE is a 100-stage side quest on this site. Kill time between searches. Alternate pathways. One tap, one tile — you never auto-run. Wall −0.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Free demo. Not the paid phone assistant. BURROW is a separate 30-stage burrow (type burrow or Play/). FETCH is search. DIG is a task.",
+      "copy_es": "MAZE es un side quest de 100 etapas en este sitio. Mata el tiempo entre búsquedas. Caminos alternos. Un toque, un tile — nunca corre solo. Muro −0.1 HP, estrella ZAP/BLOCK, KEY, trofeo, Eternal GOPHER CHAMPIONS. Demo gratis. No es el asistente de teléfono de pago. BURROW es una madriguera aparte de 30 etapas (escribe burrow o Play/). FETCH es search. DIG es una tarea.",
       "steps": [
         "Open Play/, type maze, or open #/fetch.",
         "Hit START.",
@@ -461,8 +461,8 @@
     "/howto": {
       "title": "How to play MAZE/",
       "title_es": "Cómo jugar MAZE/",
-      "copy": "MAZE is a 100-stage side quest on this site. Kill time between searches. Alternate pathways. One tap, one tile — you never auto-run. Wall −0.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Free demo. Not the paid phone assistant. BURROW is a separate 8-stage burrow (type burrow or Play/). FETCH is search. DIG is a task.",
-      "copy_es": "MAZE es un side quest de 100 etapas en este sitio. Mata el tiempo entre búsquedas. Caminos alternos. Un toque, un tile — nunca corre solo. Muro −0.1 HP, estrella ZAP/BLOCK, KEY, trofeo, Eternal GOPHER CHAMPIONS. Demo gratis. No es el asistente de teléfono de pago. BURROW es una madriguera aparte de 8 etapas (escribe burrow o Play/). FETCH es search. DIG es una tarea.",
+      "copy": "MAZE is a 100-stage side quest on this site. Kill time between searches. Alternate pathways. One tap, one tile — you never auto-run. Wall −0.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Free demo. Not the paid phone assistant. BURROW is a separate 30-stage burrow (type burrow or Play/). FETCH is search. DIG is a task.",
+      "copy_es": "MAZE es un side quest de 100 etapas en este sitio. Mata el tiempo entre búsquedas. Caminos alternos. Un toque, un tile — nunca corre solo. Muro −0.1 HP, estrella ZAP/BLOCK, KEY, trofeo, Eternal GOPHER CHAMPIONS. Demo gratis. No es el asistente de teléfono de pago. BURROW es una madriguera aparte de 30 etapas (escribe burrow o Play/). FETCH es search. DIG es una tarea.",
       "steps": [
         "Open Play/, type maze, or open #/fetch.",
         "Hit START.",
@@ -495,8 +495,8 @@
         "Chiptune amable + FX. MUTE por defecto (autoplay del navegador).",
         "Pulsa 9 para login en este dispositivo."
       ],
-      "note": "Same hole as /play. BURROW is a separate 8-stage burrow — type burrow or Play/.",
-      "note_es": "El mismo hueco que /play. BURROW es una madriguera aparte de 8 etapas — escribe burrow o Play/."
+      "note": "Same hole as /play. BURROW is a separate 30-stage burrow — type burrow or Play/.",
+      "note_es": "El mismo hueco que /play. BURROW es una madriguera aparte de 30 etapas — escribe burrow o Play/."
     },
     "/pricing": {
       "title": "Pricing/",
@@ -521,7 +521,7 @@
         "This site is a public hole for GOPHER AI: a directory, a waitlist, search (FETCH), tasks (DIG), and a MAZE/BURROW side quest.",
         "Waitlist: you give an email. We keep it to tell you when the paid phone assistant is ready. No other contract yet.",
         "No SLA. The GitHub Pages hole can go down. The local python server is for a machine you run yourself. Pages is static; python /health is the process. No fake 99.9%.",
-        "MAZE is a free demo in the browser (100-stage maze). BURROW is a free demo (8 stages). Device best stays on the device. The server-wide board is python /api/scores and Eternal GOPHER CHAMPIONS is python /api/champions when you run the local server. GitHub Pages has no python process, so it cannot host a true global board.",
+        "MAZE is a free demo in the browser (100-stage maze). BURROW is a free demo (30 stages). Device best stays on the device. The server-wide board is python /api/scores and Eternal GOPHER CHAMPIONS is python /api/champions when you run the local server. GitHub Pages has no python process, so it cannot host a true global board.",
         "Login on this page is a device hole, not a cloud account, not a paid seat.",
         "watch / remind / draft queue on this device. Not SMS. There is no number."
       ],
@@ -529,7 +529,7 @@
         "Este sitio es un hueco público de GOPHER AI: un directorio, una lista de espera, search (FETCH), tareas (DIG), y un side quest MAZE/BURROW.",
         "Lista de espera: das un email. Lo guardamos para avisarte cuando el asistente de teléfono de pago esté listo. Aún no hay otro contrato.",
         "Sin SLA. El hueco de GitHub Pages puede caerse. El servidor python local es para una máquina que corres tú. Pages es estático; python /health es el proceso. Sin 99.9% inventado.",
-        "MAZE es una demo gratis en el navegador (laberinto de 100 etapas). BURROW es una demo gratis (8 etapas). El mejor del dispositivo se queda en el dispositivo. La tabla del servidor es python /api/scores y Eternal GOPHER CHAMPIONS es python /api/champions cuando corres el servidor local. GitHub Pages no tiene proceso python, así que no puede hospedar una tabla global de verdad.",
+        "MAZE es una demo gratis en el navegador (laberinto de 100 etapas). BURROW es una demo gratis (30 etapas). El mejor del dispositivo se queda en el dispositivo. La tabla del servidor es python /api/scores y Eternal GOPHER CHAMPIONS es python /api/champions cuando corres el servidor local. GitHub Pages no tiene proceso python, así que no puede hospedar una tabla global de verdad.",
         "El login en esta página es un hueco del dispositivo, no una cuenta en la nube, no un asiento de pago.",
         "watch / remind / draft se encolan en este dispositivo. No SMS. No hay número."
       ],
@@ -541,7 +541,7 @@
       "title_es": "FAQ/",
       "copy": [
         "What is GOPHER AI? A paid phone assistant named after the 1991 Gopher protocol. FETCH is search. DIG is do a task from the 100. This site is the public hole, not the number yet. Waitlist is the door.",
-        "How do I play the side quest? Open Play/ or type maze. MAZE is a 100-stage maze (#/fetch). BURROW is an 8-stage burrow (#/dig). One tap, one tile. Kill time between searches. Not the product.",
+        "How do I play the side quest? Open Play/ or type maze. MAZE is a 100-stage maze (#/fetch). BURROW is an 30-stage burrow (#/dig). One tap, one tile. Kill time between searches. Not the product.",
         "Is login cloud? No. A name and passphrase hashed with PBKDF2 in localStorage on this device. Not a GOPHER AI account.",
         "Is FETCH live prices? FETCH is search. Type fetch btc (or ETH, SOL, XRP, fear greed) in the prompt. No invented prices. The maze is MAZE, a side quest.",
         "GitHub Pages vs local? Pages is a static hole (directory, FETCH, DIG, device login, client waitlist). There is no python process on Pages, so no true global board or global champions list. python3 server.py on your machine adds /health (process liveness), /api/waitlist, /api/score, /api/scores, /api/champions, /api/ask. Device best and a local eternal list still work on Pages. No fake 99.9%.",
@@ -549,7 +549,7 @@
       ],
       "copy_es": [
         "¿Qué es GOPHER AI? Un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. Este sitio es el hueco público, aún no el número. La waitlist es la puerta.",
-        "¿Cómo juego el side quest? Abre Play/ o escribe maze. MAZE es un laberinto de 100 etapas (#/fetch). BURROW es una madriguera de 8 etapas (#/dig). Un toque, un tile. Mata el tiempo entre búsquedas. No es el producto.",
+        "¿Cómo juego el side quest? Abre Play/ o escribe maze. MAZE es un laberinto de 100 etapas (#/fetch). BURROW es una madriguera de 30 etapas (#/dig). Un toque, un tile. Mata el tiempo entre búsquedas. No es el producto.",
         "¿El login es nube? No. Un nombre y una frase secreta hasheados con PBKDF2 en localStorage en este dispositivo. No es una cuenta GOPHER AI.",
         "¿FETCH es precios en vivo? FETCH es search. Escribe fetch btc (o ETH, SOL, XRP, fear greed) en el prompt. Sin precios inventados. El laberinto es MAZE, un side quest.",
         "¿GitHub Pages vs local? Pages es un hueco estático (directorio, FETCH, DIG, login del dispositivo, lista de espera del cliente). No hay proceso python en Pages, así que no hay tabla global de verdad ni lista global de campeones. python3 server.py en tu máquina añade /health (vida del proceso), /api/waitlist, /api/score, /api/scores, /api/champions, /api/ask. El mejor del dispositivo y una lista eterna local sí funcionan en Pages. Sin 99.9% inventado.",
@@ -560,6 +560,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-08-28 — Tasks/ is a tap catalog. BURROW 30 stages, gems, CSS scale. Mascot always on. 82/100.",
         "2026-08-28 — ask GOPHER wired on Pages, answers static, no spin. 82/100.",
         "2026-08-28 — FETCH is search, DIG is tasks, MAZE/BURROW side quest, 3 answers. 82/100.",
         "2026-08-28 — quiet chrome: one nav row and a compact GOPHER prompt. 82/100.",
@@ -568,12 +569,13 @@
         "2026-08-28 — prompt autoprompts, 100 tasks catalog.",
         "2026-08-28 — python product flags, fng fetch, parked Twilio webhooks. 82/100.",
         "2026-08-28 — maze FETCH polish, playable DIG, device watch/remind/draft. 81/100.",
-        "2026-08-27/28 — DIG playable: 8 stages, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze.",
+        "2026-08-27/28 — DIG playable: 30 stages, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze.",
         "2026-08-27/28 — FETCH extras: wall −0.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Device watch/remind/draft queues (not SMS).",
         "2026-08-27 — FETCH maze rewrite: 100 stages, alternate pathways, one tap one tile, energy pellets, orange foxes, clock.",
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-08-28 — Tasks/ es un catálogo tappable. BURROW 30 etapas, gemas, escala CSS. Mascot siempre on. 82/100.",
         "2026-08-28 — ask GOPHER cableado en Pages, respuestas fijas, sin giro. 82/100.",
         "2026-08-28 — FETCH es search, DIG es tareas, MAZE/BURROW side quest, 3 respuestas. 82/100.",
         "2026-08-28 — chrome quieto: una fila de nav y un prompt GOPHER compacto. 82/100.",
@@ -582,7 +584,7 @@
         "2026-08-28 — el prompt hace autoprompt, catálogo de 100 tareas.",
         "2026-08-28 — flags de producto python, fetch fng, webhooks Twilio aparcados. 82/100.",
         "2026-08-28 — pulido del laberinto FETCH, DIG jugable, watch/remind/draft del dispositivo. 81/100.",
-        "2026-08-27/28 — DIG jugable: 8 etapas, un toque un tile, caen rocas. Escribe dig o Games/. FETCH sigue siendo el laberinto de 100 etapas.",
+        "2026-08-27/28 — DIG jugable: 30 etapas, un toque un tile, caen rocas. Escribe dig o Games/. FETCH sigue siendo el laberinto de 100 etapas.",
         "2026-08-27/28 — extras FETCH: muro −0.1 HP, estrella ZAP/BLOCK, KEY, trofeo, Eternal GOPHER CHAMPIONS. Colas watch/remind/draft del dispositivo (no SMS).",
         "2026-08-27 — reescritura del laberinto FETCH: 100 etapas, caminos alternos, un toque un tile, pellets de energía, zorros naranjas, reloj.",
         "2026-08-27 — primer hueco público."
@@ -593,7 +595,7 @@
         "Star ZAP a fox or BLOCK a hit. KEY or K for the in-game key",
         "Stage clear VICTORY! Clock 0 TIME OVER! Clear 100 GOPHER CHAMPION! + trophy + Eternal GOPHER CHAMPIONS",
         "Health bar 3.0 HP; reasonable time limit; foxes +0.01 speed per stage; stage 100 nearly impossible",
-        "BURROW side quest: 8 stages, one tap one tile, dig dirt, rocks fall. Type burrow or Play/",
+        "BURROW side quest: 30 stages, one tap one tile, dig dirt, rocks fall. Type burrow or Play/",
         "Friendly chiptune + FX; MUTE defaults on (browser autoplay)",
         "Device best on every hole; server-wide board is python /api/scores and champions /api/champions when server.py is up — Pages cannot host a true global board",
         "watch / remind / draft queue on this device, not SMS",
@@ -608,7 +610,7 @@
         "Estrella ZAP a un zorro o BLOCK un golpe. KEY o K para la clave del juego",
         "Etapa clara VICTORY! Reloj 0 TIME OVER! Las 100 GOPHER CHAMPION! + trofeo + Eternal GOPHER CHAMPIONS",
         "Barra de vida 3.0 HP; límite de tiempo razonable; zorros +0.01 de velocidad por etapa; etapa 100 casi imposible",
-        "Side quest BURROW: 8 etapas, un toque un tile, cava tierra, caen rocas. Escribe burrow o Play/",
+        "Side quest BURROW: 30 etapas, un toque un tile, cava tierra, caen rocas. Escribe burrow o Play/",
         "Chiptune amable + FX; MUTE por defecto (autoplay del navegador)",
         "Mejor del dispositivo en cada hueco; la tabla del servidor es python /api/scores y campeones /api/champions cuando server.py está arriba — Pages no puede hospedar una tabla global de verdad",
         "watch / remind / draft se encolan en este dispositivo, no SMS",
@@ -643,7 +645,7 @@
         "Local python /health is the process liveness check (ok / JSON) when you run python3 server.py. That is not Pages.",
         "No fake 99.9%. No uptime graph. If the Pages hole loads, it is up.",
         "MAZE side quest playable: 100-stage maze, one tap one tile. FETCH is search.",
-        "BURROW side quest playable: 8 stages, rocks fall. DIG is a task from the 100.",
+        "BURROW side quest playable: 30 stages, rocks fall. DIG is a task from the 100.",
         "Waitlist: client-side on Pages; server list when you run local python",
         "Device login: localStorage only",
         "Ticker fetch: public spot, client-side",
@@ -656,7 +658,7 @@
         "python /health local es la prueba de vida del proceso (ok / JSON) cuando corres python3 server.py. Eso no es Pages.",
         "Sin 99.9% inventado. Sin gráfica de uptime. Si el hueco Pages carga, está arriba.",
         "Side quest MAZE jugable: laberinto de 100 etapas. FETCH es search.",
-        "Side quest BURROW jugable: 8 etapas, caen rocas. DIG es una tarea de las 100.",
+        "Side quest BURROW jugable: 30 etapas, caen rocas. DIG es una tarea de las 100.",
         "Lista de espera: del cliente en Pages; lista del servidor cuando corres python local",
         "Login del dispositivo: solo localStorage",
         "Ticker fetch: spot público, del cliente",
@@ -730,7 +732,7 @@
         "? — prompt + a short help line",
         "esc or 0 — home",
         "5 — Play/ (MAZE + BURROW side quest from home)",
-        "type maze or Play/ — MAZE (100-stage maze). Type burrow — BURROW (8 stages, rocks fall)",
+        "type maze or Play/ — MAZE (100-stage maze). Type burrow — BURROW (30 stages, rocks fall)",
         "arrows / WASD / pad — move in MAZE or BURROW when the prompt is not focused (one tile; you never auto-run)",
         "START / MUTE — on the MAZE and BURROW panels. MUTE defaults on (browser autoplay)",
         "KEY / K — MAZE in-game key",
@@ -742,7 +744,7 @@
         "? — prompt + una línea de ayuda corta",
         "esc o 0 — home",
         "5 — Play/ (side quest MAZE + BURROW desde home)",
-        "escribe maze o Play/ — MAZE (laberinto de 100). Escribe burrow — BURROW (8 etapas, caen rocas)",
+        "escribe maze o Play/ — MAZE (laberinto de 100). Escribe burrow — BURROW (30 etapas, caen rocas)",
         "flechas / WASD / pad — mueve en MAZE o BURROW cuando el prompt no está enfocado (un tile; nunca corre solo)",
         "START / MUTE — en los paneles MAZE y BURROW. MUTE por defecto (autoplay del navegador)",
         "KEY / K — clave del juego MAZE",
@@ -754,12 +756,12 @@
       "title_es": "ES/",
       "copy": [
         "GOPHER AI es un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. La waitlist es la puerta. Sin precios inventados.",
-        "Side quest: escribe maze o abre Play/. MAZE es un laberinto de 100 etapas (#/fetch). BURROW es una madriguera de 8 etapas (#/dig). Un toque, un tile. Mata el tiempo entre búsquedas. No es el producto.",
+        "Side quest: escribe maze o abre Play/. MAZE es un laberinto de 100 etapas (#/fetch). BURROW es una madriguera de 30 etapas (#/dig). Un toque, un tile. Mata el tiempo entre búsquedas. No es el producto.",
         "Instalar: en el teléfono, Añadir a pantalla de inicio. iPhone (Safari): Compartir, luego Añadir a pantalla de inicio. Android Chrome: Instalar app, o el menú y Añadir a pantalla de inicio. Es un marcador con icono, no el asistente de pago."
       ],
       "copy_es": [
         "GOPHER AI es un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. La waitlist es la puerta. Sin precios inventados.",
-        "Side quest: escribe maze o abre Play/. MAZE es un laberinto de 100 etapas (#/fetch). BURROW es una madriguera de 8 etapas (#/dig). Un toque, un tile. Mata el tiempo entre búsquedas. No es el producto.",
+        "Side quest: escribe maze o abre Play/. MAZE es un laberinto de 100 etapas (#/fetch). BURROW es una madriguera de 30 etapas (#/dig). Un toque, un tile. Mata el tiempo entre búsquedas. No es el producto.",
         "Instalar: en el teléfono, Añadir a pantalla de inicio. iPhone (Safari): Compartir, luego Añadir a pantalla de inicio. Android Chrome: Instalar app, o el menú y Añadir a pantalla de inicio. Es un marcador con icono, no el asistente de pago."
       ],
       "note": "Stub i18n. Un solo hueco. El resto del directorio sigue en inglés.",
@@ -783,7 +785,7 @@
         "LIVE method: stage on test, then promote",
         "LIVE Phase 0 playable hole (1–25): FETCH selector 5 (100-stage maze), hole.json, hash routes, PBKDF2 login, waitlist, ticker fetch, PLAY CTA, tutorial, dpad, WASD, pause, swipe, haptics, particles, PWA shell, 404, robots, sitemap, security.txt, LICENSE, CSP on python, /health, /api/scores, nested docs, FAQ/pricing/terms",
         "LIVE FETCH extras: wall −0.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS (python /api/champions; Pages has no python)",
-        "LIVE DIG: playable 8-stage burrow, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze",
+        "LIVE DIG: playable 30-stage burrow, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze",
         "LIVE watch / remind / draft as device queues (not SMS, no number)",
         "LIVE waitlist rate-limit on local python (8/hour/IP)",
         "LIVE FETCH maze: 100 stages, alternate pathways, one tap one tile (never auto-runs), pellets Huzaaa!, walls Clunk!!! (−0.1 HP), orange foxes Ouchies!, VICTORY!, TIME OVER!, GOPHER CHAMPION!, 3 HP, foxes +0.01 speed/stage, mute defaults on; combo on consecutive pellets",
@@ -807,7 +809,7 @@
         "LIVE método: stage en test, luego promote",
         "LIVE Fase 0 hueco jugable (1–25): selector FETCH 5 (laberinto de 100 etapas), hole.json, rutas hash, login PBKDF2, lista de espera, ticker fetch, CTA PLAY, tutorial, dpad, WASD, pause, swipe, haptics, particles, cáscara PWA, 404, robots, sitemap, security.txt, LICENSE, CSP en python, /health, /api/scores, docs anidados, FAQ/pricing/terms",
         "LIVE extras FETCH: muro −0.1 HP, estrella ZAP/BLOCK, KEY, trofeo, Eternal GOPHER CHAMPIONS (python /api/champions; Pages no tiene python)",
-        "LIVE DIG: madriguera jugable de 8 etapas, un toque un tile, caen rocas. Escribe dig o Games/. FETCH sigue siendo el laberinto de 100 etapas",
+        "LIVE DIG: madriguera jugable de 30 etapas, un toque un tile, caen rocas. Escribe dig o Games/. FETCH sigue siendo el laberinto de 100 etapas",
         "LIVE watch / remind / draft como colas del dispositivo (no SMS, no número)",
         "LIVE límite de tasa de lista de espera en python local (8/hora/IP)",
         "LIVE laberinto FETCH: 100 etapas, caminos alternos, un toque un tile (nunca corre solo), pellets Huzaaa!, muros Clunk!!! (−0.1 HP), zorros naranjas Ouchies!, VICTORY!, TIME OVER!, GOPHER CHAMPION!, 3 HP, zorros +0.01 velocidad/etapa, mute por defecto; combo en pellets seguidos",
@@ -863,12 +865,12 @@
       "title": "BURROW/",
       "title_es": "BURROW/",
       "copy": [
-        "BURROW is a side quest. Kill time between searches. One tap, one tile. 8 stages. Dig dirt. Rocks fall. You never auto-run. Free demo. Not the paid phone assistant.",
+        "BURROW is a side quest. Kill time between searches. One tap, one tile. 30 stages. Dig dirt. Rocks fall. You never auto-run. Free demo. Not the paid phone assistant.",
         "FETCH is search. DIG is a task from the 100. MAZE is the 100-stage maze.",
         "Type burrow, or open Play/ then BURROW/. Hit START."
       ],
       "copy_es": [
-        "BURROW es un side quest. Mata el tiempo entre búsquedas. Un toque, un tile. 8 etapas. Cava tierra. Caen rocas. Nunca corre solo. Demo gratis. No es el asistente de teléfono de pago.",
+        "BURROW es un side quest. Mata el tiempo entre búsquedas. Un toque, un tile. 30 etapas. Cava tierra. Caen rocas. Nunca corre solo. Demo gratis. No es el asistente de teléfono de pago.",
         "FETCH es search. DIG es una tarea de las 100. MAZE es el laberinto de 100 etapas.",
         "Escribe burrow, o abre Play/ luego BURROW/. Pulsa START."
       ],
@@ -877,14 +879,14 @@
         "Hit START.",
         "Move one tile at a time — arrows, WASD, or the pad. You never auto-run.",
         "Dig dirt. Rocks fall.",
-        "8 stages. Side quest — kill time between searches."
+        "30 stages. Side quest — kill time between searches."
       ],
       "steps_es": [
         "Escribe burrow, o abre Play/ luego BURROW/.",
         "Pulsa START.",
         "Muévete un tile a la vez — flechas, WASD, o el pad. Nunca corre solo.",
         "Cava tierra. Caen rocas.",
-        "8 etapas. Side quest — mata el tiempo entre búsquedas."
+        "30 etapas. Side quest — mata el tiempo entre búsquedas."
       ],
       "note": "Type burrow or Play/. Side quest — kill time between searches.",
       "note_es": "Escribe burrow o Play/. Side quest — mata el tiempo entre búsquedas."
@@ -1104,15 +1106,15 @@
       "title": "Tasks/",
       "title_es": "Tareas/",
       "copy": [
-        "DIG is do a task. 100 tasks. The GOPHER prompt is always on. Three answers stay listed. Hosted model parked.",
-        "FETCH is search: ticker, fear/greed, ask GOPHER. Parked products (SMS, voice, mail, billing, prices, SLA) stay parked."
+        "Tap a skill. GOPHER runs it. Parked stay parked.",
+        "GOPHER matches your order to a skill. Hosted model parked."
       ],
       "copy_es": [
-        "DIG es hacer una tarea. 100 tareas. El prompt GOPHER está siempre on. Tres respuestas se quedan listadas. Modelo hospedado aparcado.",
-        "FETCH es search: ticker, fear/greed, pregunta a GOPHER. Lo aparcado (SMS, voz, correo, cobro, precios, SLA) sigue aparcado."
+        "Toca una skill. GOPHER la corre. Lo aparcado sigue aparcado.",
+        "GOPHER empareja tu orden con una skill. Modelo hospedado aparcado."
       ],
-      "note": "Live fetches and tasks run. SMS, voice, mail, billing, hosted model stay parked. No invented prices.",
-      "note_es": "Fetches y tareas vivas corren. SMS, voz, correo, cobro y modelo hospedado siguen aparcados. Sin precios inventados."
+      "note": "100 skills. Live run. Parked (SMS, voice, mail, billing, prices, SLA) stay parked. No invented prices.",
+      "note_es": "100 skills. Lo vivo corre. Lo aparcado (SMS, voz, correo, cobro, precios, SLA) sigue aparcado. Sin precios inventados."
     },
     "/fetch": {
       "title": "MAZE/",

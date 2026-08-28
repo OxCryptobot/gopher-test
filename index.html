@@ -86,6 +86,7 @@
   </div>
 
   <div class="shell">
+    <div class="stick-head" id="stick-head">
     <div class="chrome">
     <nav id="chrome" aria-label="GOPHER">
       <a href="#/" data-nav="home" class="brand">GOPHER</a>
@@ -99,7 +100,7 @@
     </nav>
     </div>
 
-    <section class="hero" id="hero" hidden>
+    <section class="hero" id="hero">
       <pre class="mascot" aria-hidden="true">
           ,-"""-.
          /  o o  \
@@ -120,9 +121,12 @@
         </div>
         <p class="sug-cap" id="sug-cap" data-i18n="sugCap">GOPHER:</p>
         <ol id="suggest" class="selectors suggest" role="listbox"></ol>
+        <p class="chip-row" id="home-chips" hidden></p>
+        <p class="match-cap" id="match-cap" data-i18n="matchCap">GOPHER matches your order to a skill. Hosted model parked.</p>
         <p class="status-line" id="ask-status" role="status"></p>
       </form>
     </section>
+    </div>
 
     <section id="view" class="menu-block" hidden tabindex="-1"></section>
 
@@ -227,13 +231,15 @@
 
     <section id="dig" class="menu-block game-block" hidden>
       <h2><span class="itype">8</span> BURROW/</h2>
-      <p class="info" data-i18n="digInfo">Side quest burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. Kill time between searches.</p>
+      <p class="info" data-i18n="digInfo">Dig dirt. Grab gems. Rocks fall. One tap, one tile. 30 stages.</p>
       <div class="game-wrap">
         <canvas id="dig-canvas" width="160" height="144" role="img" aria-label="BURROW, an 8-bit gopher digger"></canvas>
+        <p id="d-shout" class="g-shout" aria-live="assertive"></p>
         <div class="game-hud">
           <span id="d-score">score 0</span>
           <span id="d-lvl">lvl 1</span>
           <span id="d-lives">lives 3</span>
+          <span id="d-gems">gems 0</span>
         </div>
         <div class="dpad" role="group" aria-label="BURROW direction pad">
           <button type="button" data-dig="up" aria-label="up">↑</button>
@@ -248,7 +254,7 @@
           <button type="button" id="d-pause" class="ghost">PAUSE</button>
           <button type="button" id="d-mute" class="ghost">MUTE</button>
         </div>
-        <p class="status-line" id="d-status">press START. dig dirt. rocks fall.</p>
+        <p class="status-line" id="d-status">press START. dig dirt. grab gems. rocks fall.</p>
       </div>
     </section>
     <footer>
