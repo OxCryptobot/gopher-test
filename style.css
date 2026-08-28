@@ -75,14 +75,14 @@ body {
 .status {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
-  font-size: 0.75rem;
+  gap: 0.5rem;
+  font-size: 0.7rem;
   color: var(--fg-dim);
   letter-spacing: 0.04em;
   text-transform: lowercase;
   border-bottom: 1px solid var(--fg-dim);
-  padding-bottom: 0.55rem;
-  margin-bottom: 1.5rem;
+  padding-bottom: 0.3rem;
+  margin-bottom: 0;
 }
 .status .clock { white-space: nowrap; }
 .host { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -96,18 +96,18 @@ body {
 #brain.err, #brain.parked { color: var(--err); }
 
 .mascot {
-  margin: 0 0 1.1rem;
+  margin: 0 0 0.55rem;
   color: var(--fg);
   text-shadow: var(--glow);
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   line-height: 1.2;
   letter-spacing: 0;
   overflow: hidden;
 }
 
 h1 {
-  margin: 0 0 0.45rem;
-  font-size: 1.35rem;
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.28em;
   text-shadow: var(--glow);
@@ -295,8 +295,8 @@ footer .dim { letter-spacing: 0.08em; font-weight: 400; margin-top: 0.25rem; fon
 ::selection { background: var(--fg); color: var(--bg); }
 
 @media (min-width: 540px) {
-  h1 { font-size: 1.55rem; }
-  .mascot { font-size: 0.86rem; }
+  h1 { font-size: 1.28rem; }
+  .mascot { font-size: 0.78rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -694,17 +694,86 @@ html[lang="es"] .help-card li {
   line-height: 1.45;
 }
 
-/* GOPHER prompt: sticky command bar + always-on selectors */
-#ask {
+/* GOPHER chrome: sticky status + topbar + prompt */
+.chrome {
   position: sticky;
   top: 0;
   z-index: 20;
   background: var(--bg);
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--fg-dim);
-  margin-top: 0.75rem;
+  padding-bottom: 0.2rem;
 }
-body.staging #ask { top: 1.6rem; }
+body.staging .chrome { top: 1.6rem; }
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.7rem;
+  font-size: 0.8rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--fg-dim);
+  color: var(--fg-dim);
+  letter-spacing: 0.04em;
+}
+.topbar a {
+  color: var(--fg-dim);
+  text-decoration: none;
+  text-transform: lowercase;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.2rem;
+  border-radius: 0;
+}
+.topbar a:hover,
+.topbar a:focus-visible {
+  color: var(--fg-bright);
+  text-shadow: var(--glow);
+  outline: none;
+  background: rgba(57, 255, 20, 0.05);
+}
+.topbar a.active {
+  color: var(--fg-bright);
+  text-shadow: var(--glow);
+  background: rgba(57, 255, 20, 0.07);
+}
+.top-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.55rem;
+  padding: 0 0.55rem;
+  border-left: 1px solid var(--fg-dim);
+  border-right: 1px solid var(--fg-dim);
+}
+.top-label {
+  color: var(--fg-dim);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+}
+.topbar a[data-nav="fetch"],
+.topbar a[data-nav="dig"] {
+  text-transform: none;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--fg-mid);
+}
+.topbar a[data-nav="fetch"].active,
+.topbar a[data-nav="dig"].active {
+  color: var(--fg-bright);
+}
+
+.hero { margin-top: 1.1rem; }
+.hero .tag { font-size: 0.8rem; color: var(--fg-dim); }
+
+/* GOPHER prompt: star of the chrome. Keep wait glow. */
+#ask {
+  position: static;
+  z-index: auto;
+  margin-top: 0.55rem;
+  padding-bottom: 0.4rem;
+}
 #wait-form[hidden] { display: none !important; }
 #suggest.suggest {
   margin: 0.35rem 0 0;
@@ -719,9 +788,18 @@ body.staging #ask { top: 1.6rem; }
   text-shadow: var(--glow);
   background: rgba(57, 255, 20, 0.07);
 }
-body.game-on #ask .info,
-body.game-on #ask .keys,
+body.game-on .hero,
+body.game-on #dir,
 body.game-on #wait-form { display: none; }
+body.game-on #ask .info,
+body.game-on #ask .keys { display: none; }
+body.game-on .topbar {
+  padding: 0.15rem 0;
+  font-size: 0.72rem;
+  gap: 0.1rem 0.55rem;
+}
+body.game-on .top-group { padding: 0 0.4rem; }
+body.game-on .status { padding-bottom: 0.2rem; }
 body.game-on #ask {
   padding-top: 0.45rem;
   margin-top: 0.45rem;
@@ -731,3 +809,10 @@ body.game-on #ask h2 {
   margin-bottom: 0.25rem;
 }
 body.game-on #suggest.suggest { max-height: 7rem; }
+@media (max-width: 539px) {
+  .topbar a[data-nav="fetch"],
+  .topbar a[data-nav="dig"],
+  .topbar a[data-nav="waitlist"] {
+    min-height: 44px;
+  }
+}

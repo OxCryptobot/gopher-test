@@ -30,7 +30,7 @@ Live autoprompt on the hole: type in Prompt <search>, ranked selectors appear. C
 
 ## Prompt UX
 
-The GOPHER prompt is always on (sticky command bar). Task selectors stay listed. GOPHER is an on-device order router over 100 tasks + python `/api/ask` when `server.py` is up. A hosted model is parked until `GOPHER_LLM_HOOK` is set. No fake model name. No chat transcript.
+The GOPHER prompt is always on (sticky command bar, the star). Games (FETCH · DIG) and waitlist live in a quieter top bar. Task selectors stay listed. GOPHER is an on-device order router over 100 tasks + python `/api/ask` when `server.py` is up. A hosted model is parked until `GOPHER_LLM_HOOK` is set. No fake model name. No chat transcript.
 
 ## Open items (18)
 

@@ -77,15 +77,6 @@
           "hint_es": "JUEGA YA — laberinto de 100 etapas"
         },
         {
-          "n": "6",
-          "type": "7",
-          "name": "Waitlist",
-          "name_es": "Lista de espera",
-          "path": "/waitlist",
-          "hint": "get in",
-          "hint_es": "entra"
-        },
-        {
           "n": "7",
           "type": "7",
           "name": "Tasks/",
@@ -93,15 +84,6 @@
           "path": "/tasks",
           "hint": "100 orders · prompt always on",
           "hint_es": "100 órdenes · prompt siempre on"
-        },
-        {
-          "n": "8",
-          "type": "1",
-          "name": "Games/",
-          "name_es": "Juegos/",
-          "path": "/games",
-          "hint": "more holes",
-          "hint_es": "más huecos"
         },
         {
           "n": "9",
@@ -554,25 +536,26 @@
       "title_es": "FAQ/",
       "copy": [
         "What is GOPHER AI? A paid phone assistant named after the 1991 Gopher protocol. You send an order. It fetches. This site is the public hole, not the number yet.",
-        "How do I play FETCH? Press 5 or open #/fetch. START. One tap, one tile — you never auto-run. Eat energy pellets (Huzaaa!). Walls Clunk!!! (−0.1 HP). Orange foxes Ouchies! (−1 HP). One star per stage: ZAP a fox or BLOCK a hit. KEY or K for the in-game key. Stage clear: VICTORY! Clock hits 0: TIME OVER! Clear all 100: GOPHER CHAMPION!, a trophy, Eternal GOPHER CHAMPIONS. Foxes speed up 0.01 per stage. Stage 100 is nearly impossible. MUTE defaults on (browser autoplay). DIG is a separate 8-stage burrow — type dig or Games/. FETCH stays the 100-stage maze.",
+        "How do I play FETCH? Press 5, FETCH in the top bar, or open #/fetch. START. One tap, one tile — you never auto-run. Eat energy pellets (Huzaaa!). Walls Clunk!!! (−0.1 HP). Orange foxes Ouchies! (−1 HP). One star per stage: ZAP a fox or BLOCK a hit. KEY or K for the in-game key. Stage clear: VICTORY! Clock hits 0: TIME OVER! Clear all 100: GOPHER CHAMPION!, a trophy, Eternal GOPHER CHAMPIONS. Foxes speed up 0.01 per stage. Stage 100 is nearly impossible. MUTE defaults on (browser autoplay). DIG is a separate 8-stage burrow — type dig or Games/. FETCH stays the 100-stage maze.",
         "Is login cloud? No. A name and passphrase hashed with PBKDF2 in localStorage on this device. Not a GOPHER AI account.",
         "Is FETCH live prices? No. FETCH is the 100-stage maze. Live tickers are a different fetch: type fetch btc (or ETH, SOL, XRP) in the prompt.",
         "GitHub Pages vs local? Pages is a static hole (directory, FETCH, DIG, device login, client waitlist). There is no python process on Pages, so no true global board or global champions list. python3 server.py on your machine adds /health (process liveness), /api/waitlist, /api/score, /api/scores, /api/champions, /api/ask. Device best and a local eternal list still work on Pages. No fake 99.9%.",
-        "How do I waitlist? Selector 6, type waitlist, or use the email form on the site. On Pages it stores on this device if the API is missing. Local python keeps the server list."
+        "How do I waitlist? Waitlist in the top bar, type waitlist, or use the email form on #/waitlist. On Pages it stores on this device if the API is missing. Local python keeps the server list."
       ],
       "copy_es": [
         "¿Qué es GOPHER AI? Un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. Envías un pedido. Busca. Este sitio es el hueco público, aún no el número.",
-        "¿Cómo juego FETCH? Pulsa 5 o abre #/fetch. START. Un toque, un tile — nunca corre solo. Come pellets de energía (Huzaaa!). Muros Clunk!!! (−0.1 HP). Zorros naranjas Ouchies! (−1 HP). Una estrella por etapa: ZAP a un zorro o BLOCK un golpe. KEY o K para la clave del juego. Etapa clara: VICTORY! Reloj a 0: TIME OVER! Las 100: GOPHER CHAMPION!, un trofeo, Eternal GOPHER CHAMPIONS. Los zorros aceleran 0.01 por etapa. La etapa 100 es casi imposible. MUTE por defecto (autoplay del navegador). DIG es una madriguera aparte de 8 etapas — escribe dig o Games/. FETCH sigue siendo el laberinto de 100 etapas.",
+        "¿Cómo juego FETCH? Pulsa 5, FETCH en la barra, o abre #/fetch. START. Un toque, un tile — nunca corre solo. Come pellets de energía (Huzaaa!). Muros Clunk!!! (−0.1 HP). Zorros naranjas Ouchies! (−1 HP). Una estrella por etapa: ZAP a un zorro o BLOCK un golpe. KEY o K para la clave del juego. Etapa clara: VICTORY! Reloj a 0: TIME OVER! Las 100: GOPHER CHAMPION!, un trofeo, Eternal GOPHER CHAMPIONS. Los zorros aceleran 0.01 por etapa. La etapa 100 es casi imposible. MUTE por defecto (autoplay del navegador). DIG es una madriguera aparte de 8 etapas — escribe dig o Games/. FETCH sigue siendo el laberinto de 100 etapas.",
         "¿El login es nube? No. Un nombre y una frase secreta hasheados con PBKDF2 en localStorage en este dispositivo. No es una cuenta GOPHER AI.",
         "¿FETCH es precios en vivo? No. FETCH es el laberinto de 100 etapas. Los tickers en vivo son otro fetch: escribe fetch btc (o ETH, SOL, XRP) en el prompt.",
         "¿GitHub Pages vs local? Pages es un hueco estático (directorio, FETCH, DIG, login del dispositivo, lista de espera del cliente). No hay proceso python en Pages, así que no hay tabla global de verdad ni lista global de campeones. python3 server.py en tu máquina añade /health (vida del proceso), /api/waitlist, /api/score, /api/scores, /api/champions, /api/ask. El mejor del dispositivo y una lista eterna local sí funcionan en Pages. Sin 99.9% inventado.",
-        "¿Cómo entro a la lista de espera? Selector 6, escribe waitlist, o usa el formulario de email en el sitio. En Pages se guarda en este dispositivo si falta la API. El python local guarda la lista del servidor."
+        "¿Cómo entro a la lista de espera? Waitlist en la barra, escribe waitlist, o usa el formulario de email en #/waitlist. En Pages se guarda en este dispositivo si falta la API. El python local guarda la lista del servidor."
       ]
     },
     "/changelog": {
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-08-28 — games and waitlist in the top bar; GOPHER prompt stays first. 82/100.",
         "2026-08-28 — sticky GOPHER prompt, always-on task selectors.",
         "2026-08-28 — prompt autoprompts, 100 tasks catalog.",
         "2026-08-28 — python product flags, fng fetch, parked Twilio webhooks. 82/100.",
@@ -583,6 +566,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-08-28 — juegos y waitlist en la barra; el prompt GOPHER sigue primero. 82/100.",
         "2026-08-28 — prompt GOPHER sticky, selectores de tareas siempre on.",
         "2026-08-28 — el prompt hace autoprompt, catálogo de 100 tareas.",
         "2026-08-28 — flags de producto python, fetch fng, webhooks Twilio aparcados. 82/100.",

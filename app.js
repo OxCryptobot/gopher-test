@@ -23,9 +23,7 @@
       items: [
         { n: "1", type: "1", name: "Docs/", path: "/docs", hint: "or type below" },
         { n: "5", type: "1", name: "FETCH/", path: "/fetch", hint: "PLAY NOW — 8-bit burrow" },
-        { n: "6", type: "7", name: "Waitlist", path: "/waitlist", hint: "get in" },
         { n: "7", type: "7", name: "Tasks/", path: "/tasks", hint: "100 orders · prompt is the menu" },
-        { n: "8", type: "1", name: "Games/", path: "/games", hint: "more holes" },
         { n: "9", type: "1", name: "User/", path: "/user", hint: "enter your hole" }
       ]
     },
@@ -211,6 +209,21 @@
     if (el) el.hidden = !on;
   }
 
+  function paintTopbar(path) {
+    var key = "home";
+    if (path === "/fetch") key = "fetch";
+    else if (path === "/dig") key = "dig";
+    else if (path === "/waitlist") key = "waitlist";
+    else if (path === "/user") key = "user";
+    else if (path !== "/") key = "";
+    var nodes = document.querySelectorAll("#topbar [data-nav]");
+    var i, a;
+    for (i = 0; i < nodes.length; i++) {
+      a = nodes[i];
+      a.classList.toggle("active", a.getAttribute("data-nav") === key);
+    }
+  }
+
   function idleCount() {
     return document.body.classList.contains("game-on") ? 6 : SUG_IDLE;
   }
@@ -230,6 +243,11 @@
       promptInfo: "GOPHER is on. Type an order. It matches a selector and fetches.",
       promptLabel: "ask gopher:",
       emailLabel: "email:",
+      navHome: "home",
+      navGames: "games",
+      navWaitlist: "waitlist",
+      navUser: "user",
+      heroGames: "games: FETCH · DIG in the bar",
       keysHint: "keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home",
       helpTitle: "keys",
       help5: "FETCH",
@@ -274,6 +292,11 @@
       promptInfo: "GOPHER está on. Escribe una orden. Empata un selector y hace fetch.",
       promptLabel: "ask gopher:",
       emailLabel: "email:",
+      navHome: "inicio",
+      navGames: "juegos",
+      navWaitlist: "waitlist",
+      navUser: "usuario",
+      heroGames: "juegos: FETCH · DIG en la barra",
       keysHint: "teclas: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menú · <kbd>?</kbd> ayuda · <kbd>esc</kbd> inicio",
       helpTitle: "teclas",
       help5: "FETCH",
@@ -693,7 +716,8 @@
     if (dirEl) dirEl.hidden = gameOn;
     if (askEl) askEl.hidden = false;
     document.body.classList.toggle("game-on", gameOn);
-    showWaitForm(path === "/" || path === "/waitlist");
+    showWaitForm(path === "/waitlist");
+    paintTopbar(path);
     if (gameOn) {
       var cmdGame = $("command");
       if (cmdGame && !(cmdGame.value || "").trim() && TASKS.length) paintSuggest(idleSlice(), { idle: true });
@@ -1343,6 +1367,7 @@
     }
     if (EMAIL_RE.test(q)) {
       if ($("email")) $("email").value = q;
+      go("/waitlist");
       showWaitForm(true);
       form = $("form");
       if (form && form.requestSubmit) form.requestSubmit();

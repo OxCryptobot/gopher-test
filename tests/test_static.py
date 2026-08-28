@@ -19,7 +19,12 @@ def read(name: str) -> str:
 class StaticTests(unittest.TestCase):
     def test_index_has_play_fetch_and_hash(self) -> None:
         html = read("index.html")
-        self.assertIn("PLAY FETCH", html)
+        self.assertIn('id="topbar"', html)
+        self.assertIn('href="#/fetch"', html)
+        self.assertIn('href="#/dig"', html)
+        self.assertIn('href="#/waitlist"', html)
+        self.assertIn("FETCH", html)
+        self.assertIn("DIG", html)
         self.assertIn("#/fetch", html)
 
     def test_manifest_is_gopher_ai_with_icons(self) -> None:
@@ -32,7 +37,7 @@ class StaticTests(unittest.TestCase):
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v7", src)
+        self.assertIn("gopher-v8", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
@@ -41,7 +46,7 @@ class StaticTests(unittest.TestCase):
         css = read("style.css")
         self.assertIn('id="ask"', html)
         self.assertIn('id="suggest"', html)
-        self.assertIn("gopher-v7", read("sw.js"))
+        self.assertIn("gopher-v8", read("sw.js"))
         self.assertTrue(
             "setBrain" in js or "GOPHER · ready" in js,
             "app.js should mention setBrain or GOPHER · ready",
@@ -59,6 +64,20 @@ class StaticTests(unittest.TestCase):
             'id="wait-form"' in html or 'id="form"' in html,
             "waitlist form should exist as #wait-form or #form",
         )
+
+
+    def test_topbar_chrome(self) -> None:
+        html = read("index.html")
+        css = read("style.css")
+        js = read("app.js")
+        self.assertIn('id="topbar"', html)
+        self.assertIn('id="chrome"', html)
+        self.assertIn('data-nav="fetch"', html)
+        self.assertIn('data-nav="dig"', html)
+        self.assertIn('data-nav="waitlist"', html)
+        self.assertIn("paintTopbar", js)
+        self.assertIn(".topbar", css)
+        self.assertIn("gopher-v8", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")

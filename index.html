@@ -86,12 +86,24 @@
   </div>
 
   <div class="shell">
+    <div id="chrome" class="chrome">
     <header class="status">
       <span class="host" id="host">gopher://gopher.ai:70/1</span>
       <span class="brain" id="brain">GOPHER · ready</span>
       <span class="who" id="who">guest</span>
       <span class="clock" id="clock"></span>
     </header>
+
+    <nav id="topbar" class="topbar" aria-label="Main">
+      <a href="#/" data-nav="home" data-i18n="navHome">home</a>
+      <span class="top-group" aria-label="Games">
+        <span class="top-label" data-i18n="navGames">games</span>
+        <a href="#/fetch" data-nav="fetch">FETCH</a>
+        <a href="#/dig" data-nav="dig">DIG</a>
+      </span>
+      <a href="#/waitlist" data-nav="waitlist" data-i18n="navWaitlist">waitlist</a>
+      <a href="#/user" data-nav="user" data-i18n="navUser">user</a>
+    </nav>
 
     <section class="menu-block wait" id="ask">
       <h2><span class="itype">7</span> GOPHER/ <span class="idim">&lt;ask&gt;</span></h2>
@@ -107,6 +119,7 @@
         <p class="keys dim" data-i18n-html="keysHint">keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home</p>
       </form>
     </section>
+    </div>
 
     <section class="menu-block wait" id="wait-form" hidden>
       <form id="form" novalidate>
@@ -130,11 +143,7 @@
        '-----------'</pre>
       <h1>GOPHER AI</h1>
       <p class="breath">A paid phone assistant. You send an order. It fetches.</p>
-      <p class="tag">1991 protocol. 2026 interface. Now with a hole you can play.</p>
-      <p class="play-row">
-        <a class="play-cta" href="#/fetch">5 PLAY FETCH</a>
-        <span class="dim">arrows · WASD · pad</span>
-      </p>
+      <p class="tag" data-i18n="heroGames">games: FETCH · DIG in the bar</p>
     </section>
 
     <nav class="toc" id="dir" aria-label="Gopher directory"></nav>
