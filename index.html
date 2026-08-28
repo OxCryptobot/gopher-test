@@ -60,6 +60,9 @@
         <li><kbd>9</kbd> login</li>
         <li>arrows</li>
         <li><kbd>P</kbd> pause</li>
+        <li>Huzaaa / Clunk / Ouchies</li>
+        <li>wall −0.1 hp · star ZAP/BLOCK</li>
+        <li><kbd>K</kbd> FETCH key</li>
         <li><kbd>esc</kbd> home</li>
       </ul>
       <button type="button" id="help-ok">GOT IT</button>
@@ -152,13 +155,18 @@
 
     <section id="game" class="menu-block game-block" hidden>
       <h2><span class="itype">5</span> FETCH/</h2>
-      <p class="info">One tap, one tile. Collect blink packets. Walls bump. Orange sludge costs a life. Arrows, WASD, pad, or swipe. P pauses.</p>
+      <p class="info">Maze of 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Clock runs. Stage 100 is nearly impossible.</p>
       <div class="game-wrap">
         <canvas id="fetch" width="160" height="144" role="img" aria-label="FETCH, an 8-bit gopher game"></canvas>
+        <p id="g-shout" class="g-shout" aria-live="assertive"></p>
         <div class="game-hud">
           <span id="g-score">score 0</span>
           <span id="g-lvl">lvl 1</span>
           <span id="g-lives">lives 3</span>
+          <span id="g-hp" class="hp">hp 3.0</span>
+          <div class="hp-bar" aria-hidden="true"><i id="g-hp-bar"></i></div>
+          <span id="g-pwr">pwr 0</span>
+          <span id="g-time">time 50</span>
           <span id="g-best">best 0</span>
         </div>
         <p id="land-hint" class="land-hint" hidden>turn the phone. FETCH wants a tall hole.</p>
@@ -173,6 +181,7 @@
         <div class="row">
           <button type="button" id="g-start">START</button>
           <button type="button" id="g-pause" class="ghost">PAUSE</button>
+          <button type="button" id="g-key" class="ghost">KEY</button>
           <button type="button" id="g-mute" class="ghost">MUTE</button>
           <label class="vol" for="g-vol">VOL</label>
           <input id="g-vol" type="range" min="0" max="8" value="3" aria-label="FETCH volume">
@@ -180,7 +189,34 @@
           <button type="button" id="g-haptic" class="ghost">HAPTIC</button>
           <button type="button" id="g-install" class="ghost" hidden>INSTALL</button>
         </div>
-        <p class="status-line" id="g-status">press START. one direction per tap. fetch the blinking packets.</p>
+        <p class="status-line" id="g-status">press START. one tap, one tile. eat pellets. dodge orange foxes. beat the clock.</p>
+        <aside id="g-keycard" class="g-keycard" hidden>
+          <h3>FETCH key</h3>
+          <ul>
+            <li>one tap, one tile</li>
+            <li>pellet · Huzaaa!</li>
+            <li>wall · Clunk!!! · −0.1 hp</li>
+            <li>fox · Ouchies! · −1 hp</li>
+            <li>star · one per stage · ZAP a fox or BLOCK a hit</li>
+            <li>clock · TIME OVER!</li>
+            <li>stage clear · VICTORY!</li>
+            <li>all 100 · trophy · Eternal GOPHER CHAMPIONS</li>
+          </ul>
+          <button type="button" id="g-key-ok">GOT IT</button>
+        </aside>
+        <div id="g-trophy" class="trophy-overlay" hidden>
+          <div class="trophy-card" role="dialog" aria-labelledby="trophy-title">
+            <pre class="trophy-art" aria-hidden="true">  .--.
+ /    \
+| CUP  |
+ \    /
+  '--'</pre>
+            <h2 id="trophy-title">GOPHER CHAMPION!</h2>
+            <p id="trophy-name">you</p>
+            <p class="info">your name joins Eternal GOPHER CHAMPIONS.</p>
+            <button type="button" id="g-trophy-ok">BOARD</button>
+          </div>
+        </div>
       </div>
     </section>
 

@@ -19,6 +19,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 WAITLIST_PATH = os.path.join(ROOT, "waitlist.json")
 ORDERS_PATH = os.path.join(ROOT, "orders.json")
 SCORES_PATH = os.path.join(ROOT, "scores.json")
+CHAMPIONS_PATH = os.path.join(ROOT, "champions.json")
 HOST = os.environ.get("GOPHER_HOST", "0.0.0.0")
 PORT = int(os.environ.get("GOPHER_PORT", "7070"))
 EMAIL_RE = re.compile(r"^[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}$", re.I)
@@ -29,6 +30,7 @@ HIDDEN = {
     "waitlist.json",
     "orders.json",
     "scores.json",
+    "champions.json",
     "server.py",
     "README.md",
     ".gitignore",
@@ -293,10 +295,13 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/scores":
             self._scores()
             return
+        if path == "/api/champions":
+            self._champions()
+            return
         if path == "/api/waitlist":
             self._json(405, {"ok": False, "error": "POST an email to join."})
             return
-        if path in ("/api/ask", "/api/score"):
+        if path in ("/api/ask", "/api/score", "/api/champions"):
             self._json(405, {"ok": False, "error": "POST only."})
             return
         return super().do_GET()
@@ -325,6 +330,9 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/score":
             self._score()
             return
+        if path == "/api/champions":
+            self._champion_add()
+            return
         self.send_error(404, "Not found")
 
     def _health(self) -> None:
@@ -351,8 +359,15 @@ class Handler(SimpleHTTPRequestHandler):
                 continue
             if isinstance(score, bool) or not isinstance(score, (int, float)):
                 continue
-            ranked.append({"name": name, "score": int(score)})
-        ranked.sort(key=lambda item: item["score"], reverse=True)
+            row = {"name": name, "score": int(score)}
+            stage = entry.get("stage")
+            if not isinstance(stage, bool) and isinstance(stage, (int, float)):
+                row["stage"] = int(stage)
+            champ = entry.get("champion")
+            if isinstance(champ, bool):
+                row["champion"] = champ
+            ranked.append(row)
+        ranked.sort(key=lambda item: (item["score"], item.get("stage") or 0), reverse=True)
         self._json(200, ranked[:10])
 
     def _read_json(self, max_len: int = MAX_POST_BYTES):
@@ -454,6 +469,60 @@ class Handler(SimpleHTTPRequestHandler):
             save_list(ORDERS_PATH, orders)
         self._json(200, {"ok": True, "kind": "queued", "text": "queued in the hole."})
 
+
+    def _champions(self) -> None:
+        with LOCK:
+            rows = load_list(CHAMPIONS_PATH)
+        out = []
+        for entry in rows:
+            if not isinstance(entry, dict):
+                continue
+            name = entry.get("name")
+            if not isinstance(name, str) or not name:
+                continue
+            row = {"name": name}
+            score = entry.get("score")
+            if not isinstance(score, bool) and isinstance(score, (int, float)):
+                row["score"] = int(score)
+            at = entry.get("at")
+            if isinstance(at, str):
+                row["at"] = at
+            out.append(row)
+        self._json(200, out)
+
+    def _champion_add(self) -> None:
+        data, err = self._read_json()
+        if err == "payload too large":
+            self._json(413, {"ok": False, "error": err})
+            return
+        if data is None:
+            self._json(400, {"ok": False, "error": err or "bad json"})
+            return
+        name = data.get("name")
+        if not isinstance(name, str) or not name.strip():
+            name = "guest"
+        name = re.sub(r"[^a-z0-9._-]", "", name.strip().lower())[:24] or "guest"
+        score = data.get("score")
+        score_n = 0
+        if not isinstance(score, bool) and isinstance(score, (int, float)):
+            score_n = int(score)
+            if score_n < 0:
+                score_n = 0
+            if score_n > 9999999:
+                score_n = 9999999
+        now = _now()
+        with LOCK:
+            rows = load_list(CHAMPIONS_PATH)
+            names = {
+                e.get("name")
+                for e in rows
+                if isinstance(e, dict) and isinstance(e.get("name"), str)
+            }
+            if name not in names:
+                rows.append({"name": name, "score": score_n, "at": now, "eternal": True})
+                save_list(CHAMPIONS_PATH, rows)
+        self._json(200, {"ok": True, "name": name})
+
     def _score(self) -> None:
         data, err = self._read_json()
         if err == "payload too large":
@@ -475,10 +544,24 @@ class Handler(SimpleHTTPRequestHandler):
             score = 0
         if score > 9999999:
             score = 9999999
+        stage = data.get("stage")
+        stage_n = None
+        if not isinstance(stage, bool) and isinstance(stage, (int, float)):
+            stage_n = int(stage)
+            if stage_n < 0:
+                stage_n = 0
+            if stage_n > 9999:
+                stage_n = 9999
+        champ = data.get("champion")
         now = _now()
+        entry = {"name": name, "score": score, "at": now}
+        if stage_n is not None:
+            entry["stage"] = stage_n
+        if isinstance(champ, bool):
+            entry["champion"] = champ
         with LOCK:
             scores = load_list(SCORES_PATH)
-            scores.append({"name": name, "score": score, "at": now})
+            scores.append(entry)
             save_list(SCORES_PATH, scores)
         self._json(200, {"ok": True})
 

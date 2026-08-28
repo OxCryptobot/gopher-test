@@ -637,3 +637,44 @@ button.tiny:hover {
 @media (orientation: landscape) and (max-height: 500px) {
   .land-hint { display: block !important; }
 }
+
+.hp-bar { width: 72px; height: 8px; border: 1px solid var(--fg); display:inline-block; vertical-align:middle; }
+#g-hp-bar { display:block; height:100%; width:100%; background: var(--fg); }
+.g-shout { min-height: 1.4em; font-weight:700; letter-spacing:0.08em; color: var(--fg-bright); text-shadow: var(--glow); }
+.g-shout.ouch { color: var(--err); }
+
+.g-keycard {
+  margin-top: 0.75rem;
+  border: 1px solid var(--fg-dim);
+  padding: 0.75rem 0.9rem;
+  background: var(--bg-2);
+}
+.g-keycard h3 { margin: 0 0 0.4rem; font-size: 0.95rem; }
+.g-keycard ul { margin: 0 0 0.6rem; padding-left: 1.1rem; }
+.g-keycard li { margin: 0.25rem 0; }
+.trophy-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 8, 0, 0.72);
+}
+.trophy-overlay[hidden] { display: none !important; }
+.trophy-card {
+  border: 1px solid var(--fg);
+  background: var(--bg-2);
+  padding: 1.1rem 1.25rem;
+  max-width: 22rem;
+  text-align: center;
+  box-shadow: var(--glow);
+}
+.trophy-art {
+  margin: 0 auto 0.6rem;
+  color: var(--fg-bright);
+  text-shadow: var(--glow);
+  font-size: 0.85rem;
+  line-height: 1.15;
+}
+#trophy-name { color: var(--fg-bright); letter-spacing: 0.08em; font-weight: 700; }
+#g-pwr { color: var(--fg-bright); }

@@ -12,7 +12,7 @@ Assets for journalists and partners. Credit **GOPHER AI**. Do not invent metrics
 | File | What |
 | --- | --- |
 | `home.png` | Production hole home (directory, prompt, wordmark). |
-| `fetch.png` | FETCH, the original 8-bit burrow (selector 5). |
+| `fetch.png` | FETCH, the 100-stage maze (selector 5). |
 | `icon.png` | App icon, 512×512 phosphor on near-black. |
 
 These are copies of live shots already on disk. Nothing generated for this pack.

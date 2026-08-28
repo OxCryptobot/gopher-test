@@ -5,6 +5,7 @@
   var USERS_KEY = "gopher_users_v1";
   var SESS_KEY = "gopher_session_v1";
   var BEST_KEY = "gopher_fetch_best_v1";
+  var CHAMP_KEY = "gopher_eternal_v1";
   var TUT_KEY = "gopher_tut_v1";
   var LANG_KEY = "gopher_lang_v1";
   var HC_KEY = "gopher_hc_v1";
@@ -72,6 +73,7 @@
   var heroEl = $("hero"), askEl = $("ask");
   var game = null;
   var scoreSent = false;
+  var shoutTimer = 0;
   var deferredInstall = null;
   var questBound = false;
 
@@ -314,11 +316,57 @@
     return (s && s.name) ? s.name : "guest";
   }
 
-  function postScore(name, score) {
-    fetch("/api/score", {
+  function rememberChampion(name) {
+    var list = [], n = (name || "guest").toLowerCase();
+    try { list = JSON.parse(localStorage.getItem(CHAMP_KEY) || "[]"); } catch (e) { list = []; }
+    if (!Array.isArray(list)) list = [];
+    if (list.indexOf(n) < 0) {
+      list.push(n);
+      try { localStorage.setItem(CHAMP_KEY, JSON.stringify(list)); } catch (e2) {}
+    }
+    return list;
+  }
+
+  function postChampion(name, score) {
+    rememberChampion(name);
+    fetch("/api/champions", {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({ name: name || "guest", score: score || 0 })
+    }).catch(function () {});
+  }
+
+  function showTrophy(name) {
+    var el = $("g-trophy");
+    var who = $("trophy-name");
+    if (who) who.textContent = name || "guest";
+    if (el) el.hidden = false;
+  }
+
+  function hideTrophy() {
+    var el = $("g-trophy");
+    if (el) el.hidden = true;
+  }
+
+  function toggleKeyCard(force) {
+    var el = $("g-keycard");
+    if (!el) return;
+    if (force === true) el.hidden = false;
+    else if (force === false) el.hidden = true;
+    else el.hidden = !el.hidden;
+  }
+
+  function postScore(name, score) {
+    var body = {
+      name: name || "guest",
+      score: score || 0,
+      stage: (game && game.lvl) || 0
+    };
+    if (game && game.champion) body.champion = true;
+    fetch("/api/score", {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify(body)
     }).catch(function () {});
   }
 
@@ -480,7 +528,7 @@
     if (path === "/scores") {
       askEl.hidden = false;
       viewEl.hidden = false;
-      viewEl.innerHTML = "<h2>0 Scores/</h2><p class='info'>local best on this device, plus the hole board if the server is up.</p><pre class='gopher-doc' id='scoreboard'>loading…</pre>";
+      viewEl.innerHTML = "<h2>0 Scores/</h2><p class='info'>device best, hole board if the server is up, and Eternal GOPHER CHAMPIONS who cleared all 100.</p><pre class='gopher-doc' id='scoreboard'>loading…</pre>";
       paintScores();
       return;
     }
@@ -500,6 +548,21 @@
     viewEl.focus();
   }
 
+  function shoutHud(msg) {
+    var el = $("g-shout");
+    var text = String(msg == null ? "" : msg);
+    var ouch = /Ouchies|TIME OVER/.test(text);
+    if (!el) return;
+    el.textContent = text;
+    el.className = "g-shout " + (ouch ? "ouch" : "ok");
+    if (shoutTimer) clearTimeout(shoutTimer);
+    shoutTimer = setTimeout(function () {
+      el.textContent = "";
+      el.className = "g-shout";
+      shoutTimer = 0;
+    }, 1400);
+  }
+
   function bootGame() {
     var canvas = $("fetch");
     var name = whoName();
@@ -507,19 +570,44 @@
     if (!game) {
       game = new FetchGame(canvas, {
         onHud: function (g) {
+          var hpEl, bar, tEl, pct;
           $("g-score").textContent = "score " + g.score;
           $("g-lvl").textContent = "lvl " + g.lvl;
           $("g-lives").textContent = "lives " + g.lives;
+          if (g.hp != null) {
+            hpEl = $("g-hp");
+            bar = $("g-hp-bar");
+            if (hpEl) hpEl.textContent = "hp " + Number(g.hp).toFixed(1);
+            if (bar) {
+              pct = Math.max(0, Math.min(100, (g.hp / 3) * 100));
+              bar.style.width = pct + "%";
+            }
+          }
+          var pwr = $("g-pwr");
+          if (pwr) pwr.textContent = "pwr " + (g.power ? 1 : 0);
+          if (g.leftMs != null) {
+            tEl = $("g-time");
+            if (tEl) tEl.textContent = String(Math.ceil(g.leftMs / 1000));
+          }
           var b = saveBest(name, g.score);
           $("g-best").textContent = "best " + b;
-          if (g.dead) {
+          if (g.champion) {
+            if (!scoreSent) {
+              scoreSent = true;
+              postScore(whoName(), g.score);
+              postChampion(whoName(), g.score);
+              showTrophy(whoName());
+            }
+          } else if (g.dead) {
             setStatus($("g-status"), "err", "404 hole. START to dig again.");
             if (!scoreSent) {
               scoreSent = true;
               postScore(whoName(), g.score);
             }
           } else if (g.win) setStatus($("g-status"), "ok", "fetched. next hole…");
-        }
+        },
+        shout: shoutHud,
+        onShout: shoutHud
       });
     }
     applySavedVol();
@@ -824,15 +912,19 @@
         e.preventDefault();
         if (game.pauseToggle) game.pauseToggle();
         var paused = !!game.paused;
-        setStatus($("g-status"), "", paused ? "paused. P or PAUSE to dig." : "fetch packets. avoid orange sludge.");
+        setStatus($("g-status"), "", paused ? "paused. P or PAUSE to dig." : "fetch pellets. dodge foxes. KEY for the map.");
         var gp = $("g-pause");
         if (gp) gp.textContent = paused ? "RESUME" : "PAUSE";
+      }
+      if (e.key === "k" || e.key === "K") {
+        e.preventDefault();
+        toggleKeyCard();
       }
       if (e.key === " " && !game.running) {
         e.preventDefault();
         scoreSent = false;
         game.start();
-        if (game.running) setStatus($("g-status"), "", "fetch packets. avoid orange sludge.");
+        if (game.running) setStatus($("g-status"), "", "fetch pellets. dodge foxes. KEY for the map.");
         questMark("play");
       }
       if (game.running) {
@@ -1002,7 +1094,7 @@
     if (!game) bootGame();
     scoreSent = false;
     game.start();
-    if (game.running) setStatus($("g-status"), "", "fetch packets. avoid orange sludge.");
+    if (game.running) setStatus($("g-status"), "", "fetch pellets. dodge foxes. KEY for the map.");
     questMark("play");
   });
   $("g-mute").addEventListener("click", function () {
@@ -1021,7 +1113,16 @@
     if (!game) bootGame();
     if (game.pauseToggle) game.pauseToggle();
     gPause.textContent = game.paused ? "RESUME" : "PAUSE";
-    setStatus($("g-status"), "", game.paused ? "paused. P or PAUSE to dig." : "fetch packets. avoid orange sludge.");
+    setStatus($("g-status"), "", game.paused ? "paused. P or PAUSE to dig." : "fetch pellets. dodge foxes. KEY for the map.");
+  });
+  var gKey = $("g-key");
+  if (gKey) gKey.addEventListener("click", function () { toggleKeyCard(); });
+  var gKeyOk = $("g-key-ok");
+  if (gKeyOk) gKeyOk.addEventListener("click", function () { toggleKeyCard(false); });
+  var gTrophyOk = $("g-trophy-ok");
+  if (gTrophyOk) gTrophyOk.addEventListener("click", function () {
+    hideTrophy();
+    go("/scores");
   });
   var gInstall = $("g-install");
   if (gInstall) {
@@ -1104,17 +1205,39 @@
     var el = $("scoreboard");
     if (!el) return;
     var txt = deviceBoardText();
+    var localCh = [];
+    try { localCh = JSON.parse(localStorage.getItem(CHAMP_KEY) || "[]"); } catch (e) { localCh = []; }
+    if (Array.isArray(localCh) && localCh.length) {
+      txt += "\neternal (this device)\n";
+      localCh.forEach(function (n, i) {
+        txt += String(i + 1).padStart(2, " ") + "  " + String(n || "guest").slice(0, 16) + "\n";
+      });
+    }
     fetch("/api/scores", { headers: { Accept: "application/json" } })
       .then(function (res) { return res.ok ? res.json() : []; })
       .then(function (rows) {
-        if (!Array.isArray(rows) || !rows.length) {
-          el.textContent = txt + "\nboard    empty (needs the local server)";
-          return;
+        if (Array.isArray(rows) && rows.length) {
+          txt += "\nboard\n";
+          rows.slice(0, 10).forEach(function (r, i) {
+            var line = String(i + 1).padStart(2, " ") + "  " + String((r && r.name) || "guest").slice(0, 16).padEnd(16, " ") + "  " + ((r && r.score) || 0);
+            if (r && r.stage != null && r.stage !== "") line += "  " + r.stage;
+            txt += line + "\n";
+          });
+        } else {
+          txt += "\nboard    empty (needs the local server)";
         }
-        txt += "\nboard\n";
-        rows.slice(0, 10).forEach(function (r, i) {
-          txt += String(i + 1).padStart(2, " ") + "  " + String((r && r.name) || "guest").slice(0, 16).padEnd(16, " ") + "  " + ((r && r.score) || 0) + "\n";
-        });
+        return fetch("/api/champions", { headers: { Accept: "application/json" } });
+      })
+      .then(function (res) { return res && res.ok ? res.json() : []; })
+      .then(function (rows) {
+        txt += "\nEternal GOPHER CHAMPIONS\n";
+        if (Array.isArray(rows) && rows.length) {
+          rows.forEach(function (r, i) {
+            txt += String(i + 1).padStart(2, " ") + "  " + String((r && r.name) || "guest").slice(0, 16).padEnd(16, " ") + "  " + ((r && r.score) || 0) + "\n";
+          });
+        } else {
+          txt += "  none yet. clear all 100.\n";
+        }
         el.textContent = txt;
       })
       .catch(function () { el.textContent = txt + "\nboard    offline"; });

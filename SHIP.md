@@ -15,7 +15,7 @@ Full list: 100 items in four phases. GOPHER AI only.
 
 The public hole is playable. Directory, FETCH, waitlist, and device login are live.
 
-1. [x] FETCH — original 8-bit burrow, home selector 5
+1. [x] FETCH — 100-stage maze, one tap one tile (never auto-runs), home selector 5
 2. [x] hole.json — data-driven catalog (holes + aliases)
 3. [x] Hash routes — `#/docs`, `#/fetch`, `#/user`, and the rest of the tree
 4. [x] Device login — PBKDF2 (SHA-256, 120000 iterations) in localStorage
@@ -28,7 +28,7 @@ The public hole is playable. Directory, FETCH, waitlist, and device login are li
 11. [x] Pause — `P` and PAUSE / RESUME
 12. [x] Swipe — FETCH canvas touch gestures
 13. [x] Haptics — `navigator.vibrate` on grab and hit (respects reduced motion)
-14. [x] Particles — packet-collect specks on the canvas
+14. [x] Particles — pellet-collect specks on the canvas
 15. [x] PWA shell — `manifest.json`, `sw.js`, service worker register
 16. [x] 404 — `404.html`, selector-not-found, link home and FETCH
 17. [x] robots.txt — Allow `/`, Sitemap pointer
@@ -49,7 +49,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 27. [x] TEST ribbon — show `TEST HOLE · not production` on the staging host
 28. [ ] CI workflow — YAML exists locally; PAT lacks `workflow` scope so Actions is not on GitHub yet
 29. [x] hole.json tests — selector 5 is FETCH/, `play` → `/fetch`, required holes, no banned vendor copy
-30. [x] Static tests — PLAY FETCH, manifest name, sw cache, game exports, 404, `server.py` compile
+30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v3, game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), 404, `server.py` compile
 31. [x] A11y d-pad labels — `aria-label` on the pad and each direction
 32. [x] SHARE score — Web Share / clipboard of the FETCH result
 33. [x] INSTALL PWA hook — `beforeinstallprompt` and an INSTALL control
@@ -61,7 +61,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 39. [x] Reduced motion — CRT off, no animation; haptics skipped
 40. [x] Skip link — Skip to prompt
 41. [x] Live title — `document.title` follows the current hole
-42. [x] Scores hole — `#/scores`, local best plus board when the server is up
+42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
 44. [x] Changelog — `#/changelog`, dated 2026-08-27
 45. [x] Contact — GitHub + waitlist, no support number
@@ -73,10 +73,10 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 
 ## Phase 2 — Depth (51–75)
 
-Playable is not deep. Combo and waitlist rate-limit are already in. Public Pages leaderboard is not. Everything else here is next.
+Playable is not deep. Combo and waitlist rate-limit are already in. A true global board is python `/api/scores` only; GitHub Pages cannot host one. Everything else here is next.
 
 51. [x] i18n toggle — language switch, not only `/es`
-52. [x] More FETCH levels / themes — distinct palettes and layouts beyond procedural lvl+1
+52. [x] FETCH maze — 100 stages with alternate pathways; energy pellets (Huzaaa!); orange foxes (Ouchies!); walls Clunk!!!; stage clear VICTORY!; clock 0 TIME OVER!; all 100 GOPHER CHAMPION!; 3 HP; reasonable time limit; foxes +0.01 speed per stage; stage 100 nearly impossible; mute defaults on (browser autoplay)
 53. [x] Second game stub — another named hole under Games/
 54. [x] Offline ticker cache — last good quote when the public spot is down
 55. [x] Focus trap on the tutorial — Tab stays in the first-hole dialog
@@ -84,10 +84,10 @@ Playable is not deep. Combo and waitlist rate-limit are already in. Public Pages
 57. [x] High contrast — optional phosphor/contrast mode
 58. [x] Print-safe skip — skip link and CRT do not wreck a print stylesheet
 59. [x] Rate-limit already — waitlist POST capped on the python server (8 / hour / IP)
-60. [x] Leaderboard on Pages — device board from localStorage; python `/api/scores` when the server is up
+60. [x] Leaderboard — device best in localStorage on every hole; server-wide board is GET `/api/scores` when `python3 server.py` is up. GitHub Pages has no python process, so the live Pages hole cannot host a true global board
 61. [x] Haptic setting — user toggle, independent of MUTE
-62. [x] Volume — gain control, not only MUTE / SOUND
-63. [x] Combo already — consecutive packet grabs add a point
+62. [x] Volume — gain control, not only MUTE / SOUND. Mute defaults on (browser autoplay). Friendly chiptune + FX
+63. [x] Combo already — consecutive pellet grabs add a point
 64. [x] Restart confirm — START while a run is live asks before wiping the hole
 65. [x] Landscape lock hint — notice when the phone is the wrong way
 66. [x] Safe-area insets — `env(safe-area-inset-*)` padding (viewport-fit is already cover)

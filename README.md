@@ -16,7 +16,7 @@ Method: ship to staging first, then promote to production. Type `ship` on the ho
 - Nested selectors: **Docs/**, **Games/**, **User/**
 - Prompt: type a selector, alias (`play`, `login`), or an order
 - Live fetch: type `fetch btc` (or ETH, SOL, XRP, `price`) to pull a ticker as a type-0 document
-- **FETCH/** — original 8-bit burrow game (selector `5`)
+- **FETCH/** — 100-stage maze (selector `5`). One tap, one tile. Energy pellets, orange foxes, clock.
 - **User/** — device login (selector `9`). Passphrases are PBKDF2-hashed in localStorage. Not a cloud account yet.
 
 ## Keys

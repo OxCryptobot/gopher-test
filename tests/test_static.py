@@ -31,12 +31,27 @@ class StaticTests(unittest.TestCase):
         self.assertTrue(icons, "manifest.json icons is empty")
 
     def test_sw_cache_name(self) -> None:
-        self.assertIn("gopher-v2", read("sw.js"))
+        self.assertIn("gopher-v3", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")
         self.assertIn("pauseToggle", src)
         self.assertIn("FetchGame", src)
+
+    def test_game_maze_rewrite_strings(self) -> None:
+        """Asserts the FETCH maze rewrite. Passes after game.js lands; ok to fail until then."""
+        src = read("game.js")
+        self.assertIn("fox", src.lower())
+        self.assertIn("maze", src.lower())
+        self.assertIn("Huzaaa", src)
+        self.assertIn("Clunk", src)
+        self.assertIn("Ouchies", src)
+        self.assertIn("TIME OVER", src)
+        self.assertIn("GOPHER CHAMPION", src)
+        self.assertTrue(
+            "maxLvl" in src or "100" in src,
+            "game.js should mention maxLvl or 100 stages",
+        )
 
     def test_server_py_compile(self) -> None:
         path = os.path.join(ROOT, "server.py")
