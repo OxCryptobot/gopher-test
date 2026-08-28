@@ -19,7 +19,7 @@ def read(name: str) -> str:
 class StaticTests(unittest.TestCase):
     def test_index_has_play_fetch_and_hash(self) -> None:
         html = read("index.html")
-        self.assertIn('id="topbar"', html)
+        self.assertIn('id="chrome"', html)
         self.assertIn('href="#/fetch"', html)
         self.assertIn('href="#/dig"', html)
         self.assertIn('href="#/waitlist"', html)
@@ -37,7 +37,7 @@ class StaticTests(unittest.TestCase):
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v8", src)
+        self.assertIn("gopher-v9", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
@@ -46,7 +46,7 @@ class StaticTests(unittest.TestCase):
         css = read("style.css")
         self.assertIn('id="ask"', html)
         self.assertIn('id="suggest"', html)
-        self.assertIn("gopher-v8", read("sw.js"))
+        self.assertIn("gopher-v9", read("sw.js"))
         self.assertTrue(
             "setBrain" in js or "GOPHER · ready" in js,
             "app.js should mention setBrain or GOPHER · ready",
@@ -70,14 +70,24 @@ class StaticTests(unittest.TestCase):
         html = read("index.html")
         css = read("style.css")
         js = read("app.js")
-        self.assertIn('id="topbar"', html)
         self.assertIn('id="chrome"', html)
+        self.assertIn('aria-label="GOPHER"', html)
+        self.assertIn('href="#/fetch"', html)
+        self.assertIn('href="#/dig"', html)
+        self.assertIn('href="#/waitlist"', html)
         self.assertIn('data-nav="fetch"', html)
         self.assertIn('data-nav="dig"', html)
         self.assertIn('data-nav="waitlist"', html)
+        self.assertIn("FETCH", html)
+        self.assertIn("DIG", html)
         self.assertIn("paintTopbar", js)
-        self.assertIn(".topbar", css)
-        self.assertIn("gopher-v8", read("sw.js"))
+        self.assertIn("SUG_IDLE = 3", js)
+        self.assertIn("#chrome", css)
+        self.assertIn("gopher-v9", read("sw.js"))
+        self.assertTrue(
+            'id="hero" hidden' in html or "heroEl.hidden = true" in js,
+            "hero should be hidden on home",
+        )
 
     def test_game_exports(self) -> None:
         src = read("game.js")

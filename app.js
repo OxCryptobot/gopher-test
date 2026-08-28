@@ -87,7 +87,7 @@
   var phOff = 0;
   var DEFAULT_PH = "5   or   fetch btc   or   play";
   var SUG_MAX = 8;
-  var SUG_IDLE = 8;
+  var SUG_IDLE = 3;
 
 
   function esc(s) {
@@ -187,21 +187,24 @@
     var el = $("brain");
     var st = $("ask-status");
     var labels = {
-      ready: "GOPHER · ready",
-      think: "GOPHER · fetching",
-      ok: "GOPHER · ok",
-      parked: "GOPHER · parked",
-      err: "GOPHER · err"
+      ready: "ready",
+      think: "fetching",
+      ok: "ok",
+      parked: "parked",
+      err: "err"
     };
-    var label = labels[state] || ("GOPHER · " + (state || "ready"));
+    var label = labels[state] || (state || "ready");
     var bad = (state === "parked" || state === "err");
     if (el) {
       el.textContent = label;
-      el.className = "brain" + (bad ? " err" : "");
+      el.className = "brain" + (bad ? " err" : "") + (state === "parked" ? " parked" : "");
     }
-    if (text != null && st) {
-      setStatus(st, state === "err" ? "err" : (state === "ok" ? "ok" : ""), text);
+    if (!st) return;
+    if (state === "ready" || text == null || text === "") {
+      setStatus(st, "", "");
+      return;
     }
+    setStatus(st, state === "err" || state === "parked" ? "err" : (state === "ok" ? "ok" : ""), text);
   }
 
   function showWaitForm(on) {
@@ -216,7 +219,7 @@
     else if (path === "/waitlist") key = "waitlist";
     else if (path === "/user") key = "user";
     else if (path !== "/") key = "";
-    var nodes = document.querySelectorAll("#topbar [data-nav]");
+    var nodes = document.querySelectorAll("#chrome [data-nav]");
     var i, a;
     for (i = 0; i < nodes.length; i++) {
       a = nodes[i];
@@ -225,7 +228,7 @@
   }
 
   function idleCount() {
-    return document.body.classList.contains("game-on") ? 6 : SUG_IDLE;
+    return SUG_IDLE;
   }
 
   function bootLang() {
@@ -461,8 +464,17 @@
     paintWho();
   }
   function paintWho() {
-    var s = session();
-    $("who").textContent = s && s.name ? s.name : "guest";
+    var el = $("who");
+    var s;
+    if (!el) return;
+    s = session();
+    if (s && s.name) {
+      el.textContent = s.name;
+      el.hidden = false;
+    } else {
+      el.textContent = "";
+      el.hidden = true;
+    }
   }
 
   function users() {
@@ -705,7 +717,8 @@
   function render() {
     var path = pathNow();
     var gameOn = (path === "/fetch" || path === "/dig");
-    $("host").textContent = "gopher://gopher.ai:70" + path;
+    var host = $("host");
+    if (host) host.textContent = "gopher://gopher.ai:70" + path;
     document.title = path === "/fetch"
       ? "FETCH — GOPHER AI"
       : (path === "/dig" ? "DIG — GOPHER AI" : (path === "/" ? "GOPHER AI" : ("GOPHER AI " + path)));
@@ -715,6 +728,7 @@
     hideSpecial();
     if (dirEl) dirEl.hidden = gameOn;
     if (askEl) askEl.hidden = false;
+    if (heroEl) heroEl.hidden = true;
     document.body.classList.toggle("game-on", gameOn);
     showWaitForm(path === "/waitlist");
     paintTopbar(path);
@@ -724,14 +738,12 @@
     }
 
     if (path === "/" || path === "/waitlist") {
-      heroEl.hidden = false;
       if (path === "/waitlist") {
         var em = $("email");
         if (em) em.focus();
       }
       return;
     }
-    heroEl.hidden = true;
 
     if (path === "/user") {
       authEl.hidden = false;
@@ -1126,6 +1138,7 @@
         return;
       }
       el.hidden = false;
+      el.classList.add("idle");
       el.innerHTML = "<li role='option' id='sug-0' aria-selected='true'><button type='button' class='sel active'><span class='itype'>1</span> GOPHER · ready <span class='path'>100 tasks</span></button></li>";
       sugItems = [];
       sugHi = 0;
@@ -1152,6 +1165,7 @@
     }
     el.innerHTML = html;
     el.hidden = false;
+    el.classList.toggle("idle", !!opts.idle);
     setSugExpanded(true);
     el.querySelectorAll("button.sel").forEach(function (b) {
       b.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
@@ -1565,14 +1579,14 @@
         startPlaceholders();
         paintSuggest(idleSlice(), { idle: true });
         showIdleSuggest();
-        setBrain("ready", TASKS.length + " tasks · ticker live · SMS parked");
+        setBrain("ready");
       })
       .catch(function () {
         TASKS = fallbackTasks();
         startPlaceholders();
         paintSuggest(idleSlice(), { idle: true });
         showIdleSuggest();
-        setBrain("ready", TASKS.length + " tasks · ticker live · SMS parked");
+        setBrain("ready");
       });
   }
   function bindPrompt() {
@@ -2277,7 +2291,7 @@
   paintStaging();
   bindTrackBtn();
   bindPrompt();
-  setBrain("ready", "100 tasks · ticker live · SMS parked");
+  setBrain("ready");
   loadTasks();
   render();
   tutShow();

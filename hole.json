@@ -555,6 +555,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-08-28 — quiet chrome: one nav row and a compact GOPHER prompt. 82/100.",
         "2026-08-28 — games and waitlist in the top bar; GOPHER prompt stays first. 82/100.",
         "2026-08-28 — sticky GOPHER prompt, always-on task selectors.",
         "2026-08-28 — prompt autoprompts, 100 tasks catalog.",
@@ -566,6 +567,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-08-28 — chrome quieto: una fila de nav y un prompt GOPHER compacto. 82/100.",
         "2026-08-28 — juegos y waitlist en la barra; el prompt GOPHER sigue primero. 82/100.",
         "2026-08-28 — prompt GOPHER sticky, selectores de tareas siempre on.",
         "2026-08-28 — el prompt hace autoprompt, catálogo de 100 tareas.",

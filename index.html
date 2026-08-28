@@ -86,37 +86,27 @@
   </div>
 
   <div class="shell">
-    <div id="chrome" class="chrome">
-    <header class="status">
-      <span class="host" id="host">gopher://gopher.ai:70/1</span>
-      <span class="brain" id="brain">GOPHER · ready</span>
-      <span class="who" id="who">guest</span>
-      <span class="clock" id="clock"></span>
-    </header>
-
-    <nav id="topbar" class="topbar" aria-label="Main">
-      <a href="#/" data-nav="home" data-i18n="navHome">home</a>
-      <span class="top-group" aria-label="Games">
-        <span class="top-label" data-i18n="navGames">games</span>
-        <a href="#/fetch" data-nav="fetch">FETCH</a>
-        <a href="#/dig" data-nav="dig">DIG</a>
-      </span>
+    <div class="chrome">
+    <nav id="chrome" aria-label="GOPHER">
+      <a href="#/" data-nav="home" class="brand">GOPHER</a>
+      <a href="#/fetch" data-nav="fetch">FETCH</a>
+      <a href="#/dig" data-nav="dig">DIG</a>
       <a href="#/waitlist" data-nav="waitlist" data-i18n="navWaitlist">waitlist</a>
       <a href="#/user" data-nav="user" data-i18n="navUser">user</a>
+      <span id="who" class="who" hidden></span>
+      <span id="brain" class="brain">ready</span>
+      <span id="clock" class="clock"></span>
     </nav>
 
-    <section class="menu-block wait" id="ask">
-      <h2><span class="itype">7</span> GOPHER/ <span class="idim">&lt;ask&gt;</span></h2>
-      <p class="info" data-i18n="promptInfo">GOPHER is on. Type an order. It matches a selector and fetches.</p>
+    <section id="ask">
       <form id="ask-form" autocomplete="off">
-        <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">ask gopher:</span></label>
-        <div class="row">
+        <div class="ask-line">
+          <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">ask gopher:</span></label>
           <input id="command" maxlength="280" placeholder="5   or   fetch btc   or   play" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-controls="suggest" aria-expanded="true">
           <button type="submit" id="go">GO</button>
         </div>
         <ol id="suggest" class="selectors suggest" role="listbox"></ol>
-        <p class="status-line" id="ask-status" role="status">100 tasks · ticker live · SMS parked</p>
-        <p class="keys dim" data-i18n-html="keysHint">keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home</p>
+        <p class="status-line" id="ask-status" role="status"></p>
       </form>
     </section>
     </div>
@@ -132,7 +122,7 @@
       </form>
     </section>
 
-    <section class="hero" id="hero">
+    <section class="hero" id="hero" hidden>
       <pre class="mascot" aria-hidden="true">
           ,-"""-.
          /  o o  \
