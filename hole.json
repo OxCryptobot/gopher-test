@@ -560,6 +560,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-08-28 — ask GOPHER wired on Pages, answers static, no spin. 82/100.",
         "2026-08-28 — FETCH is search, DIG is tasks, MAZE/BURROW side quest, 3 answers. 82/100.",
         "2026-08-28 — quiet chrome: one nav row and a compact GOPHER prompt. 82/100.",
         "2026-08-28 — games and waitlist in the top bar; GOPHER prompt stays first. 82/100.",
@@ -573,6 +574,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-08-28 — ask GOPHER cableado en Pages, respuestas fijas, sin giro. 82/100.",
         "2026-08-28 — FETCH es search, DIG es tareas, MAZE/BURROW side quest, 3 respuestas. 82/100.",
         "2026-08-28 — chrome quieto: una fila de nav y un prompt GOPHER compacto. 82/100.",
         "2026-08-28 — juegos y waitlist en la barra; el prompt GOPHER sigue primero. 82/100.",

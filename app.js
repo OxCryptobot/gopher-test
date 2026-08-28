@@ -84,8 +84,9 @@
   var sugItems = [];
   var idleTimer = 0;
   var phTimer = 0;
-  var idleOff = 0;
-  var phOff = 0;
+  var holeLive = false;
+  var holeProbed = false;
+  var replyOpen = false;
   var DEFAULT_PH = "fetch btc   or   tasks   or   remind me";
   var SUG_MAX = 3;
   var SUG_IDLE = 3;
@@ -191,7 +192,7 @@
     var st = $("ask-status");
     var labels = {
       ready: "ready",
-      think: "fetching",
+      think: "fetching…",
       ok: "ok",
       parked: "parked",
       err: "err"
@@ -711,7 +712,9 @@
   }
 
   function showType0(title, text) {
-    heroEl.hidden = true;
+    replyOpen = true;
+    resetPrompt();
+    if (heroEl) heroEl.hidden = true;
     authEl.hidden = true;
     gameEl.hidden = true;
     if (digEl) digEl.hidden = true;
@@ -720,7 +723,7 @@
     if (askEl) askEl.hidden = false;
     viewEl.hidden = false;
     viewEl.innerHTML =
-      "<h2><span class='itype'>0</span> " + esc(title || "Document") + "</h2>" +
+      "<h2><span class='itype'>0</span> " + esc(title || "GOPHER") + "</h2>" +
       "<pre class='gopher-doc'>" + esc(text || "") + "</pre>";
     viewEl.focus();
   }
@@ -737,6 +740,7 @@
     renderDir(path);
     paintWho();
     hideSpecial();
+    replyOpen = false;
     if (dirEl) dirEl.hidden = gameOn;
     if (askEl) askEl.hidden = false;
     if (heroEl) heroEl.hidden = path !== "/";
@@ -1061,34 +1065,35 @@
     }
     return best;
   }
-  function pickRot(list, off) {
-    if (!list || !list.length) return null;
-    return list[off % list.length];
+  function findTaskByIdOrQ(id, q) {
+    var i, row, lowId = (id || "").toLowerCase(), lowQ = (q || "").toLowerCase();
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      if (!row) continue;
+      if (lowId && (row.id || "").toLowerCase() === lowId) return row;
+    }
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      if (!row) continue;
+      if (lowQ && (row.q || "").toLowerCase() === lowQ) return row;
+    }
+    return null;
+  }
+  function idleHard() {
+    return [
+      { id: "fetch-btc", q: "fetch btc", title: "fetch btc", title_es: "fetch btc", hint: "search / ticker", hint_es: "search / ticker", kind: "fetch", run: "ask", live: true },
+      { id: "tasks", q: "tasks", title: "tasks", title_es: "tareas", hint: "DIG catalog", hint_es: "catálogo DIG", kind: "nav", run: "nav", live: true, path: "/tasks" },
+      { id: "waitlist", q: "waitlist", title: "waitlist", title_es: "waitlist", hint: "paid door", hint_es: "puerta de pago", kind: "nav", run: "nav", live: true, path: "/waitlist" }
+    ];
   }
   function idleSlice() {
-    var live = liveTasks(), out = [], seen = {}, cap, i, row;
-    var fetches = [], queues = [], games = [], rest = [];
-    if (!live.length) return [];
-    cap = idleCount();
-    for (i = 0; i < live.length; i++) {
-      row = live[i];
-      if (!row) continue;
-      if (row.kind === "fetch") fetches.push(row);
-      else if (row.kind === "queue" || row.id === "tasks" || row.id === "watch" || row.id === "remind" || row.id === "draft") queues.push(row);
-      else if (row.kind === "game" || row.id === "fetch-hole" || row.id === "dig" || row.id === "games") games.push(row);
-      else rest.push(row);
+    var hard = idleHard(), out = [], i, row, hit;
+    for (i = 0; i < hard.length && out.length < SUG_IDLE; i++) {
+      row = hard[i];
+      hit = findTaskByIdOrQ(row.id, row.q);
+      out.push(hit || row);
     }
-    function add(item) {
-      if (!item || seen[item.id] || out.length >= cap) return;
-      seen[item.id] = 1;
-      out.push(item);
-    }
-    add(pickRot(fetches, idleOff));
-    add(pickRot(queues, idleOff));
-    add(pickRot(games, idleOff));
-    add(pickRot(rest, idleOff));
-    for (i = 0; i < live.length && out.length < cap; i++) add(live[(idleOff + i) % live.length]);
-    return out;
+    return out.slice(0, SUG_IDLE);
   }
   function noMatchRows() {
     var parked = [], out = [], i, row;
@@ -1162,7 +1167,7 @@
     else cmd.removeAttribute("aria-activedescendant");
   }
   function paintSuggest(items, opts) {
-    var el = suggestEl(), html = "", i, row, hi, title, hint, gtype;
+    var el = suggestEl(), html = "", i, row, hi, title, hint;
     opts = opts || {};
     if (!el) return;
     if (items && items.length > SUG_MAX) items = items.slice(0, SUG_MAX);
@@ -1173,7 +1178,7 @@
       }
       el.hidden = false;
       el.classList.add("idle");
-      el.innerHTML = "<li role='option' id='sug-0' aria-selected='true'><button type='button' class='sel active'><span class='itype'>1</span> GOPHER · ready <span class='path'>100 tasks</span></button></li>";
+      el.innerHTML = "<li role='option' id='sug-0' aria-selected='true'><button type='button' class='sel active'>fetch btc <span class='path'>search / ticker</span></button></li>";
       sugItems = [];
       sugHi = 0;
       setSugExpanded(true);
@@ -1188,12 +1193,9 @@
       row = items[i];
       title = taskTitle(row);
       hint = taskHint(row);
-      gtype = gopherType(row);
       hi = (i === sugHi) ? " active" : "";
       html += "<li role='option' id='sug-" + i + "' aria-selected='" + (i === sugHi ? "true" : "false") + "'>" +
         "<button type='button' class='sel" + hi + "' data-sug='" + i + "'>" +
-        "<span class='itype'>" + (i + 1) + "</span> " +
-        "<span class='idim'>" + gtype + "</span> " +
         esc(title) +
         " <span class='path'>" + esc(hint) + "</span></button></li>";
     }
@@ -1205,7 +1207,7 @@
       b.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
       b.addEventListener("click", function () {
         var n = +b.getAttribute("data-sug");
-        if (sugItems[n]) handleOrder(sugItems[n].q || sugItems[n].id || "");
+        if (sugItems[n]) runTask(sugItems[n]);
       });
     });
     syncSugAria();
@@ -1326,38 +1328,40 @@
     setStatus($("ask-status"), "ok", "ok. " + (row.q || id));
   }
   function runTask(row) {
-    var q, cmd;
+    var q;
     if (!row) return;
     q = row.q || row.id || "";
-    cmd = $("command");
-    if (cmd) cmd.value = "";
-    paintSuggest(idleSlice(), { idle: true });
-    showIdleSuggest();
     if (row.run === "parked" || row.kind === "parked") {
+      resetPrompt();
       if (row.path) go(row.path);
       setBrain("parked", parkedLine(row));
       return;
     }
     if (row.run === "nav") {
+      resetPrompt();
       if (row.path) go(row.path);
       setBrain("ok", "ok. " + q);
       return;
     }
     if (row.run === "queue") {
+      resetPrompt();
       queueKindOrder(q);
       return;
     }
     if (row.run === "set") {
+      resetPrompt();
       runSet(row);
       setBrain("ok", "ok. " + q);
       return;
     }
     if (row.run === "ask") {
-      askServer(q);
+      askGopher(q);
       return;
     }
-    if (row.path) go(row.path);
-    else askServer(q);
+    if (row.path) {
+      resetPrompt();
+      go(row.path);
+    } else askGopher(q);
   }
   function findTaskExact(q) {
     var i, row, low, j;
@@ -1378,20 +1382,24 @@
   }
 
   function handleOrder(q) {
-    var hit, task, top, alias, cmd, form;
+    var hit, task, top, alias, cmd, form, n;
     q = (q || "").trim();
     if (!q) return;
     cmd = $("command");
-    if (cmd) cmd.value = "";
-    paintSuggest(idleSlice(), { idle: true });
-    showIdleSuggest();
     if (/^[0-9]$/.test(q)) {
+      n = +q;
+      if (cmd && document.activeElement === cmd && sugItems[n - 1]) {
+        runTask(sugItems[n - 1]);
+        return;
+      }
       hit = itemsByN()[q];
       if (hit && hit.path) {
+        resetPrompt();
         go(hit.path);
         setBrain("ok", "ok. " + q);
         return;
       }
+      return;
     }
     task = findTaskExact(q);
     if (task) {
@@ -1404,16 +1412,19 @@
       return;
     }
     if (kindOrder(q)) {
+      resetPrompt();
       queueKindOrder(q);
       return;
     }
     alias = ALIAS[q.toLowerCase()];
     if (alias) {
+      resetPrompt();
       go(alias);
       setBrain("ok", "ok. " + q);
       return;
     }
     if (EMAIL_RE.test(q)) {
+      resetPrompt();
       if ($("email")) $("email").value = q;
       go("/waitlist");
       showWaitForm(true);
@@ -1421,27 +1432,21 @@
       if (form && form.requestSubmit) form.requestSubmit();
       return;
     }
-    askServer(q);
+    askGopher(q);
   }
   function stopIdleSpin() {
     if (idleTimer) {
       clearInterval(idleTimer);
       idleTimer = 0;
     }
+    if (phTimer) {
+      clearInterval(phTimer);
+      phTimer = 0;
+    }
   }
   function showIdleSuggest() {
+    stopIdleSpin();
     paintSuggest(idleSlice(), { idle: true });
-    if (prefersLessMotion()) return;
-    if (idleTimer) return;
-    idleTimer = setInterval(function () {
-      var cmd = $("command");
-      if (!cmd || (cmd.value || "").trim()) {
-        stopIdleSpin();
-        return;
-      }
-      idleOff += 1;
-      paintSuggest(idleSlice(), { idle: true });
-    }, 4000);
   }
   function onPromptInput() {
     var cmd = $("command");
@@ -1468,9 +1473,9 @@
   function onPromptKey(e) {
     var cmd = $("command");
     var empty = cmd && !(cmd.value || "").trim();
-    if (empty && /^[0-9]$/.test(e.key)) {
+    if (empty && /^[1-3]$/.test(e.key) && sugItems[+e.key - 1]) {
       e.preventDefault();
-      handleOrder(e.key);
+      runTask(sugItems[+e.key - 1]);
       return;
     }
     if (e.key === "ArrowDown") {
@@ -1501,6 +1506,7 @@
     if (e.key === "Escape") {
       e.preventDefault();
       if (e.target && e.target.blur) e.target.blur();
+      if (replyOpen) go("/");
       return;
     }
     if (e.key === "Enter") {
@@ -1508,41 +1514,15 @@
       if (typed) return;
       if (sugHi >= 0 && sugItems[sugHi] && sugItems[sugHi].id !== "no-match") {
         e.preventDefault();
-        handleOrder(sugItems[sugHi].q || sugItems[sugHi].id || "");
+        runTask(sugItems[sugHi]);
       }
     }
-  }
-  function tickPlaceholder() {
-    var cmd = $("command");
-    var live, item;
-    if (!cmd) return;
-    if ((cmd.value || "").trim()) return;
-    if (prefersLessMotion()) {
-      cmd.placeholder = DEFAULT_PH;
-      return;
-    }
-    live = liveTasks();
-    if (!live.length) {
-      cmd.placeholder = DEFAULT_PH;
-      return;
-    }
-    item = live[phOff % live.length];
-    cmd.placeholder = item.q || DEFAULT_PH;
-    phOff += 1;
   }
   function startPlaceholders() {
     var cmd = $("command");
     if (!cmd) return;
-    if (phTimer) {
-      clearInterval(phTimer);
-      phTimer = 0;
-    }
-    if (prefersLessMotion()) {
-      cmd.placeholder = DEFAULT_PH;
-      return;
-    }
-    tickPlaceholder();
-    phTimer = setInterval(tickPlaceholder, 4000);
+    stopIdleSpin();
+    cmd.placeholder = DEFAULT_PH;
   }
   function fallbackTasks() {
     var out = [], seen = {}, path, hole, alias, coins, i, q, id;
@@ -1623,6 +1603,20 @@
         setBrain("ready");
       });
   }
+  function bindChromeHome() {
+    var nav = $("chrome");
+    if (!nav || nav.getAttribute("data-home-bound") === "1") return;
+    nav.setAttribute("data-home-bound", "1");
+    nav.addEventListener("click", function (e) {
+      var a = e.target;
+      while (a && a !== nav && !(a.getAttribute && a.getAttribute("data-nav"))) a = a.parentNode;
+      if (!a || a.getAttribute("data-nav") !== "home") return;
+      if (pathNow() === "/") {
+        e.preventDefault();
+        render();
+      }
+    });
+  }
   function bindPrompt() {
     var cmd = $("command");
     if (!cmd) return;
@@ -1642,13 +1636,53 @@
     if ($("email")) $("email").focus();
   }
 
-  function askServer(q) {
+  function resetPrompt() {
+    var cmd = $("command");
+    if (cmd) {
+      cmd.value = "";
+      cmd.placeholder = DEFAULT_PH;
+    }
+    paintSuggest(idleSlice(), { idle: true });
+  }
+
+  function onPages() {
+    try {
+      return (location.hostname || "").indexOf("github.io") !== -1;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function probeHole() {
+    if (onPages()) {
+      holeLive = false;
+      holeProbed = true;
+      return;
+    }
+    fetch("api/status", { headers: { Accept: "application/json" } })
+      .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
+      .then(function () {
+        holeLive = true;
+        holeProbed = true;
+      })
+      .catch(function () {
+        holeLive = false;
+        holeProbed = true;
+      });
+  }
+
+  function askGopher(q) {
     if (kindOrder(q)) {
+      resetPrompt();
       queueKindOrder(q);
       return;
     }
-    setBrain("think", "fetching…");
-    fetch("/api/ask", {
+    if (onPages() || (holeProbed && !holeLive)) {
+      clientBrain(q);
+      return;
+    }
+    setBrain("think", "fetching\u2026");
+    fetch("api/ask", {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({ q: q })
@@ -1658,7 +1692,7 @@
       })
       .then(function (body) {
         if (!body || (body.ok !== true && body.kind !== "doc" && body.kind !== "queued")) {
-          clientFetch(q);
+          clientBrain(q);
           return;
         }
         if (body.kind === "doc") {
@@ -1676,14 +1710,14 @@
           setBrain("ok", "ok. " + q);
           return;
         }
-        clientFetch(q);
+        clientBrain(q);
       })
-      .catch(function () { clientFetch(q); });
+      .catch(function () { clientBrain(q); });
   }
 
   function looksTicker(q) {
     if (/\bfng\b|fear\s*greed|\bfg\b/i.test(q || "")) return false;
-    return /fetch|price|btc|eth|sol|xrp|doge|ada/i.test(q || "");
+    return /fetch|price|ticker|btc|eth|sol|xrp|doge|ada|bitcoin|ethereum|solana|cardano|dogecoin|ripple|link|uni|avax|matic|dot|atom|near|apt|sui|ton/i.test(q || "");
   }
   function tickerId(q) {
     var low = (q || "").toLowerCase();
@@ -1708,37 +1742,80 @@
     }
     return hit;
   }
-  function noMatchDoc() {
-    showType0("0 GOPHER", "GOPHER did not match. Try: fetch btc · play · blueprint");
-    setBrain("ok", "no match · try fetch btc or play");
+  function helpDoc() {
+    showType0("GOPHER", "GOPHER can:\n\nfetch btc    search / ticker\ntasks        DIG catalog\nwaitlist     paid door\n\ntype an order or tap a row.");
+    setBrain("ok", "try fetch btc \u00b7 tasks \u00b7 waitlist");
+  }
+  function clientBrain(q) {
+    var task, top;
+    if (kindOrder(q)) {
+      resetPrompt();
+      queueKindOrder(q);
+      return;
+    }
+    if (looksTicker(q)) {
+      clientFetch(q);
+      return;
+    }
+    task = findTaskExact(q);
+    if (task && task.run !== "ask") {
+      runTask(task);
+      return;
+    }
+    top = rankTop(q);
+    if (top && top.score >= 40 && top.row && top.row.run !== "ask") {
+      runTask(top.row);
+      return;
+    }
+    helpDoc();
+  }
+  function stashSpot(id, amt) {
+    try {
+      sessionStorage.setItem(SPOT_KEY, JSON.stringify({ id: id, amt: amt, at: Date.now() }));
+    } catch (err) {}
+  }
+  function showSpot(id, amt, src, q) {
+    showType0(id + "-USD", id + "-USD\n\nlast      " + amt + "\n\nsource    " + src);
+    setBrain("ok", "ok. " + (q || id));
+    questMark("fetch");
+  }
+  function spotFromCache(id) {
+    var stash = null;
+    try { stash = JSON.parse(sessionStorage.getItem(SPOT_KEY) || "null"); } catch (err) { stash = null; }
+    if (stash && stash.id === id && stash.amt != null && stash.amt !== "") return stash;
+    return null;
   }
   function clientFetch(q) {
-    if (!looksTicker(q)) { noMatchDoc(); return; }
+    if (!looksTicker(q)) { helpDoc(); return; }
     var id = tickerId(q);
-    setBrain("think", "fetching…");
+    setBrain("think", "fetching\u2026");
     fetch("https://api.coinbase.com/v2/prices/" + id + "-USD/spot")
-      .then(function (res) { return res.json(); })
+      .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
       .then(function (j) {
         var amt = j && j.data && j.data.amount;
         if (!amt) throw new Error("empty");
-        try {
-          sessionStorage.setItem(SPOT_KEY, JSON.stringify({ id: id, amt: amt, at: Date.now() }));
-        } catch (err) {}
-        showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + amt + "\n\nsource    public spot");
-        setBrain("ok", "ok. " + q);
-        questMark("fetch");
+        stashSpot(id, amt);
+        showSpot(id, amt, "public spot", q);
       })
       .catch(function () {
-        var stash = null;
-        try { stash = JSON.parse(sessionStorage.getItem(SPOT_KEY) || "null"); } catch (err) { stash = null; }
-        if (stash && stash.id === id && stash.amt != null && stash.amt !== "") {
-          showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + stash.amt + "\n\nsource    cached");
-          setBrain("ok", "cached");
-          questMark("fetch");
+        return fetch("https://www.okx.com/api/v5/market/ticker?instId=" + id + "-USDT")
+          .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
+          .then(function (j) {
+            var row = j && j.data && j.data[0];
+            var amt = row && row.last;
+            if (!amt) throw new Error("empty");
+            stashSpot(id, amt);
+            showSpot(id, amt, "public spot", q);
+          });
+      })
+      .catch(function () {
+        var stash = spotFromCache(id);
+        if (stash) {
+          showSpot(id, stash.amt, "cached", q);
           return;
         }
         setBrain("err", "fetch failed.");
-        noMatchDoc();
+        helpDoc();
       });
   }
 
@@ -2024,6 +2101,12 @@
         helpEl.hidden = true;
         return;
       }
+      if (replyOpen) {
+        e.preventDefault();
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+        go("/");
+        return;
+      }
       if (document.activeElement && document.activeElement.id === "command") {
         document.activeElement.blur();
         return;
@@ -2043,7 +2126,10 @@
   $("ask-form").addEventListener("submit", function (ev) {
     ev.preventDefault();
     var q = ($("command").value || "").trim();
-    if (!q) return;
+    if (!q) {
+      if (sugHi >= 0 && sugItems[sugHi] && sugItems[sugHi].id !== "no-match") runTask(sugItems[sugHi]);
+      return;
+    }
     handleOrder(q);
   });
 
@@ -2325,7 +2411,9 @@
   paintStaging();
   bindTrackBtn();
   bindPrompt();
+  bindChromeHome();
   setBrain("ready");
+  probeHole();
   loadTasks();
   render();
   tutShow();

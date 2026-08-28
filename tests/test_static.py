@@ -43,7 +43,7 @@ class StaticTests(unittest.TestCase):
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v10", src)
+        self.assertIn("gopher-v11", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
@@ -52,7 +52,7 @@ class StaticTests(unittest.TestCase):
         css = read("style.css")
         self.assertIn('id="ask"', html)
         self.assertIn('id="suggest"', html)
-        self.assertIn("gopher-v10", read("sw.js"))
+        self.assertIn("gopher-v11", read("sw.js"))
         self.assertTrue(
             "SUG_MAX = 3" in js or "SUG_IDLE = 3" in js,
             "app.js should cap visible answers at 3",
@@ -98,7 +98,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
         self.assertIn("#chrome", css)
-        self.assertIn("gopher-v10", read("sw.js"))
+        self.assertIn("gopher-v11", read("sw.js"))
         self.assertIn('class="mascot"', html)
         self.assertIn("<pre", html)
         self.assertTrue(
@@ -109,6 +109,22 @@ class StaticTests(unittest.TestCase):
             "heroEl.hidden = path !==" in js or 'heroEl.hidden = (path !== "/")' in js,
             "hero should unhide on / only",
         )
+
+    def test_idle_answers_static_and_pages_ask(self) -> None:
+        js = read("app.js")
+        self.assertNotIn("idleTimer = setInterval", js)
+        self.assertNotIn("tickPlaceholder", js)
+        self.assertIn("stopIdleSpin", js)
+        self.assertIn("github.io", js)
+        self.assertIn("clientFetch", js)
+        self.assertIn("askGopher", js)
+        self.assertIn("idleHard", js)
+        self.assertIn('q: "fetch btc"', js)
+        self.assertIn('q: "tasks"', js)
+        self.assertIn('q: "waitlist"', js)
+        self.assertIn("SUG_IDLE = 3", js)
+        self.assertIn("SUG_MAX = 3", js)
+        self.assertIn("gopher-v11", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")
