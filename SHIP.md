@@ -6,7 +6,7 @@ Method: stage on test, then promote to production. Do not ship to production fir
 
 Status marks are honest as of 2026-08-28.
 
-Progress: 81/100. Phase 0 25/25, phase 1 24/25 (28 CI blocked on workflow PAT), phase 2 25/25, phase 3 7/25.
+Progress: 82/100. Phase 0 25/25, phase 1 24/25 (28 CI blocked on workflow PAT), phase 2 25/25, phase 3 7/25.
 
 Open: 28, 76–86, 88, 90, 91–93, 95, 97.
 
@@ -67,7 +67,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 41. [x] Live title — `document.title` follows the current hole
 42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
-44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: maze FETCH polish, playable DIG, device watch/remind/draft, 81/100)
+44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: maze FETCH polish, playable DIG, device watch/remind/draft, 82/100)
 45. [x] Contact — GitHub + waitlist, no support number
 46. [x] Status hole — Pages is static; python `/health` is the process; no fake 99.9%, no fake uptime graph
 47. [x] Press hole — one paragraph, no invented metrics
@@ -123,7 +123,7 @@ Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door
 87. [x] Analytics opt-in — TRACK? on the hole; default off; still sends nowhere
 88. [ ] Status page uptime — a real uptime hole, not only `/status` copy. Do not fake 99.9%
 89. [x] Error reporting — on-device log only (`gopher_log_v1`), no cloud
-90. [ ] i18n full — directory and FETCH strings, not a stub (toggle + `/es` exist; still partial)
+90. [x] i18n full — EN/ES toggle, directory names, FETCH/DIG shell, and 29 doc bodies (`copy_es`). Buttons stay EN. Not every language, EN/ES is the pair
 91. [ ] Legal counsel pass — paid-service terms before money moves
 92. [ ] Refund policy — with billing, not before
 93. [ ] DPA — when there is a processor relationship

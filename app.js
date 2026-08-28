@@ -554,25 +554,30 @@
 
   function docHtml(doc) {
     if (!doc) return "";
-    if (doc.html) return doc.html;
-    var html = "", copy = doc.copy, i;
+    var es = document.documentElement.lang === "es";
+    var htmlDoc = (es && doc.html_es) ? doc.html_es : doc.html;
+    if (htmlDoc) return htmlDoc;
+    var html = "", copy = (es && doc.copy_es) ? doc.copy_es : doc.copy, i;
+    var steps = (es && doc.steps_es) ? doc.steps_es : doc.steps;
+    var caps = (es && doc.caps_es) ? doc.caps_es : doc.caps;
+    var note = (es && doc.note_es) ? doc.note_es : doc.note;
     if (typeof copy === "string") copy = [copy];
     if (Array.isArray(copy)) {
       for (i = 0; i < copy.length; i++) html += "<p class='info'>" + esc(copy[i]) + "</p>";
     }
-    if (doc.steps && doc.steps.length) {
+    if (steps && steps.length) {
       html += "<ol class='steps'>";
-      for (i = 0; i < doc.steps.length; i++) html += "<li>" + esc(doc.steps[i]) + "</li>";
+      for (i = 0; i < steps.length; i++) html += "<li>" + esc(steps[i]) + "</li>";
       html += "</ol>";
     }
-    if (doc.caps && doc.caps.length) {
+    if (caps && caps.length) {
       html += "<ul class='caps'>";
-      for (i = 0; i < doc.caps.length; i++) {
-        html += "<li><span class='itype'>0</span> " + esc(doc.caps[i]) + "</li>";
+      for (i = 0; i < caps.length; i++) {
+        html += "<li><span class='itype'>0</span> " + esc(caps[i]) + "</li>";
       }
       html += "</ul>";
     }
-    if (doc.note) html += "<p class='info dim'>" + esc(doc.note) + "</p>";
+    if (note) html += "<p class='info dim'>" + esc(note) + "</p>";
     return html;
   }
 
