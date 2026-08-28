@@ -2,6 +2,7 @@
 """GOPHER landing + waitlist + ask/score. Tiny static server. No extra deps."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -32,6 +33,16 @@ HIDDEN = {
     "README.md",
     ".gitignore",
 }
+# SHA-1 ETag for these GET static files (and other .html/.css/.js).
+ETAG_FILES = {
+    "hole.json",
+    "index.html",
+    "style.css",
+    "app.js",
+    "game.js",
+    "sw.js",
+}
+ETAG_EXTS = {".html", ".css", ".js"}
 CSP = (
     "default-src 'self'; "
     "img-src 'self' data:; "
@@ -178,6 +189,38 @@ def waitlist_rate_limited(ip: str) -> bool:
         return False
 
 
+def _sha1_etag(path: str) -> str | None:
+    """Strong ETag from SHA-1 of file bytes. Changes when content changes."""
+    name = os.path.basename(path)
+    ext = os.path.splitext(name)[1].lower()
+    if name not in ETAG_FILES and ext not in ETAG_EXTS:
+        return None
+    try:
+        with open(path, "rb") as f:
+            digest = hashlib.sha1(f.read()).hexdigest()
+    except OSError:
+        return None
+    return '"' + digest + '"'
+
+
+def _if_none_match(header: str | None, etag: str) -> bool:
+    if not header:
+        return False
+    raw = header.strip()
+    if raw == "*":
+        return True
+    want = etag.strip()
+    if want.startswith("W/"):
+        want = want[2:].strip()
+    for part in raw.split(","):
+        tag = part.strip()
+        if tag.startswith("W/"):
+            tag = tag[2:].strip()
+        if tag == want:
+            return True
+    return False
+
+
 class Handler(SimpleHTTPRequestHandler):
     server_version = "GOPHER/0.1"
 
@@ -189,6 +232,9 @@ class Handler(SimpleHTTPRequestHandler):
         return None
 
     def end_headers(self) -> None:
+        etag = getattr(self, "_etag", None)
+        if etag:
+            self.send_header("ETag", etag)
         self.send_header(
             "Content-Security-Policy",
             CSP,
@@ -199,6 +245,19 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Cache-Control", self._cache_control())
         super().end_headers()
+
+    def send_head(self):
+        path = self.translate_path(self.path)
+        self._etag = None
+        if os.path.isfile(path) and not path.endswith("/"):
+            etag = _sha1_etag(path)
+            if etag:
+                self._etag = etag
+                if _if_none_match(self.headers.get("If-None-Match"), etag):
+                    self.send_response(304)
+                    self.end_headers()
+                    return None
+        return super().send_head()
 
     def _cache_control(self) -> str:
         path = urlparse(self.path).path.lower()

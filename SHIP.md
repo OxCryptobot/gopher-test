@@ -86,10 +86,10 @@ Playable is not deep. Combo and waitlist rate-limit are already in. Public Pages
 59. [x] Rate-limit already — waitlist POST capped on the python server (8 / hour / IP)
 60. [ ] Leaderboard on Pages via gist or static — not built; Pages has no `/api/scores`
 61. [x] Haptic setting — user toggle, independent of MUTE
-62. [ ] Volume — gain control, not only MUTE / SOUND
+62. [x] Volume — gain control, not only MUTE / SOUND
 63. [x] Combo already — consecutive packet grabs add a point
 64. [x] Restart confirm — START while a run is live asks before wiping the hole
-65. [ ] Landscape lock hint — notice when the phone is the wrong way
+65. [x] Landscape lock hint — notice when the phone is the wrong way
 66. [x] Safe-area insets — `env(safe-area-inset-*)` padding (viewport-fit is already cover)
 67. [x] Manifest screenshots — install-store shots in `manifest.json`
 68. [x] Maskable icon — purpose `maskable` (192 / 512)
@@ -98,7 +98,7 @@ Playable is not deep. Combo and waitlist rate-limit are already in. Public Pages
 71. [x] JSON-LD SoftwareApplication — structured data for the hole
 72. [x] Sitemap all holes — every public selector, not only `/` and `#/fetch`
 73. [x] 304 caching — python static files honor If-Modified-Since
-74. [ ] ETag — explicit validators on hole.json and the shell
+74. [x] ETag — explicit validators on hole.json and the shell
 75. [x] Extra python headers already — nosniff, `X-Frame-Options: DENY`, Referrer-Policy, Permissions-Policy
 
 ## Phase 3 — Product (76–100)
@@ -129,5 +129,5 @@ Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door
 97. [ ] Demo video — FETCH + the directory, no stock sludge
 98. [ ] Brand book — phosphor, type, voice
 99. [ ] Onboarding quest — more than the first-hole card
-100. [ ] Watch / remind / draft live; Android and iPhone PWA install notes; promote runbook (stage on test, then production)
+100. [ ] Watch / remind / draft live (not phone yet). [x] Promote runbook in PROMOTE.md. PWA install hole still landing.
 

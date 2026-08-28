@@ -145,6 +145,7 @@
           <span id="g-lives">lives 3</span>
           <span id="g-best">best 0</span>
         </div>
+        <p id="land-hint" class="land-hint" hidden>turn the phone. FETCH wants a tall hole.</p>
         <div class="dpad" role="group" aria-label="direction pad">
           <button type="button" data-dir="up" aria-label="up">↑</button>
           <div class="dpad-mid">
@@ -157,6 +158,8 @@
           <button type="button" id="g-start">START</button>
           <button type="button" id="g-pause" class="ghost">PAUSE</button>
           <button type="button" id="g-mute" class="ghost">MUTE</button>
+          <label class="vol" for="g-vol">VOL</label>
+          <input id="g-vol" type="range" min="0" max="8" value="3" aria-label="FETCH volume">
           <button type="button" id="g-share" class="ghost">SHARE</button>
           <button type="button" id="g-haptic" class="ghost">HAPTIC</button>
           <button type="button" id="g-install" class="ghost" hidden>INSTALL</button>

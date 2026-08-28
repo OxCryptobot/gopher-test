@@ -575,3 +575,30 @@ button.tiny:hover {
 @media print {
   .crt, .stage-ribbon, .dpad, .skip { display: none; }
 }
+
+.vol {
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--fg-mid);
+  font-size: 0.8rem;
+}
+.vol + #g-vol {
+  min-height: 44px;
+  accent-color: #39ff14;
+  flex: 1 1 8rem;
+  min-width: 6rem;
+  cursor: pointer;
+}
+
+.land-hint {
+  display: none;
+  color: var(--err);
+  font-size: 0.78rem;
+  margin: 0.35rem 0 0.15rem;
+  letter-spacing: 0.02em;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .land-hint { display: block !important; }
+}

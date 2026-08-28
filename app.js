@@ -9,6 +9,7 @@
   var LANG_KEY = "gopher_lang_v1";
   var HC_KEY = "gopher_hc_v1";
   var SPOT_KEY = "gopher_last_spot_v1";
+  var VOL_KEY = "gopher_vol_v1";
 
   /* Scalable Gopher directory. Add an item in hole.json; this is the fallback. */
   var HOLES = {
@@ -100,7 +101,19 @@
   function paintStaging() {
     var el = $("stage-ribbon");
     var on = isStaging();
+    var robots;
     document.body.classList.toggle("staging", on);
+    robots = document.querySelector('meta[name="robots"]');
+    if (on) {
+      if (!robots) {
+        robots = document.createElement("meta");
+        robots.setAttribute("name", "robots");
+        document.head.appendChild(robots);
+      }
+      robots.setAttribute("content", "noindex,nofollow");
+    } else if (robots && (robots.getAttribute("content") || "") === "noindex,nofollow") {
+      robots.parentNode.removeChild(robots);
+    }
     if (!on) {
       if (el) el.hidden = true;
       return;
@@ -170,6 +183,41 @@
   function applyHc(on) {
     document.documentElement.classList.toggle("high-contrast", !!on);
     try { localStorage.setItem(HC_KEY, on ? "1" : "0"); } catch (e) {}
+  }
+
+  function readVol() {
+    try {
+      var raw = localStorage.getItem(VOL_KEY);
+      if (raw == null || raw === "") return null;
+      var n = +raw;
+      return (n >= 0) ? n : null;
+    } catch (e) { return null; }
+  }
+  function writeVol(n) {
+    try { localStorage.setItem(VOL_KEY, String(n)); } catch (e) {}
+  }
+  function syncVolSlider() {
+    var el = $("g-vol");
+    var n = readVol();
+    var s;
+    if (!el || n == null) return;
+    s = Math.round(n / 0.01);
+    if (s < 0) s = 0;
+    if (s > 8) s = 8;
+    el.value = String(s);
+  }
+  function applySavedVol() {
+    var n = readVol();
+    if (n == null) return;
+    if (game && typeof game.setVolume === "function") game.setVolume(n);
+  }
+  function applyVolFromSlider(el) {
+    var n;
+    if (!el) return;
+    if (!game) bootGame();
+    n = (+el.value) * 0.01;
+    if (game && typeof game.setVolume === "function") game.setVolume(n);
+    writeVol(n);
   }
 
   function tutorialFocusables() {
@@ -435,6 +483,7 @@
     }
     var doc = HOLES[path];
     if (!doc) {
+      if (path === "/dig") return;
       viewEl.hidden = false;
       viewEl.innerHTML = "<h2>3 Error</h2><p class='info'>selector not found. press esc or 0 for the directory.</p>";
       return;
@@ -470,6 +519,7 @@
         }
       });
     }
+    applySavedVol();
     game.draw();
   }
 
@@ -770,6 +820,12 @@
     game.mute = !game.mute;
     $("g-mute").textContent = game.mute ? "MUTE" : "SOUND";
   });
+  var gVol = $("g-vol");
+  if (gVol) {
+    syncVolSlider();
+    gVol.addEventListener("input", function () { applyVolFromSlider(gVol); });
+    gVol.addEventListener("change", function () { applyVolFromSlider(gVol); });
+  }
   var gPause = $("g-pause");
   if (gPause) gPause.addEventListener("click", function () {
     if (!game) bootGame();
@@ -840,12 +896,24 @@
     });
   }
 
+  function deviceBoardText() {
+    var all = {}, names, me, txt, i;
+    try { all = JSON.parse(localStorage.getItem(BEST_KEY) || "{}"); } catch (e) { all = {}; }
+    me = whoName();
+    if (all[me] == null) all[me] = bestScore(me);
+    names = Object.keys(all);
+    names.sort(function (a, b) { return (all[b] || 0) - (all[a] || 0); });
+    txt = "device\n";
+    for (i = 0; i < names.length; i++) {
+      txt += String(i + 1).padStart(2, " ") + "  " + String(names[i] || "guest").slice(0, 16).padEnd(16, " ") + "  " + (all[names[i]] || 0) + "\n";
+    }
+    return txt;
+  }
+
   function paintScores() {
     var el = $("scoreboard");
     if (!el) return;
-    var local = 0;
-    try { local = bestScore(whoName()); } catch (e) {}
-    var txt = "device   " + whoName() + "  best " + local + "\n";
+    var txt = deviceBoardText();
     fetch("/api/scores", { headers: { Accept: "application/json" } })
       .then(function (res) { return res.ok ? res.json() : []; })
       .then(function (rows) {

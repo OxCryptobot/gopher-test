@@ -30,3 +30,13 @@ python3 server.py
 ```
 
 http://127.0.0.1:7070/
+
+## Promote
+
+See [PROMOTE.md](PROMOTE.md). Short version: test on staging, run `python3 tests/test_*.py`, push `gopher-test`, then the same commit to production `gopher`.
+
+## Tests
+
+```bash
+python3 tests/test_hole.py && python3 tests/test_static.py && python3 tests/test_server.py
+```
