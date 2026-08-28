@@ -36,6 +36,13 @@ class ServerTests(unittest.TestCase):
         self.assertIn("/api/champions", self.src)
         self.assertRegex(self.src, r'path == ["/\']\/api/champions["\']')
 
+    def test_get_api_status(self) -> None:
+        self.assertIn("/api/status", self.src)
+        self.assertIn("uptime_s", self.src)
+
+    def test_get_api_orders(self) -> None:
+        self.assertIn("/api/orders", self.src)
+
     def test_content_security_policy(self) -> None:
         self.assertIn("Content-Security-Policy", self.src)
 

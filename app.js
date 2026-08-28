@@ -681,6 +681,10 @@
       paintStatus();
       return;
     }
+    if (path === "/orders") {
+      paintOrders();
+      return;
+    }
     if (path === "/scores") {
       askEl.hidden = false;
       viewEl.hidden = false;
@@ -803,16 +807,48 @@
   function paintStatus() {
     viewEl.hidden = false;
     askEl.hidden = false;
-    viewEl.innerHTML = "<h2>0 Status/</h2><p class='info'>honest liveness. no fake uptime graph.</p><pre class='gopher-doc' id='status-pre'>checking…</pre>";
+    viewEl.innerHTML = "<h2>0 Status/</h2><p class='info'>honest liveness. no fake uptime graph. not a SLA.</p><pre class='gopher-doc' id='status-pre'>checking…</pre>";
     var el = $("status-pre");
-    var base = "Pages hole: static files.\npython /health: ";
-    fetch("/health", { headers: { Accept: "application/json" } })
-      .then(function (res) { return res.ok ? res.text() : Promise.reject(); })
-      .then(function (t) {
-        if (el) el.textContent = base + "up (" + String(t).slice(0, 80) + ")\nthis is the local process, not a SLA.";
+    fetch("/api/status", { headers: { Accept: "application/json" } })
+      .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
+      .then(function (d) {
+        var lines = [
+          "hole     python",
+          "uptime   " + (d && d.uptime_s != null ? d.uptime_s + "s" : "?"),
+          "started  " + ((d && d.started) || ""),
+          "requests " + ((d && d.requests) || 0),
+          "sla      false"
+        ];
+        if (el) el.textContent = lines.join("\n");
       })
       .catch(function () {
-        if (el) el.textContent = base + "no process (GitHub Pages or server down).\nIf this page loaded, the static hole is up.";
+        if (el) el.textContent = "Pages hole: static files.\npython /api/status: no process.\nIf this page loaded, the static hole is up.\nnot a SLA.";
+      });
+  }
+  function paintOrders() {
+    viewEl.hidden = false;
+    askEl.hidden = false;
+    viewEl.innerHTML = "<h2>0 Orders/</h2><p class='info'>last asks. no emails. not SMS.</p><pre class='gopher-doc' id='orders-pre'>loading…</pre>";
+    var el = $("orders-pre");
+    var local = readKinds().map(function (r, i) {
+      return String(i + 1).padStart(2, " ") + "  device  " + String((r && r.kind) || "order") + "  " + String((r && r.q) || "");
+    });
+    var txt = local.length ? ("device\n" + local.join("\n")) : "device    empty";
+    fetch("/api/orders", { headers: { Accept: "application/json" } })
+      .then(function (res) { return res.ok ? res.json() : []; })
+      .then(function (rows) {
+        if (Array.isArray(rows) && rows.length) {
+          txt += "\n\npython\n";
+          rows.forEach(function (r, i) {
+            txt += String(i + 1).padStart(2, " ") + "  " + String((r && r.at) || "").slice(11, 19) + "  " + String((r && r.q) || "") + "\n";
+          });
+        } else {
+          txt += "\n\npython    empty (needs server.py)";
+        }
+        if (el) el.textContent = txt;
+      })
+      .catch(function () {
+        if (el) el.textContent = txt + "\n\npython    offline";
       });
   }
   function bootDig() {

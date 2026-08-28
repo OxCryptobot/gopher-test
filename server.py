@@ -57,6 +57,8 @@ CSP = (
 )
 LOCK = threading.Lock()
 WAITLIST_HITS: dict[str, list[float]] = {}
+STARTED_AT = time.time()
+REQS = 0
 
 TICKER_NAMES = {
     "BTC": "BTC-USDT",
@@ -284,6 +286,8 @@ class Handler(SimpleHTTPRequestHandler):
         return mapped
 
     def do_GET(self) -> None:
+        global REQS
+        REQS += 1
         parsed = urlparse(self.path)
         path = parsed.path.rstrip("/") or "/"
         if parsed.path in ("/", "/index.html"):
@@ -291,6 +295,12 @@ class Handler(SimpleHTTPRequestHandler):
             return super().do_GET()
         if path == "/health":
             self._health()
+            return
+        if path == "/api/status":
+            self._status()
+            return
+        if path == "/api/orders":
+            self._orders()
             return
         if path == "/api/scores":
             self._scores()
@@ -307,6 +317,8 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self) -> None:
+        global REQS
+        REQS += 1
         try:
             length = int(self.headers.get("Content-Length") or 0)
         except (TypeError, ValueError):
@@ -335,9 +347,43 @@ class Handler(SimpleHTTPRequestHandler):
             return
         self.send_error(404, "Not found")
 
+    def _status(self) -> None:
+        up = max(0, int(time.time() - STARTED_AT))
+        self._json(
+            200,
+            {
+                "ok": True,
+                "hole": "python",
+                "uptime_s": up,
+                "started": datetime.fromtimestamp(STARTED_AT, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "requests": REQS,
+                "sla": False,
+            },
+        )
+
+    def _orders(self) -> None:
+        with LOCK:
+            rows = load_list(ORDERS_PATH)
+        out = []
+        for entry in rows[-20:]:
+            if not isinstance(entry, dict):
+                continue
+            q = entry.get("q")
+            if not isinstance(q, str) or not q.strip():
+                continue
+            row = {"q": q.strip()[:280], "kind": "queued"}
+            at = entry.get("at")
+            if isinstance(at, str):
+                row["at"] = at
+            k = entry.get("kind")
+            if isinstance(k, str) and k:
+                row["kind"] = k[:24]
+            out.append(row)
+        self._json(200, out)
+
     def _health(self) -> None:
         if wants_json(self):
-            self._json(200, {"ok": True})
+            self._json(200, {"ok": True, "uptime_s": max(0, int(time.time() - STARTED_AT))})
             return
         data = b"ok"
         self.send_response(200)
@@ -465,7 +511,7 @@ class Handler(SimpleHTTPRequestHandler):
         now = _now()
         with LOCK:
             orders = load_list(ORDERS_PATH)
-            orders.append({"q": q, "at": now})
+            orders.append({"q": q, "at": now, "kind": "ask"})
             save_list(ORDERS_PATH, orders)
         self._json(200, {"ok": True, "kind": "queued", "text": "queued in the hole."})
 
