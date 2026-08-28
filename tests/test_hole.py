@@ -157,6 +157,10 @@ class HoleTests(unittest.TestCase):
             if task.get("kind") == "parked" or task.get("run") == "parked":
                 self.assertIs(task.get("live"), False, task.get("id") + " parked must be live false")
         self.assertEqual(len(ids), len(set(ids)), "task ids must be unique")
+        for need in ("ask", "favorites", "usage", "search", "tasks", "waitlist"):
+            self.assertIn(need, ids, "missing skill " + need)
+        parked = [t for t in tasks if t.get("live") is False]
+        self.assertEqual(len(parked), 9, "tasks.json must keep 9 parked")
         lower = raw.lower()
         hits = [token for token in BANNED if token in lower]
         self.assertEqual(hits, [], "banned vendor text in tasks.json: " + str(hits))

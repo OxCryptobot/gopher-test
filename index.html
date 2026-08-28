@@ -116,11 +116,12 @@
       <form id="ask-form" autocomplete="off">
         <div class="ask-line">
           <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">ask gopher:</span></label>
-          <input id="command" maxlength="280" placeholder="fetch btc   or   tasks   or   remind me" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-controls="suggest" aria-expanded="true">
+          <input id="command" maxlength="280" placeholder="ask gopher   or   tasks   or   waitlist" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-controls="suggest" aria-expanded="true">
           <button type="submit" id="go">GO</button>
         </div>
         <p class="sug-cap" id="sug-cap" data-i18n="sugCap">GOPHER:</p>
         <ol id="suggest" class="selectors suggest" role="listbox"></ol>
+        <div id="thread" class="thread" aria-live="polite"></div>
         <p class="chip-row" id="home-chips" hidden></p>
         <p class="match-cap" id="match-cap" data-i18n="matchCap">GOPHER matches your order to a skill. Hosted model parked.</p>
         <p class="status-line" id="ask-status" role="status"></p>

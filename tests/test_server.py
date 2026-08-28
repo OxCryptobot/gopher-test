@@ -305,6 +305,130 @@ class BrainReplyTests(unittest.TestCase):
         self.assertNotIn("hole-key", blob)
 
 
+class OrderPollTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.mod = load_server()
+        cls.mod.Handler.log_message = lambda self, fmt, *args: None
+        cls.port = free_port()
+        cls.httpd = ThreadingHTTPServer(("127.0.0.1", cls.port), cls.mod.Handler)
+        cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = "http://127.0.0.1:%s" % cls.port
+        deadline = time.time() + 8
+        last = "not started"
+        while time.time() < deadline:
+            try:
+                code, raw, _ = http("GET", cls.base + "/health")
+                if code == 200:
+                    return
+                last = "health %s %r" % (code, raw)
+            except Exception as exc:
+                last = str(exc)
+                time.sleep(0.05)
+        raise RuntimeError("hole did not start: " + last)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+
+    def setUp(self) -> None:
+        self.guard = _EnvGuard()
+
+    def tearDown(self) -> None:
+        self.guard.restore()
+
+    def test_ask_orders_include_id(self) -> None:
+        os.environ.pop("GOPHER_LLM_HOOK", None)
+        payload = json.dumps({"q": "hole poll id"}).encode("utf-8")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/ask",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(code, 200)
+        self.assertEqual(body.get("kind"), "queued")
+        self.assertTrue(body.get("id"), "queued ask must return id")
+        code, raw, orders = http("GET", self.base + "/api/orders")
+        self.assertEqual(code, 200)
+        self.assertIsInstance(orders, list)
+        hits = [r for r in orders if isinstance(r, dict) and r.get("id") == body.get("id")]
+        self.assertTrue(hits, "GET /api/orders should include the ask id")
+        self.assertIn("q", hits[0])
+
+    def test_brain_reply_then_get_orders_shows_out(self) -> None:
+        os.environ.pop("GOPHER_LLM_HOOK", None)
+        os.environ["GOPHER_LLM_KEY"] = "hole-key"
+        payload = json.dumps({"q": "what lives in a hole"}).encode("utf-8")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/ask",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(code, 200)
+        oid = body.get("id")
+        self.assertTrue(oid)
+        reply = json.dumps(
+            {"id": oid, "q": "what lives in a hole", "text": "a gopher. it fetches.", "ok": True}
+        ).encode("utf-8")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/brain/reply",
+            data=reply,
+            headers={"Content-Type": "application/json", "X-Webhook-Key": "hole-key"},
+        )
+        self.assertEqual(code, 200)
+        code, raw, orders = http("GET", self.base + "/api/orders")
+        self.assertEqual(code, 200)
+        hits = [r for r in orders if isinstance(r, dict) and r.get("id") == oid]
+        self.assertTrue(hits)
+        self.assertIn("gopher", (hits[0].get("out") or "").lower())
+        code, raw, one = http("GET", self.base + "/api/order?id=" + oid)
+        self.assertEqual(code, 200)
+        self.assertIn("gopher", (one.get("out") or "").lower())
+
+    def test_empty_hook_then_brain_reply_on_orders(self) -> None:
+        port = free_port()
+        httpd = ThreadingHTTPServer(("127.0.0.1", port), CaptureHandler)
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        try:
+            os.environ["GOPHER_LLM_HOOK"] = "http://127.0.0.1:%s/hook" % port
+            os.environ["GOPHER_LLM_KEY"] = "hole-key"
+            os.environ["GOPHER_PUBLIC_URL"] = self.base
+            payload = json.dumps({"q": "ping empty hook"}).encode("utf-8")
+            code, raw, body = http(
+                "POST",
+                self.base + "/api/ask",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+            )
+            self.assertEqual(code, 200)
+            self.assertEqual(body.get("kind"), "queued")
+            oid = body.get("id")
+            self.assertTrue(oid)
+            reply = json.dumps(
+                {"id": oid, "q": "ping empty hook", "text": "brain says hi from the hole", "ok": True}
+            ).encode("utf-8")
+            code, raw, body = http(
+                "POST",
+                self.base + "/api/brain/reply",
+                data=reply,
+                headers={"Content-Type": "application/json", "X-Webhook-Key": "hole-key"},
+            )
+            self.assertEqual(code, 200)
+            code, raw, orders = http("GET", self.base + "/api/orders")
+            hits = [r for r in orders if isinstance(r, dict) and r.get("id") == oid]
+            self.assertTrue(hits)
+            self.assertEqual(hits[0].get("out"), "brain says hi from the hole")
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
+
 def main() -> int:
     try:
         loader = unittest.defaultTestLoader
@@ -312,6 +436,7 @@ def main() -> int:
         suite.addTests(loader.loadTestsFromTestCase(ServerTests))
         suite.addTests(loader.loadTestsFromTestCase(PostLlmHookTests))
         suite.addTests(loader.loadTestsFromTestCase(BrainReplyTests))
+        suite.addTests(loader.loadTestsFromTestCase(OrderPollTests))
         result = unittest.TextTestRunner(verbosity=2).run(suite)
         return 0 if result.wasSuccessful() else 1
     except AssertionError as exc:

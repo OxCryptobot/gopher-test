@@ -156,12 +156,16 @@ class LiveTests(unittest.TestCase):
             )
             self.assertEqual(code, 200)
             self.assertEqual(body.get("kind"), "queued")
+            oid = body.get("id")
+            self.assertTrue(oid, "queued ask must return id")
 
             code, raw, orders = http("GET", base + "/api/orders")
             self.assertEqual(code, 200)
             self.assertIsInstance(orders, list)
             qs = [row.get("q") for row in orders if isinstance(row, dict)]
             self.assertIn(ask_q, qs)
+            hits = [row for row in orders if isinstance(row, dict) and row.get("id") == oid]
+            self.assertTrue(hits, "GET /api/orders should include the ask id")
         finally:
             if proc is not None and proc.poll() is None:
                 proc.terminate()

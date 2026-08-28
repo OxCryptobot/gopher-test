@@ -944,3 +944,45 @@ body.game-on .hero { margin-top: 0.25rem; margin-bottom: 0; }
 }
 #view .task-counts { color: var(--fg-dim); font-size: 0.8rem; }
 #view .selectors button.sel.parked { color: var(--fg-dim); }
+
+#thread {
+  margin: 0.4rem 0 0.1rem;
+  max-height: 11rem;
+  overflow: auto;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+#thread:empty { display: none; }
+.thread-line { margin: 0.2rem 0; white-space: pre-wrap; }
+.thread-who {
+  color: var(--fg-dim);
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+.thread-line.you .thread-who { color: var(--fg-mid); }
+.thread-text { color: var(--fg); }
+.sel-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.15rem;
+  border-bottom: 1px dotted var(--fg-dim);
+}
+.sel-row .sel { border-bottom: 0; flex: 1; min-height: 44px; }
+.star-btn {
+  flex: 0 0 2.1rem;
+  min-width: 2.1rem;
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 1.05rem;
+  cursor: pointer;
+  padding: 0;
+}
+.star-btn.on, .star-btn:hover, .star-btn:focus-visible {
+  color: var(--fg);
+  text-shadow: var(--glow);
+  outline: none;
+}

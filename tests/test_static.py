@@ -43,7 +43,7 @@ class StaticTests(unittest.TestCase):
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v12", src)
+        self.assertIn("gopher-v13", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
@@ -52,7 +52,10 @@ class StaticTests(unittest.TestCase):
         css = read("style.css")
         self.assertIn('id="ask"', html)
         self.assertIn('id="suggest"', html)
-        self.assertIn("gopher-v12", read("sw.js"))
+        self.assertIn('id="thread"', html)
+        self.assertIn("gopher_fav_v1", js)
+        self.assertIn("gopher_use_v1", js)
+        self.assertIn("gopher-v13", read("sw.js"))
         self.assertTrue(
             "SUG_MAX = 3" in js or "SUG_IDLE = 3" in js,
             "app.js should cap visible answers at 3",
@@ -98,7 +101,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
         self.assertIn("#chrome", css)
-        self.assertIn("gopher-v12", read("sw.js"))
+        self.assertIn("gopher-v13", read("sw.js"))
         self.assertIn('class="mascot"', html)
         self.assertIn("<pre", html)
         self.assertTrue(
@@ -128,7 +131,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn('q: "waitlist"', js)
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
-        self.assertIn("gopher-v12", read("sw.js"))
+        self.assertIn("gopher-v13", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")

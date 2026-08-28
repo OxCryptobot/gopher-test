@@ -54,7 +54,11 @@
     "task": "/tasks",
     "maze": "/fetch",
     "burrow": "/dig",
-    "search": "/"
+    "search": "/",
+    "usage": "/usage",
+    "stats": "/usage",
+    "favorites": "/tasks",
+    "fav": "/tasks"
   },
   "holes": {
     "/": {
@@ -1131,6 +1135,20 @@
       ],
       "note": "Type maze or Play/. Side quest — kill time between searches.",
       "note_es": "Escribe maze o Play/. Side quest — mata el tiempo entre búsquedas."
+    },
+    "/usage": {
+      "title": "Usage/",
+      "title_es": "Uso/",
+      "copy": [
+        "On-device skill counts. Favorites and how often you run a skill live on this phone.",
+        "GOPHER does not send this anywhere. TRACK? still sends nowhere."
+      ],
+      "copy_es": [
+        "Conteo de skills en este dispositivo. Favoritos y usos viven en este teléfono.",
+        "GOPHER no envía esto a ningún lado. TRACK? sigue sin enviar."
+      ],
+      "note": "Device only. No cloud analytics.",
+      "note_es": "Solo dispositivo. Sin analítica en la nube."
     }
   }
 }

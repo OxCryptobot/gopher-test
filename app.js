@@ -15,6 +15,8 @@
   var LOG_KEY = "gopher_log_v1";
   var TRACK_KEY = "gopher_track_v1";
   var KIND_KEY = "gopher_kind_v1";
+  var FAV_KEY = "gopher_fav_v1";
+  var USE_KEY = "gopher_use_v1";
 
   /* Scalable Gopher directory. Add an item in hole.json; this is the fallback. */
   var HOLES = {
@@ -66,7 +68,8 @@
     privacy: "/privacy", fetch: "/fetch", maze: "/fetch", game: "/fetch",
     play: "/games", burrow: "/dig", dig: "/dig", search: "/",
     user: "/user", login: "/user", waitlist: "/waitlist", home: "/", menu: "/",
-    tasks: "/tasks", es: "/es"
+    tasks: "/tasks", es: "/es", usage: "/usage", stats: "/usage",
+    favorites: "/tasks"
   };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -87,7 +90,7 @@
   var holeLive = false;
   var holeProbed = false;
   var replyOpen = false;
-  var DEFAULT_PH = "fetch btc   or   tasks   or   remind me";
+  var DEFAULT_PH = "ask gopher   or   tasks   or   waitlist";
   var SUG_MAX = 3;
   var SUG_IDLE = 3;
 
@@ -724,19 +727,64 @@
     });
   }
 
+  function readFavs() {
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); } catch (e) { list = []; }
+    if (!Array.isArray(list)) return [];
+    return list.filter(function (id) { return typeof id === "string" && id; });
+  }
+  function isFav(id) {
+    return readFavs().indexOf(id) >= 0;
+  }
+  function toggleFav(id) {
+    var list = readFavs(), i;
+    if (!id) return list;
+    i = list.indexOf(id);
+    if (i >= 0) list.splice(i, 1);
+    else list.push(id);
+    try { localStorage.setItem(FAV_KEY, JSON.stringify(list)); } catch (e) {}
+    return list;
+  }
+  function readUse() {
+    var o = {};
+    try { o = JSON.parse(localStorage.getItem(USE_KEY) || "{}"); } catch (e) { o = {}; }
+    return (o && typeof o === "object" && !Array.isArray(o)) ? o : {};
+  }
+  function bumpUse(id) {
+    var o, row;
+    if (!id) return;
+    o = readUse();
+    row = o[id] || { n: 0, last: 0 };
+    row.n = (row.n || 0) + 1;
+    row.last = Date.now();
+    o[id] = row;
+    try { localStorage.setItem(USE_KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  function useRec(id) {
+    var o = readUse();
+    return (id && o[id]) ? o[id] : { n: 0, last: 0 };
+  }
+  function accountIds() {
+    return { user: 1, login: 1, install: 1, pwa: 1 };
+  }
   function taskGroupOf(row) {
-    if (!row) return "account";
+    var id, path;
+    if (!row) return "docs";
     if (row.kind === "parked" || row.run === "parked" || row.live === false) return "parked";
-    if (row.kind === "fetch") return "fetch";
+    if (row.kind === "fetch" || row.run === "ask") return "fetch";
     if (row.kind === "queue") return "queue";
     if (row.kind === "game") return "game";
-    return "account";
+    id = row.id || "";
+    path = row.path || "";
+    if (row.kind === "set" || accountIds()[id] || path === "/user" || path === "/install") return "account";
+    return "docs";
   }
   function catalogNormG(g) {
     g = String(g || "all").toLowerCase();
     if (g === "search") return "fetch";
-    if (g === "watch") return "queue";
+    if (g === "do" || g === "watch") return "queue";
     if (g === "play") return "game";
+    if (g === "fav" || g === "favorites") return "fav";
     if (g === "nav" || g === "set") return "account";
     if (g === "skills" || g === "task" || g === "tasks") return "all";
     return g;
@@ -754,8 +802,11 @@
         row = list[i];
         if (row.id === "tasks") continue;
         key = row.path ? String(row.path) : ("#" + row.id);
-        if (row.id === "home" || row.id === "menu") key = "/";
+        if (row.id === "home" || row.id === "menu" || row.id === "search") key = "/";
         if (row.id === "doc" || row.id === "docs") key = "/docs";
+        if (row.id === "ask") key = "#ask";
+        if (row.id === "favorites") key = "#favorites";
+        if (row.id === "usage") key = "/usage";
         if (seen[key]) continue;
         seen[key] = 1;
         out.push(row);
@@ -786,9 +837,10 @@
     }
     chips = [
       { href: "/tasks?g=fetch", label: "Search" },
-      { href: "/tasks?g=queue", label: "Watch" },
+      { href: "/tasks?g=queue", label: "Do" },
       { href: "/tasks?g=game", label: "Play" },
-      { href: "/tasks", label: "All tasks" }
+      { href: "/tasks?g=fav", label: "Favorites" },
+      { href: "/tasks", label: "All" }
     ];
     html = "";
     for (i = 0; i < chips.length; i++) {
@@ -801,20 +853,59 @@
       b.addEventListener("click", function () { go(b.getAttribute("data-path")); });
     });
   }
+  function catalogRowHtml(row) {
+    var parked = (taskGroupOf(row) === "parked") ? " parked" : "";
+    var title = taskTitle(row);
+    var hint = taskHint(row);
+    var star = isFav(row.id) ? "★" : "☆";
+    var on = isFav(row.id) ? " on" : "";
+    return "<div class='sel-row'>" +
+      "<button type='button' class='star-btn" + on + "' data-fav='" + esc(row.id) + "' aria-label='favorite'>" + star + "</button>" +
+      "<button type='button' class='sel" + parked + "' data-tid='" + esc(row.id) + "'>" +
+      esc(title) + " <span class='path'>" + esc(hint) + "</span></button></div>";
+  }
+  function bindCatalogRows(root) {
+    if (!root) return;
+    root.querySelectorAll("button.star-btn[data-fav]").forEach(function (b) {
+      b.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        toggleFav(b.getAttribute("data-fav"));
+        paintTasks();
+      });
+    });
+    root.querySelectorAll("button.sel[data-tid]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-tid");
+        var hit = findTaskByIdOrQ(id, id);
+        if (hit) runTask(hit);
+      });
+    });
+  }
   function paintTasks() {
     var g = catalogNormG(hashParam("g") || "all");
     var groups = [
       { id: "fetch", label: "Search" },
-      { id: "queue", label: "Watch" },
+      { id: "queue", label: "Do" },
       { id: "game", label: "Play" },
       { id: "account", label: "Account" },
+      { id: "docs", label: "Docs" },
       { id: "parked", label: "Parked" }
     ];
-    var chips = [{ id: "fetch", label: "Search" }, { id: "queue", label: "Watch" }, { id: "game", label: "Play" }, { id: "account", label: "Account" }, { id: "parked", label: "Parked" }, { id: "all", label: "All" }];
+    var chips = [
+      { id: "fetch", label: "Search" },
+      { id: "queue", label: "Do" },
+      { id: "game", label: "Play" },
+      { id: "account", label: "Account" },
+      { id: "docs", label: "Docs" },
+      { id: "fav", label: "Favorites" },
+      { id: "parked", label: "Parked" },
+      { id: "all", label: "All" }
+    ];
     var counts = liveParkedCounts();
     var rows = catalogRows();
-    var buckets = { fetch: [], queue: [], game: [], account: [], parked: [] };
-    var html = "", i, row, grp, list, j, parked, title, hint, chip;
+    var buckets = { fetch: [], queue: [], game: [], account: [], docs: [], parked: [] };
+    var html = "", i, row, grp, list, j, chip;
     viewEl.hidden = false;
     if (dirEl) dirEl.hidden = true;
     for (i = 0; i < rows.length; i++) {
@@ -824,7 +915,7 @@
       buckets[grp].push(row);
     }
     html += "<h2>Tasks/</h2>";
-    html += "<p class='info'>tap a skill. GOPHER runs it. Parked stay parked.</p>";
+    html += "<p class='info'>tap a skill. GOPHER runs it. Parked stay parked. 100 skills.</p>";
     html += "<p class='info dim task-counts'>" + counts.live + " live · " + counts.parked + " parked</p>";
     html += "<div class='chip-row' id='task-chips'>";
     for (i = 0; i < chips.length; i++) {
@@ -832,23 +923,24 @@
       html += "<button type='button' class='chip" + (g === chip.id ? " active" : "") + "' data-g='" + chip.id + "'>" + esc(chip.label) + "</button>";
     }
     html += "</div>";
-    for (i = 0; i < groups.length; i++) {
-      grp = groups[i];
-      if (g !== "all" && g !== grp.id) continue;
-      list = buckets[grp.id] || [];
-      if (!list.length) continue;
-      html += "<div class='task-group' data-g='" + grp.id + "'>";
-      html += "<h3>" + esc(grp.label) + "</h3>";
-      html += "<div class='selectors'>";
-      for (j = 0; j < list.length; j++) {
-        row = list[j];
-        parked = (taskGroupOf(row) === "parked") ? " parked" : "";
-        title = taskTitle(row);
-        hint = taskHint(row);
-        html += "<button type='button' class='sel" + parked + "' data-tid='" + esc(row.id) + "'>" +
-          esc(title) + " <span class='path'>" + esc(hint) + "</span></button>";
-      }
+    if (g === "fav") {
+      list = rows.filter(function (r) { return isFav(r.id); });
+      html += "<div class='task-group' data-g='fav'><h3>Favorites</h3><div class='selectors'>";
+      if (!list.length) html += "<p class='info dim'>none yet. tap a star.</p>";
+      for (j = 0; j < list.length; j++) html += catalogRowHtml(list[j]);
       html += "</div></div>";
+    } else {
+      for (i = 0; i < groups.length; i++) {
+        grp = groups[i];
+        if (g !== "all" && g !== grp.id) continue;
+        list = buckets[grp.id] || [];
+        if (!list.length) continue;
+        html += "<div class='task-group' data-g='" + grp.id + "'>";
+        html += "<h3>" + esc(grp.label) + "</h3>";
+        html += "<div class='selectors'>";
+        for (j = 0; j < list.length; j++) html += catalogRowHtml(list[j]);
+        html += "</div></div>";
+      }
     }
     viewEl.innerHTML = html;
     viewEl.querySelectorAll("#task-chips button.chip").forEach(function (b) {
@@ -857,15 +949,37 @@
         go(id === "all" ? "/tasks" : "/tasks?g=" + id);
       });
     });
-    viewEl.querySelectorAll("button.sel[data-tid]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var id = b.getAttribute("data-tid");
-        var hit = findTaskByIdOrQ(id, id);
-        if (hit) runTask(hit);
-      });
-    });
+    bindCatalogRows(viewEl);
     viewEl.focus();
   }
+  function paintUsage() {
+    var use = readUse(), favs = readFavs(), ids, i, rec, row, lines, title;
+    viewEl.hidden = false;
+    if (dirEl) dirEl.hidden = true;
+    ids = Object.keys(use);
+    ids.sort(function (a, b) {
+      var na = (use[a] && use[a].n) || 0, nb = (use[b] && use[b].n) || 0;
+      if (nb !== na) return nb - na;
+      return ((use[b] && use[b].last) || 0) - ((use[a] && use[a].last) || 0);
+    });
+    lines = ["this device only. no cloud. TRACK? still sends nowhere.", "", "top skills"];
+    if (!ids.length) lines.push("  none yet. run a skill.");
+    for (i = 0; i < ids.length && i < 12; i++) {
+      rec = use[ids[i]] || {};
+      row = findTaskByIdOrQ(ids[i], ids[i]);
+      title = row ? taskTitle(row) : ids[i];
+      lines.push("  " + title + "  x" + (rec.n || 0));
+    }
+    lines.push("", "favorites");
+    if (!favs.length) lines.push("  none. tap a star in tasks.");
+    for (i = 0; i < favs.length; i++) {
+      row = findTaskByIdOrQ(favs[i], favs[i]);
+      lines.push("  " + (row ? taskTitle(row) : favs[i]));
+    }
+    viewEl.innerHTML = "<h2>Usage/</h2><p class='info'>on-device counts. GOPHER does not send this anywhere.</p><pre class='gopher-doc'>" + esc(lines.join("\n")) + "</pre>";
+    viewEl.focus();
+  }
+
   function hideSpecial() {
     authEl.hidden = true;
     gameEl.hidden = true;
@@ -920,6 +1034,10 @@
     paintHomeChips(path === "/");
     if (path === "/tasks") {
       paintTasks();
+      return;
+    }
+    if (path === "/usage") {
+      paintUsage();
       return;
     }
     if (path === "/" || path === "/waitlist") {
@@ -1250,33 +1368,58 @@
     }
     return null;
   }
+  function searchExample() {
+    return { id: "fetch-btc", q: "fetch btc", title: "fetch btc", title_es: "fetch btc", hint: "live BTC price", hint_es: "precio BTC en vivo", kind: "fetch", run: "ask", live: true };
+  }
   function idleHard() {
     return [
-      { id: "fetch-btc", q: "fetch btc", title: "fetch btc", title_es: "fetch btc", hint: "search / ticker", hint_es: "search / ticker", kind: "fetch", run: "ask", live: true },
+      { id: "ask", q: "ask gopher", title: "ask gopher", title_es: "ask gopher", hint: "freeform brain", hint_es: "cerebro libre", kind: "fetch", run: "ask", live: true },
       { id: "tasks", q: "tasks", title: "tasks", title_es: "tareas", hint: "100 skills · tap one", hint_es: "100 skills · toca una", kind: "nav", run: "nav", live: true, path: "/tasks" },
-      { id: "waitlist", q: "waitlist", title: "waitlist", title_es: "waitlist", hint: "paid door", hint_es: "puerta de pago", kind: "nav", run: "nav", live: true, path: "/waitlist" }
+      { id: "waitlist", q: "waitlist", title: "waitlist", title_es: "waitlist", hint: "get in line", hint_es: "entra a la lista", kind: "nav", run: "nav", live: true, path: "/waitlist" }
     ];
   }
+  function hasId(list, id) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i] && list[i].id === id) return true;
+    }
+    return false;
+  }
+  function sortLearned(scored) {
+    scored.sort(function (a, b) {
+      if (b.fav !== a.fav) return b.fav - a.fav;
+      if (b.n !== a.n) return b.n - a.n;
+      if (b.last !== a.last) return b.last - a.last;
+      if (b.live !== a.live) return b.live - a.live;
+      return (b.score || 0) - (a.score || 0);
+    });
+    return scored;
+  }
   function idleSlice() {
-    var hard = idleHard(), out = [], i, row, hit, use;
+    var hard = idleHard(), out = [], scored = [], i, row, rec, hit, use, favs;
+    favs = readFavs();
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      if (!row || !row.id) continue;
+      rec = useRec(row.id);
+      scored.push({
+        row: row,
+        fav: favs.indexOf(row.id) >= 0 ? 1 : 0,
+        n: rec.n || 0,
+        last: rec.last || 0,
+        live: row.live ? 1 : 0,
+        score: 0
+      });
+    }
+    sortLearned(scored);
+    for (i = 0; i < scored.length && out.length < SUG_IDLE; i++) {
+      if (scored[i].fav || scored[i].n > 0) out.push(scored[i].row);
+    }
     for (i = 0; i < hard.length && out.length < SUG_IDLE; i++) {
       row = hard[i];
       hit = findTaskByIdOrQ(row.id, row.q);
       use = hit || row;
-      if (row.id === "tasks") {
-        use = {
-          id: use.id || row.id,
-          q: use.q || row.q,
-          title: use.title || row.title,
-          title_es: use.title_es || row.title_es,
-          hint: row.hint,
-          hint_es: row.hint_es,
-          kind: use.kind || row.kind,
-          run: use.run || row.run,
-          live: true,
-          path: use.path || row.path
-        };
-      }
+      if (hasId(out, use.id)) continue;
       out.push(use);
     }
     return out.slice(0, SUG_IDLE);
@@ -1291,8 +1434,8 @@
     out.push({
       id: "no-match",
       q: "tasks",
-      title: "no match · try fetch btc or tasks",
-      title_es: "sin match · prueba fetch btc o tasks",
+      title: "no match · try ask gopher or tasks",
+      title_es: "sin match · prueba ask gopher o tasks",
       hint: "type an order",
       hint_es: "escribe una orden",
       kind: "nav",
@@ -1317,20 +1460,26 @@
     return best;
   }
   function filterTasks(q) {
-    var i, row, score, scored = [];
+    var i, row, score, scored = [], favs, rec;
     q = (q || "").toLowerCase().trim();
     if (!q) return idleSlice();
+    favs = readFavs();
     for (i = 0; i < TASKS.length; i++) {
       row = TASKS[i];
       score = rankTask(row, q);
-      if (score > 0) scored.push({ row: row, score: score });
+      if (score <= 0) continue;
+      rec = useRec(row.id);
+      scored.push({
+        row: row,
+        score: score,
+        fav: favs.indexOf(row.id) >= 0 ? 1 : 0,
+        n: rec.n || 0,
+        last: rec.last || 0,
+        live: row.live ? 1 : 0
+      });
     }
     if (!scored.length) return noMatchRows();
-    scored.sort(function (a, b) {
-      if (a.row.live && !b.row.live) return -1;
-      if (!a.row.live && b.row.live) return 1;
-      return b.score - a.score;
-    });
+    sortLearned(scored);
     return scored.slice(0, SUG_MAX).map(function (item) { return item.row; });
   }
   function suggestEl() {
@@ -1364,8 +1513,8 @@
       }
       el.hidden = false;
       el.classList.add("idle");
-      el.innerHTML = "<li role='option' id='sug-0' aria-selected='true'><button type='button' class='sel active'>fetch btc <span class='path'>search / ticker</span></button></li>";
-      sugItems = [];
+      sugItems = [searchExample()];
+      el.innerHTML = "<li role='option' id='sug-0' aria-selected='true'><button type='button' class='sel active'>" + esc(sugItems[0].title) + " <span class='path'>" + esc(sugItems[0].hint) + "</span></button></li>";
       sugHi = 0;
       setSugExpanded(true);
       return;
@@ -1518,40 +1667,48 @@
     setStatus($("ask-status"), "ok", "ok. " + (row.q || id));
   }
   function runTask(row) {
-    var q;
+    var q, line;
     if (!row) return;
     q = row.q || row.id || "";
+    bumpUse(row.id);
+    threadAppend("you", q);
     if (row.run === "parked" || row.kind === "parked") {
       resetPrompt();
+      line = parkedLine(row);
+      threadAppend("gopher", line);
       if (row.path) go(row.path);
-      setBrain("parked", parkedLine(row));
+      setBrain("parked", line);
       return;
     }
     if (row.run === "nav") {
       resetPrompt();
+      threadAppend("gopher", "ok. " + q);
       if (row.path) go(row.path);
       setBrain("ok", "ok. " + q);
       return;
     }
     if (row.run === "queue") {
       resetPrompt();
+      threadAppend("gopher", "queued on this device. not SMS.");
       queueKindOrder(q);
       return;
     }
     if (row.run === "set") {
       resetPrompt();
+      threadAppend("gopher", "ok. " + q);
       runSet(row);
       setBrain("ok", "ok. " + q);
       return;
     }
     if (row.run === "ask") {
-      askGopher(q);
+      askGopher(q, { skipYou: true });
       return;
     }
     if (row.path) {
       resetPrompt();
+      threadAppend("gopher", "ok. " + q);
       go(row.path);
-    } else askGopher(q);
+    } else askGopher(q, { skipYou: true });
   }
   function findTaskExact(q) {
     var i, row, low, j;
@@ -1585,6 +1742,8 @@
       hit = itemsByN()[q];
       if (hit && hit.path) {
         resetPrompt();
+        threadAppend("you", q);
+        threadAppend("gopher", "ok. " + q);
         go(hit.path);
         setBrain("ok", "ok. " + q);
         return;
@@ -1603,18 +1762,24 @@
     }
     if (kindOrder(q)) {
       resetPrompt();
+      threadAppend("you", q);
+      threadAppend("gopher", "queued on this device. not SMS.");
       queueKindOrder(q);
       return;
     }
     alias = ALIAS[q.toLowerCase()];
     if (alias) {
       resetPrompt();
+      threadAppend("you", q);
+      threadAppend("gopher", "ok. " + q);
       go(alias);
       setBrain("ok", "ok. " + q);
       return;
     }
     if (EMAIL_RE.test(q)) {
       resetPrompt();
+      threadAppend("you", q);
+      threadAppend("gopher", "ok. waitlist");
       if ($("email")) $("email").value = q;
       go("/waitlist");
       showWaitForm(true);
@@ -1875,16 +2040,128 @@
       });
   }
 
-  function askGopher(q) {
+  var threadN = 0;
+  function threadEl() { return $("thread"); }
+  function threadAppend(who, text, opts) {
+    var el = threadEl(), line, lab, body, id;
+    opts = opts || {};
+    if (!el) return "";
+    threadN += 1;
+    id = opts.id || ("t" + threadN);
+    line = document.createElement("div");
+    line.className = "thread-line " + (who === "you" ? "you" : "gopher");
+    line.setAttribute("data-tid", id);
+    lab = document.createElement("span");
+    lab.className = "thread-who";
+    lab.textContent = who === "you" ? "you" : "GOPHER";
+    body = document.createElement("span");
+    body.className = "thread-text";
+    body.textContent = text || "";
+    line.appendChild(lab);
+    line.appendChild(document.createTextNode(" "));
+    line.appendChild(body);
+    el.appendChild(line);
+    el.scrollTop = el.scrollHeight;
+    return id;
+  }
+  function threadSet(id, text) {
+    var el = threadEl(), node;
+    if (!el || !id) return;
+    node = el.querySelector('[data-tid="' + id + '"] .thread-text');
+    if (node) node.textContent = text || "";
+    el.scrollTop = el.scrollHeight;
+  }
+  function placeholderOut(out) {
+    var t = String(out || "").replace(/\s+/g, " ").trim().toLowerCase();
+    if (!t) return true;
+    if (t.indexOf("queued in the hole") === 0) return true;
+    if (t.indexOf("sent to gopher") === 0) return true;
+    if (t.indexOf("gopher is fetching") === 0) return true;
+    return false;
+  }
+  function orderOutFromRows(rows, oid, q) {
+    var i, row, out;
+    if (!Array.isArray(rows)) return "";
+    for (i = rows.length - 1; i >= 0; i--) {
+      row = rows[i];
+      if (!row) continue;
+      if (oid && String(row.id || "") === String(oid)) {
+        out = row.out || "";
+        if (!placeholderOut(out)) return out;
+      }
+    }
+    if (!oid && q) {
+      for (i = rows.length - 1; i >= 0; i--) {
+        row = rows[i];
+        if (row && String(row.q || "") === String(q)) {
+          out = row.out || "";
+          if (!placeholderOut(out)) return out;
+        }
+      }
+    }
+    return "";
+  }
+  function pollAsk(oid, q, lineId, started) {
+    var left = 20000 - (Date.now() - started);
+    if (left <= 0) {
+      threadSet(lineId, "GOPHER is still fetching. see orders.");
+      setBrain("ok", "queued");
+      return;
+    }
+    function again() {
+      setTimeout(function () { pollAsk(oid, q, lineId, started); }, 800);
+    }
+    function check(rows) {
+      var out = orderOutFromRows(rows, oid, q);
+      if (out) {
+        threadSet(lineId, out);
+        setBrain("ok", "ok.");
+        return;
+      }
+      again();
+    }
+    fetch("api/order?id=" + encodeURIComponent(oid || ""), { headers: { Accept: "application/json" } })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (one) {
+        var out;
+        if (one && typeof one === "object" && !Array.isArray(one)) {
+          out = one.out || "";
+          if (!placeholderOut(out)) {
+            threadSet(lineId, out);
+            setBrain("ok", "ok.");
+            return;
+          }
+        }
+        return fetch("api/orders", { headers: { Accept: "application/json" } })
+          .then(function (res) { return res.ok ? res.json() : []; })
+          .then(check);
+      })
+      .catch(again);
+  }
+
+  function askGopher(q, opts) {
+    var lineId, pages;
+    opts = opts || {};
+    q = (q || "").trim();
+    if (!q) return;
+    if (!opts.skipYou) threadAppend("you", q);
     if (kindOrder(q)) {
       resetPrompt();
+      threadAppend("gopher", "queued on this device. not SMS.");
       queueKindOrder(q);
       return;
     }
-    if (onPages() || (holeProbed && !holeLive)) {
+    if (looksTicker(q)) {
+      clientFetch(q);
+      return;
+    }
+    pages = onPages() || (holeProbed && !holeLive);
+    if (pages) {
       clientBrain(q);
       return;
     }
+    resetPrompt();
+    lineId = threadAppend("gopher", "GOPHER is fetching\u2026");
     setBrain("think", "fetching\u2026");
     fetch("api/ask", {
       method: "POST",
@@ -1895,12 +2172,14 @@
         return res.json().then(function (body) { return body; }).catch(function () { return null; });
       })
       .then(function (body) {
+        var oid, text;
         if (!body || (body.ok !== true && body.kind !== "doc" && body.kind !== "queued")) {
-          clientBrain(q);
+          threadSet(lineId, "brain parked on this static hole. matcher still runs skills.");
+          setBrain("parked", "brain parked");
           return;
         }
         if (body.kind === "doc") {
-          showType0(body.title || "0 Document", body.text || "");
+          threadSet(lineId, body.text || "");
           if (body.ok === false) setBrain("err", body.text || "fetch failed.");
           else {
             setBrain("ok", "ok. " + q);
@@ -1910,13 +2189,24 @@
         }
         if (body.kind === "queued") {
           try { localStorage.setItem("gopher_first_order", q); } catch (err) {}
-          showType0("0 Order", body.text || "queued in the hole.");
-          setBrain("ok", "ok. " + q);
+          oid = body.id || "";
+          text = body.text || "queued in the hole.";
+          threadSet(lineId, "GOPHER is fetching\u2026");
+          setBrain("think", "fetching\u2026");
+          if (oid) pollAsk(oid, q, lineId, Date.now());
+          else {
+            threadSet(lineId, text);
+            setBrain("ok", "ok. " + q);
+          }
           return;
         }
-        clientBrain(q);
+        threadSet(lineId, "brain parked on this static hole. matcher still runs skills.");
+        setBrain("parked", "brain parked");
       })
-      .catch(function () { clientBrain(q); });
+      .catch(function () {
+        threadSet(lineId, "brain parked on this static hole. matcher still runs skills.");
+        setBrain("parked", "brain parked");
+      });
   }
 
   function looksTicker(q) {
@@ -1947,13 +2237,17 @@
     return hit;
   }
   function helpDoc() {
-    showType0("GOPHER", "GOPHER can:\n\nfetch btc    search / ticker\ntasks        100 skills · tap one\nwaitlist     paid door\n\ntype an order or tap a row.");
-    setBrain("ok", "try fetch btc \u00b7 tasks \u00b7 waitlist");
+    var line = "ask gopher   freeform brain\ntasks        100 skills · tap one\nwaitlist     get in line\nfetch btc    live BTC price\n\ntype an order or tap a row.";
+    threadAppend("gopher", line);
+    setBrain("ok", "try ask gopher \u00b7 tasks \u00b7 waitlist");
+  }
+  function parkedBrainLine() {
+    return "brain parked on this static hole. matcher still runs skills.";
   }
   function clientBrain(q) {
-    var task, top;
     if (kindOrder(q)) {
       resetPrompt();
+      threadAppend("gopher", "queued on this device. not SMS.");
       queueKindOrder(q);
       return;
     }
@@ -1961,25 +2255,19 @@
       clientFetch(q);
       return;
     }
-    task = findTaskExact(q);
-    if (task && task.run !== "ask") {
-      runTask(task);
-      return;
-    }
-    top = rankTop(q);
-    if (top && top.score >= 40 && top.row && top.row.run !== "ask") {
-      runTask(top.row);
-      return;
-    }
-    helpDoc();
+    resetPrompt();
+    threadAppend("gopher", parkedBrainLine());
+    setBrain("parked", "brain parked");
   }
   function stashSpot(id, amt) {
     try {
       sessionStorage.setItem(SPOT_KEY, JSON.stringify({ id: id, amt: amt, at: Date.now() }));
     } catch (err) {}
   }
-  function showSpot(id, amt, src, q) {
-    showType0(id + "-USD", id + "-USD\n\nlast      " + amt + "\n\nsource    " + src);
+  function showSpot(id, amt, src, q, lineId) {
+    var text = id + "-USD\n\nlast      " + amt + "\n\nsource    " + src;
+    if (lineId) threadSet(lineId, text);
+    else threadAppend("gopher", text);
     setBrain("ok", "ok. " + (q || id));
     questMark("fetch");
   }
@@ -1990,8 +2278,15 @@
     return null;
   }
   function clientFetch(q) {
-    if (!looksTicker(q)) { helpDoc(); return; }
-    var id = tickerId(q);
+    var id, lineId;
+    if (!looksTicker(q)) {
+      threadAppend("gopher", parkedBrainLine());
+      setBrain("parked", "brain parked");
+      return;
+    }
+    id = tickerId(q);
+    resetPrompt();
+    lineId = threadAppend("gopher", "GOPHER is fetching\u2026");
     setBrain("think", "fetching\u2026");
     fetch("https://api.coinbase.com/v2/prices/" + id + "-USD/spot")
       .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
@@ -1999,7 +2294,7 @@
         var amt = j && j.data && j.data.amount;
         if (!amt) throw new Error("empty");
         stashSpot(id, amt);
-        showSpot(id, amt, "public spot", q);
+        showSpot(id, amt, "public spot", q, lineId);
       })
       .catch(function () {
         return fetch("https://www.okx.com/api/v5/market/ticker?instId=" + id + "-USDT")
@@ -2009,17 +2304,17 @@
             var amt = row && row.last;
             if (!amt) throw new Error("empty");
             stashSpot(id, amt);
-            showSpot(id, amt, "public spot", q);
+            showSpot(id, amt, "public spot", q, lineId);
           });
       })
       .catch(function () {
         var stash = spotFromCache(id);
         if (stash) {
-          showSpot(id, stash.amt, "cached", q);
+          showSpot(id, stash.amt, "cached", q, lineId);
           return;
         }
+        threadSet(lineId, "fetch failed.");
         setBrain("err", "fetch failed.");
-        helpDoc();
       });
   }
 

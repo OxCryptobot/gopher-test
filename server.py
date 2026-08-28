@@ -389,11 +389,11 @@ def apply_brain_reply(order_id: str, q: str, text: str) -> None:
             if oid:
                 row["id"] = oid
             if snippet:
-                row["out"] = snippet[:120]
+                row["out"] = snippet
             orders.append(row)
         else:
             if snippet:
-                match["out"] = snippet[:120]
+                match["out"] = snippet
             match["at"] = _now()
         save_list(ORDERS_PATH, orders)
 
@@ -436,7 +436,7 @@ def log_order(q: str, kind: str, out: str = "", order_id: str = "") -> None:
     if not q:
         return
     k = (kind or "ask")[:24]
-    snippet = re.sub(r"\s+", " ", (out or "")).strip()[:120]
+    snippet = re.sub(r"\s+", " ", (out or "")).strip()[:8000]
     row = {"q": q, "at": _now(), "kind": k}
     oid = (order_id or "").strip()[:64]
     if oid:
@@ -521,18 +521,18 @@ def fulfill_order(q: str) -> dict:
                 "id": order_id,
                 "log_kind": "ask",
                 "http_code": 200,
-                "http": {"ok": True, "kind": "doc", "title": "0 GOPHER", "text": hooked},
+                "http": {"ok": True, "kind": "doc", "title": "0 GOPHER", "text": hooked, "id": order_id},
                 "short": hooked[:120],
-                "out": hooked[:120],
+                "out": hooked,
             }
         if fired:
-            text = "sent to GOPHER. answer lands in the bot thread."
+            text = "sent to GOPHER…"
             return {
                 "q": q,
                 "id": order_id,
                 "log_kind": "ask",
                 "http_code": 200,
-                "http": {"ok": True, "kind": "queued", "text": text},
+                "http": {"ok": True, "kind": "queued", "text": text, "id": order_id},
                 "short": text,
                 "out": text,
             }
@@ -542,7 +542,7 @@ def fulfill_order(q: str) -> dict:
         "id": order_id,
         "log_kind": "ask",
         "http_code": 200,
-        "http": {"ok": True, "kind": "queued", "text": text},
+        "http": {"ok": True, "kind": "queued", "text": text, "id": order_id},
         "short": text,
         "out": text,
     }
@@ -704,6 +704,9 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/orders":
             self._orders()
             return
+        if path == "/api/order":
+            self._order_one(parse_qs(parsed.query or ""))
+            return
         if path == "/api/scores":
             self._scores()
             return
@@ -832,9 +835,41 @@ class Handler(SimpleHTTPRequestHandler):
                 row["id"] = oid.strip()[:64]
             snippet = entry.get("out")
             if isinstance(snippet, str) and snippet.strip():
-                row["out"] = snippet.strip()[:120]
+                row["out"] = snippet.strip()[:8000]
             out.append(row)
         self._json(200, out)
+
+    def _order_one(self, qs: dict) -> None:
+        oid = ""
+        vals = qs.get("id") if isinstance(qs, dict) else None
+        if vals:
+            oid = str(vals[0] or "").strip()[:64]
+        if not oid:
+            self._json(400, {"ok": False, "error": "missing id"})
+            return
+        with LOCK:
+            rows = load_list(ORDERS_PATH)
+        for entry in reversed(rows):
+            if not isinstance(entry, dict):
+                continue
+            if str(entry.get("id") or "") != oid:
+                continue
+            q = entry.get("q")
+            row = {"ok": True, "id": oid, "kind": "queued"}
+            if isinstance(q, str) and q.strip():
+                row["q"] = q.strip()[:280]
+            at = entry.get("at")
+            if isinstance(at, str):
+                row["at"] = at
+            k = entry.get("kind")
+            if isinstance(k, str) and k:
+                row["kind"] = k[:24]
+            snippet = entry.get("out")
+            if isinstance(snippet, str) and snippet.strip():
+                row["out"] = snippet.strip()[:8000]
+            self._json(200, row)
+            return
+        self._json(404, {"ok": False, "error": "not found", "id": oid})
 
     def _health(self) -> None:
         if wants_json(self):
