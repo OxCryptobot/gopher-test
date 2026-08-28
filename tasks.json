@@ -1,0 +1,1294 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "home",
+      "q": "home",
+      "title": "home",
+      "title_es": "inicio",
+      "hint": "directory",
+      "hint_es": "directorio",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/",
+      "aliases": [
+        "menu"
+      ]
+    },
+    {
+      "id": "menu",
+      "q": "menu",
+      "title": "menu",
+      "title_es": "menú",
+      "hint": "directory",
+      "hint_es": "directorio",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/"
+    },
+    {
+      "id": "docs",
+      "q": "docs",
+      "title": "Docs/",
+      "title_es": "Docs/",
+      "hint": "about, play, legal",
+      "hint_es": "acerca, jugar, legal",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/docs",
+      "aliases": [
+        "doc"
+      ]
+    },
+    {
+      "id": "doc",
+      "q": "doc",
+      "title": "Docs/",
+      "title_es": "Docs/",
+      "hint": "catalog",
+      "hint_es": "catálogo",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/docs"
+    },
+    {
+      "id": "about",
+      "q": "about",
+      "title": "About",
+      "title_es": "Acerca",
+      "hint": "what this is",
+      "hint_es": "qué es esto",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/about"
+    },
+    {
+      "id": "how",
+      "q": "how",
+      "title": "How",
+      "title_es": "Cómo",
+      "hint": "order in, fetch, reply",
+      "hint_es": "pedido, fetch, respuesta",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/how"
+    },
+    {
+      "id": "caps",
+      "q": "caps",
+      "title": "Capabilities",
+      "title_es": "Capacidades",
+      "hint": "orders, not chat",
+      "hint_es": "órdenes, no chat",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/caps"
+    },
+    {
+      "id": "capabilities",
+      "q": "capabilities",
+      "title": "Capabilities",
+      "title_es": "Capacidades",
+      "hint": "orders, not chat",
+      "hint_es": "órdenes, no chat",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/caps"
+    },
+    {
+      "id": "privacy",
+      "q": "privacy",
+      "title": "Privacy",
+      "title_es": "Privacidad",
+      "hint": "what we keep",
+      "hint_es": "qué guardamos",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/privacy"
+    },
+    {
+      "id": "fetch-hole",
+      "q": "fetch",
+      "title": "FETCH/",
+      "title_es": "FETCH/",
+      "hint": "100-stage maze",
+      "hint_es": "laberinto de 100",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/fetch",
+      "aliases": [
+        "game"
+      ]
+    },
+    {
+      "id": "dig",
+      "q": "dig",
+      "title": "DIG/",
+      "title_es": "DIG/",
+      "hint": "8-stage burrow",
+      "hint_es": "madriguera de 8",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/dig"
+    },
+    {
+      "id": "games",
+      "q": "games",
+      "title": "Games/",
+      "title_es": "Juegos/",
+      "hint": "FETCH and DIG",
+      "hint_es": "FETCH y DIG",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/games"
+    },
+    {
+      "id": "waitlist",
+      "q": "waitlist",
+      "title": "Waitlist",
+      "title_es": "Lista de espera",
+      "hint": "get in",
+      "hint_es": "entra",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/waitlist"
+    },
+    {
+      "id": "user",
+      "q": "user",
+      "title": "User/",
+      "title_es": "Usuario/",
+      "hint": "device hole",
+      "hint_es": "hueco del dispositivo",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/user"
+    },
+    {
+      "id": "login",
+      "q": "login",
+      "title": "login",
+      "title_es": "login",
+      "hint": "enter your hole",
+      "hint_es": "entra a tu hueco",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/user"
+    },
+    {
+      "id": "pricing",
+      "q": "pricing",
+      "title": "Pricing",
+      "title_es": "Precios",
+      "hint": "no fake table",
+      "hint_es": "sin tabla falsa",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/pricing"
+    },
+    {
+      "id": "terms",
+      "q": "terms",
+      "title": "Terms",
+      "title_es": "Términos",
+      "hint": "legal",
+      "hint_es": "legal",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/terms"
+    },
+    {
+      "id": "faq",
+      "q": "faq",
+      "title": "FAQ",
+      "title_es": "FAQ",
+      "hint": "questions",
+      "hint_es": "preguntas",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/faq"
+    },
+    {
+      "id": "changelog",
+      "q": "changelog",
+      "title": "Changelog",
+      "title_es": "Cambios",
+      "hint": "dated log",
+      "hint_es": "log con fecha",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/changelog"
+    },
+    {
+      "id": "contact",
+      "q": "contact",
+      "title": "Contact",
+      "title_es": "Contacto",
+      "hint": "GitHub + waitlist",
+      "hint_es": "GitHub y lista",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/contact"
+    },
+    {
+      "id": "status",
+      "q": "status",
+      "title": "Status",
+      "title_es": "Estado",
+      "hint": "process, not SLA",
+      "hint_es": "proceso, no SLA",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/status"
+    },
+    {
+      "id": "legal",
+      "q": "legal",
+      "title": "Legal/",
+      "title_es": "Legal/",
+      "hint": "privacy, terms, security",
+      "hint_es": "privacidad, términos",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/legal"
+    },
+    {
+      "id": "security",
+      "q": "security",
+      "title": "Security",
+      "title_es": "Seguridad",
+      "hint": "headers, no number",
+      "hint_es": "headers, sin número",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/security"
+    },
+    {
+      "id": "keys",
+      "q": "keys",
+      "title": "Keys",
+      "title_es": "Teclas",
+      "hint": "1-9 / ? esc",
+      "hint_es": "1-9 / ? esc",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/keys"
+    },
+    {
+      "id": "es",
+      "q": "es",
+      "title": "ES/",
+      "title_es": "ES/",
+      "hint": "Spanish hole",
+      "hint_es": "hueco en español",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/es"
+    },
+    {
+      "id": "ship",
+      "q": "ship",
+      "title": "Ship",
+      "title_es": "Ship",
+      "hint": "82/100 list",
+      "hint_es": "lista 82/100",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/ship"
+    },
+    {
+      "id": "press",
+      "q": "press",
+      "title": "Press",
+      "title_es": "Prensa",
+      "hint": "one paragraph",
+      "hint_es": "un párrafo",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/press"
+    },
+    {
+      "id": "jobs",
+      "q": "jobs",
+      "title": "Jobs",
+      "title_es": "Empleo",
+      "hint": "not hiring",
+      "hint_es": "no contratamos",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/jobs"
+    },
+    {
+      "id": "scores",
+      "q": "scores",
+      "title": "Scores",
+      "title_es": "Puntajes",
+      "hint": "device + python board",
+      "hint_es": "dispositivo + python",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/scores"
+    },
+    {
+      "id": "board",
+      "q": "board",
+      "title": "Scores",
+      "title_es": "Puntajes",
+      "hint": "leaderboard",
+      "hint_es": "tabla",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/scores"
+    },
+    {
+      "id": "leaderboard",
+      "q": "leaderboard",
+      "title": "Scores",
+      "title_es": "Puntajes",
+      "hint": "leaderboard",
+      "hint_es": "tabla",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/scores"
+    },
+    {
+      "id": "install",
+      "q": "install",
+      "title": "Install",
+      "title_es": "Instalar",
+      "hint": "PWA hole",
+      "hint_es": "hueco PWA",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/install"
+    },
+    {
+      "id": "pwa",
+      "q": "pwa",
+      "title": "Install",
+      "title_es": "Instalar",
+      "hint": "add to home",
+      "hint_es": "añadir al inicio",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/install"
+    },
+    {
+      "id": "promote",
+      "q": "promote",
+      "title": "Promote",
+      "title_es": "Promover",
+      "hint": "runbook",
+      "hint_es": "runbook",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/promote"
+    },
+    {
+      "id": "brand",
+      "q": "brand",
+      "title": "Brand",
+      "title_es": "Marca",
+      "hint": "brand book",
+      "hint_es": "libro de marca",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/brand"
+    },
+    {
+      "id": "open-watch",
+      "q": "open watch",
+      "title": "Watch/",
+      "title_es": "Watch/",
+      "hint": "device queue",
+      "hint_es": "cola del dispositivo",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/watch"
+    },
+    {
+      "id": "open-remind",
+      "q": "open remind",
+      "title": "Remind/",
+      "title_es": "Remind/",
+      "hint": "device queue",
+      "hint_es": "cola del dispositivo",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/remind"
+    },
+    {
+      "id": "open-draft",
+      "q": "open draft",
+      "title": "Draft/",
+      "title_es": "Draft/",
+      "hint": "device queue",
+      "hint_es": "cola del dispositivo",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/draft"
+    },
+    {
+      "id": "quest",
+      "q": "quest",
+      "title": "Quest",
+      "title_es": "Misión",
+      "hint": "first orders",
+      "hint_es": "primeras órdenes",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/quest"
+    },
+    {
+      "id": "log",
+      "q": "log",
+      "title": "Log",
+      "title_es": "Log",
+      "hint": "on-device errors",
+      "hint_es": "errores en el dispositivo",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/log"
+    },
+    {
+      "id": "blueprint",
+      "q": "blueprint",
+      "title": "Blueprint",
+      "title_es": "Plano",
+      "hint": "missing product",
+      "hint_es": "producto faltante",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/blueprint"
+    },
+    {
+      "id": "missing",
+      "q": "missing",
+      "title": "Blueprint",
+      "title_es": "Plano",
+      "hint": "open items",
+      "hint_es": "ítems abiertos",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/blueprint"
+    },
+    {
+      "id": "todo",
+      "q": "todo",
+      "title": "Blueprint",
+      "title_es": "Plano",
+      "hint": "open items",
+      "hint_es": "ítems abiertos",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/blueprint"
+    },
+    {
+      "id": "plugins",
+      "q": "plugins",
+      "title": "Plugins",
+      "title_es": "Plugins",
+      "hint": "ticker live, SMS parked",
+      "hint_es": "ticker vivo, SMS aparcado",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/plugins"
+    },
+    {
+      "id": "plugin",
+      "q": "plugin",
+      "title": "Plugins",
+      "title_es": "Plugins",
+      "hint": "connected tools",
+      "hint_es": "herramientas",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/plugins"
+    },
+    {
+      "id": "orders",
+      "q": "orders",
+      "title": "Orders",
+      "title_es": "Órdenes",
+      "hint": "last asks",
+      "hint_es": "últimos pedidos",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/orders"
+    },
+    {
+      "id": "howto",
+      "q": "howto",
+      "title": "How to play",
+      "title_es": "Cómo jugar",
+      "hint": "FETCH key",
+      "hint_es": "clave FETCH",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/play"
+    },
+    {
+      "id": "tasks",
+      "q": "tasks",
+      "title": "Tasks/",
+      "title_es": "Tareas/",
+      "hint": "100 orders",
+      "hint_es": "100 órdenes",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/tasks",
+      "aliases": [
+        "task"
+      ]
+    },
+    {
+      "id": "site",
+      "q": "site",
+      "title": "Site/",
+      "title_es": "Sitio/",
+      "hint": "changelog, ship, press",
+      "hint_es": "cambios, ship, prensa",
+      "kind": "nav",
+      "run": "nav",
+      "live": true,
+      "path": "/docs/site"
+    },
+    {
+      "id": "fetch-btc",
+      "q": "fetch btc",
+      "title": "fetch btc",
+      "title_es": "fetch btc",
+      "hint": "live ticker BTC",
+      "hint_es": "ticker en vivo BTC",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "btc",
+        "btc",
+        "bitcoin"
+      ]
+    },
+    {
+      "id": "fetch-eth",
+      "q": "fetch eth",
+      "title": "fetch eth",
+      "title_es": "fetch eth",
+      "hint": "live ticker ETH",
+      "hint_es": "ticker en vivo ETH",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "eth",
+        "eth",
+        "ethereum"
+      ]
+    },
+    {
+      "id": "fetch-sol",
+      "q": "fetch sol",
+      "title": "fetch sol",
+      "title_es": "fetch sol",
+      "hint": "live ticker SOL",
+      "hint_es": "ticker en vivo SOL",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "sol",
+        "sol",
+        "solana"
+      ]
+    },
+    {
+      "id": "fetch-xrp",
+      "q": "fetch xrp",
+      "title": "fetch xrp",
+      "title_es": "fetch xrp",
+      "hint": "live ticker XRP",
+      "hint_es": "ticker en vivo XRP",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "xrp",
+        "xrp",
+        "ripple"
+      ]
+    },
+    {
+      "id": "fetch-doge",
+      "q": "fetch doge",
+      "title": "fetch doge",
+      "title_es": "fetch doge",
+      "hint": "live ticker DOGE",
+      "hint_es": "ticker en vivo DOGE",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "doge",
+        "doge",
+        "dogecoin"
+      ]
+    },
+    {
+      "id": "fetch-ada",
+      "q": "fetch ada",
+      "title": "fetch ada",
+      "title_es": "fetch ada",
+      "hint": "live ticker ADA",
+      "hint_es": "ticker en vivo ADA",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "ada",
+        "ada",
+        "cardano"
+      ]
+    },
+    {
+      "id": "fetch-link",
+      "q": "fetch link",
+      "title": "fetch link",
+      "title_es": "fetch link",
+      "hint": "live ticker LINK",
+      "hint_es": "ticker en vivo LINK",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "link",
+        "link"
+      ]
+    },
+    {
+      "id": "fetch-uni",
+      "q": "fetch uni",
+      "title": "fetch uni",
+      "title_es": "fetch uni",
+      "hint": "live ticker UNI",
+      "hint_es": "ticker en vivo UNI",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "uni",
+        "uni"
+      ]
+    },
+    {
+      "id": "fetch-avax",
+      "q": "fetch avax",
+      "title": "fetch avax",
+      "title_es": "fetch avax",
+      "hint": "live ticker AVAX",
+      "hint_es": "ticker en vivo AVAX",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "avax",
+        "avax"
+      ]
+    },
+    {
+      "id": "fetch-matic",
+      "q": "fetch matic",
+      "title": "fetch matic",
+      "title_es": "fetch matic",
+      "hint": "live ticker MATIC",
+      "hint_es": "ticker en vivo MATIC",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "matic",
+        "matic"
+      ]
+    },
+    {
+      "id": "fetch-dot",
+      "q": "fetch dot",
+      "title": "fetch dot",
+      "title_es": "fetch dot",
+      "hint": "live ticker DOT",
+      "hint_es": "ticker en vivo DOT",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "dot",
+        "dot"
+      ]
+    },
+    {
+      "id": "fetch-atom",
+      "q": "fetch atom",
+      "title": "fetch atom",
+      "title_es": "fetch atom",
+      "hint": "live ticker ATOM",
+      "hint_es": "ticker en vivo ATOM",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "atom",
+        "atom"
+      ]
+    },
+    {
+      "id": "fetch-near",
+      "q": "fetch near",
+      "title": "fetch near",
+      "title_es": "fetch near",
+      "hint": "live ticker NEAR",
+      "hint_es": "ticker en vivo NEAR",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "near",
+        "near"
+      ]
+    },
+    {
+      "id": "fetch-apt",
+      "q": "fetch apt",
+      "title": "fetch apt",
+      "title_es": "fetch apt",
+      "hint": "live ticker APT",
+      "hint_es": "ticker en vivo APT",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "apt",
+        "apt"
+      ]
+    },
+    {
+      "id": "fetch-sui",
+      "q": "fetch sui",
+      "title": "fetch sui",
+      "title_es": "fetch sui",
+      "hint": "live ticker SUI",
+      "hint_es": "ticker en vivo SUI",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "sui",
+        "sui"
+      ]
+    },
+    {
+      "id": "fetch-ton",
+      "q": "fetch ton",
+      "title": "fetch ton",
+      "title_es": "fetch ton",
+      "hint": "live ticker TON",
+      "hint_es": "ticker en vivo TON",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "ton",
+        "ton"
+      ]
+    },
+    {
+      "id": "fetch-fg",
+      "q": "fetch fg",
+      "title": "fetch fg",
+      "title_es": "fetch fg",
+      "hint": "fear greed (python)",
+      "hint_es": "miedo avaricia (python)",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "fg",
+        "fng"
+      ]
+    },
+    {
+      "id": "fear-greed",
+      "q": "fear greed",
+      "title": "fear greed",
+      "title_es": "fear greed",
+      "hint": "fear greed index",
+      "hint_es": "índice miedo avaricia",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "fng"
+      ]
+    },
+    {
+      "id": "fetch-fng",
+      "q": "fetch fng",
+      "title": "fetch fng",
+      "title_es": "fetch fng",
+      "hint": "fear greed (python)",
+      "hint_es": "miedo avaricia (python)",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true
+    },
+    {
+      "id": "fetch-bitcoin",
+      "q": "fetch bitcoin",
+      "title": "fetch bitcoin",
+      "title_es": "fetch bitcoin",
+      "hint": "live ticker BTC",
+      "hint_es": "ticker en vivo BTC",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "bitcoin"
+      ]
+    },
+    {
+      "id": "fetch-ethereum",
+      "q": "fetch ethereum",
+      "title": "fetch ethereum",
+      "title_es": "fetch ethereum",
+      "hint": "live ticker ETH",
+      "hint_es": "ticker en vivo ETH",
+      "kind": "fetch",
+      "run": "ask",
+      "live": true,
+      "aliases": [
+        "ethereum"
+      ]
+    },
+    {
+      "id": "play-fetch",
+      "q": "play fetch",
+      "title": "play FETCH",
+      "title_es": "jugar FETCH",
+      "hint": "100-stage maze",
+      "hint_es": "laberinto de 100",
+      "kind": "game",
+      "run": "nav",
+      "live": true,
+      "path": "/fetch",
+      "aliases": [
+        "play"
+      ]
+    },
+    {
+      "id": "play-dig",
+      "q": "play dig",
+      "title": "play DIG",
+      "title_es": "jugar DIG",
+      "hint": "8-stage burrow",
+      "hint_es": "madriguera de 8",
+      "kind": "game",
+      "run": "nav",
+      "live": true,
+      "path": "/dig"
+    },
+    {
+      "id": "fetch-pause",
+      "q": "fetch pause",
+      "title": "FETCH pause",
+      "title_es": "FETCH pausa",
+      "hint": "P or PAUSE",
+      "hint_es": "P o PAUSE",
+      "kind": "game",
+      "run": "set",
+      "live": true
+    },
+    {
+      "id": "fetch-key",
+      "q": "fetch key",
+      "title": "FETCH key",
+      "title_es": "FETCH key",
+      "hint": "in-game key",
+      "hint_es": "clave del juego",
+      "kind": "game",
+      "run": "set",
+      "live": true
+    },
+    {
+      "id": "fetch-mute",
+      "q": "fetch mute",
+      "title": "FETCH mute",
+      "title_es": "FETCH mute",
+      "hint": "mute chiptune",
+      "hint_es": "silenciar chiptune",
+      "kind": "game",
+      "run": "set",
+      "live": true
+    },
+    {
+      "id": "fetch-sound",
+      "q": "fetch sound",
+      "title": "FETCH sound",
+      "title_es": "FETCH sound",
+      "hint": "unmute",
+      "hint_es": "sonido",
+      "kind": "game",
+      "run": "set",
+      "live": true
+    },
+    {
+      "id": "share-score",
+      "q": "share score",
+      "title": "share score",
+      "title_es": "compartir puntaje",
+      "hint": "Web Share / clipboard",
+      "hint_es": "Web Share / portapapeles",
+      "kind": "game",
+      "run": "set",
+      "live": true
+    },
+    {
+      "id": "how-to-play",
+      "q": "how to play",
+      "title": "how to play",
+      "title_es": "cómo jugar",
+      "hint": "FETCH key",
+      "hint_es": "clave FETCH",
+      "kind": "game",
+      "run": "nav",
+      "live": true,
+      "path": "/play"
+    },
+    {
+      "id": "watch-btc",
+      "q": "watch btc",
+      "title": "watch btc",
+      "title_es": "watch btc",
+      "hint": "device queue, not SMS",
+      "hint_es": "cola del dispositivo, no SMS",
+      "kind": "queue",
+      "run": "queue",
+      "live": true
+    },
+    {
+      "id": "watch-eth",
+      "q": "watch eth",
+      "title": "watch eth",
+      "title_es": "watch eth",
+      "hint": "device queue, not SMS",
+      "hint_es": "cola del dispositivo, no SMS",
+      "kind": "queue",
+      "run": "queue",
+      "live": true
+    },
+    {
+      "id": "watch-sol",
+      "q": "watch sol",
+      "title": "watch sol",
+      "title_es": "watch sol",
+      "hint": "device queue, not SMS",
+      "hint_es": "cola del dispositivo, no SMS",
+      "kind": "queue",
+      "run": "queue",
+      "live": true
+    },
+    {
+      "id": "watch-ada",
+      "q": "watch ada",
+      "title": "watch ada",
+      "title_es": "watch ada",
+      "hint": "device queue, not SMS",
+      "hint_es": "cola del dispositivo, no SMS",
+      "kind": "queue",
+      "run": "queue",
+      "live": true
+    },
+    {
+      "id": "remind-later",
+      "q": "remind later",
+      "title": "remind later",
+      "title_es": "recordar luego",
+      "hint": "device queue, not SMS",
+      "hint_es": "cola del dispositivo, no SMS",
+      "kind": "queue",
+      "run": "queue",
+      "live": true
+    },
+    {
+      "id": "remind-btc",
+      "q": "remind btc",
+      "title": "remind btc",
+      "title_es": "remind btc",
+      "hint": "device queue, not SMS",
+      "hint_es": "cola del dispositivo, no SMS",
+      "kind": "queue",
+      "run": "queue",
+      "live": true
+    },
+    {
+      "id": "draft-reply",
+      "q": "draft reply",
+      "title": "draft reply",
+      "title_es": "borrador de respuesta",
+      "hint": "device queue, not SMS",
+      "hint_es": "cola del dispositivo, no SMS",
+      "kind": "queue",
+      "run": "queue",
+      "live": true
+    },
+    {
+      "id": "draft-order",
+      "q": "draft order",
+      "title": "draft order",
+      "title_es": "borrador de orden",
+      "hint": "device queue, not SMS",
+      "hint_es": "cola del dispositivo, no SMS",
+      "kind": "queue",
+      "run": "queue",
+      "live": true
+    },
+    {
+      "id": "spanish",
+      "q": "spanish",
+      "title": "spanish",
+      "title_es": "español",
+      "hint": "EN/ES toggle",
+      "hint_es": "cambio EN/ES",
+      "kind": "set",
+      "run": "set",
+      "live": true,
+      "aliases": [
+        "es"
+      ]
+    },
+    {
+      "id": "english",
+      "q": "english",
+      "title": "english",
+      "title_es": "inglés",
+      "hint": "EN/ES toggle",
+      "hint_es": "cambio EN/ES",
+      "kind": "set",
+      "run": "set",
+      "live": true,
+      "aliases": [
+        "en"
+      ]
+    },
+    {
+      "id": "high-contrast",
+      "q": "high contrast",
+      "title": "high contrast",
+      "title_es": "alto contraste",
+      "hint": "phosphor boost",
+      "hint_es": "más fósforo",
+      "kind": "set",
+      "run": "set",
+      "live": true,
+      "aliases": [
+        "contrast",
+        "hi"
+      ]
+    },
+    {
+      "id": "track",
+      "q": "track",
+      "title": "track?",
+      "title_es": "¿track?",
+      "hint": "opt-in, sends nowhere",
+      "hint_es": "opt-in, no envía",
+      "kind": "set",
+      "run": "set",
+      "live": true
+    },
+    {
+      "id": "help",
+      "q": "help",
+      "title": "help",
+      "title_es": "ayuda",
+      "hint": "keys overlay",
+      "hint_es": "teclas",
+      "kind": "set",
+      "run": "set",
+      "live": true,
+      "aliases": [
+        "?"
+      ]
+    },
+    {
+      "id": "sms",
+      "q": "sms",
+      "title": "SMS",
+      "title_es": "SMS",
+      "hint": "parked. no number",
+      "hint_es": "aparcado. sin número",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/plugins",
+      "aliases": [
+        "text",
+        "twilio"
+      ]
+    },
+    {
+      "id": "voice",
+      "q": "voice",
+      "title": "voice",
+      "title_es": "voz",
+      "hint": "parked. no number",
+      "hint_es": "aparcado. sin número",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/plugins",
+      "aliases": [
+        "call"
+      ]
+    },
+    {
+      "id": "mail",
+      "q": "mail",
+      "title": "mail",
+      "title_es": "correo",
+      "hint": "parked. no outbound mail",
+      "hint_es": "aparcado. sin correo de salida",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/plugins",
+      "aliases": [
+        "email-out"
+      ]
+    },
+    {
+      "id": "billing",
+      "q": "billing",
+      "title": "billing",
+      "title_es": "cobro",
+      "hint": "parked. no SKU",
+      "hint_es": "aparcado. sin SKU",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/blueprint",
+      "aliases": [
+        "stripe"
+      ]
+    },
+    {
+      "id": "prices",
+      "q": "prices",
+      "title": "prices",
+      "title_es": "precios",
+      "hint": "parked. none public",
+      "hint_es": "aparcado. ninguno público",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/blueprint"
+    },
+    {
+      "id": "domain",
+      "q": "domain",
+      "title": "domain",
+      "title_es": "dominio",
+      "hint": "parked. github.io only",
+      "hint_es": "aparcado. solo github.io",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/blueprint"
+    },
+    {
+      "id": "cloud-accounts",
+      "q": "cloud accounts",
+      "title": "cloud accounts",
+      "title_es": "cuentas en la nube",
+      "hint": "parked. device login only",
+      "hint_es": "aparcado. solo dispositivo",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/plugins",
+      "aliases": [
+        "cloud",
+        "identity"
+      ]
+    },
+    {
+      "id": "sla",
+      "q": "sla",
+      "title": "SLA",
+      "title_es": "SLA",
+      "hint": "parked. none",
+      "hint_es": "aparcado. no hay",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/blueprint"
+    },
+    {
+      "id": "hiring",
+      "q": "hiring",
+      "title": "hiring",
+      "title_es": "contratación",
+      "hint": "parked. not hiring",
+      "hint_es": "aparcado. no contratamos",
+      "kind": "parked",
+      "run": "parked",
+      "live": false,
+      "path": "/blueprint"
+    }
+  ]
+}

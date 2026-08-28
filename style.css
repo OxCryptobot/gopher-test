@@ -685,3 +685,18 @@ html[lang="es"] .g-keycard li,
 html[lang="es"] .help-card li {
   line-height: 1.45;
 }
+
+/* autoprompt: Gopher selector list under the prompt */
+#suggest.suggest {
+  margin: 0.35rem 0 0;
+  max-height: 18rem;
+  overflow: auto;
+}
+#suggest.suggest[hidden] { display: none !important; }
+#suggest.suggest li { margin: 0; }
+#suggest.suggest .idim { color: var(--fg-dim); min-width: 1.2ch; }
+#suggest.suggest .sel.active {
+  color: var(--fg-bright);
+  text-shadow: var(--glow);
+  background: rgba(57, 255, 20, 0.07);
+}

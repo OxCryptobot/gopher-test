@@ -131,6 +131,35 @@ class HoleTests(unittest.TestCase):
                     hits.append((token, text[:120]))
         self.assertEqual(hits, [], f"banned vendor text in copy/caps/note/title: {hits}")
 
+    def test_tasks_json(self) -> None:
+        path = os.path.join(ROOT, "tasks.json")
+        self.assertTrue(os.path.isfile(path), "tasks.json missing")
+        with open(path, encoding="utf-8") as f:
+            raw = f.read()
+            data = json.loads(raw)
+        tasks = data.get("tasks")
+        self.assertIsInstance(tasks, list)
+        self.assertEqual(len(tasks), 100, "tasks.json must have exactly 100 tasks")
+        ids = []
+        for task in tasks:
+            self.assertIsInstance(task, dict)
+            self.assertTrue(task.get("id"), "task missing id")
+            self.assertTrue(task.get("q"), "task missing q")
+            self.assertIn(task.get("kind"), ("nav", "fetch", "game", "queue", "set", "parked"))
+            self.assertIn(task.get("run"), ("nav", "ask", "queue", "set", "parked"))
+            ids.append(task["id"])
+            if task.get("kind") == "parked" or task.get("run") == "parked":
+                self.assertIs(task.get("live"), False, task.get("id") + " parked must be live false")
+        self.assertEqual(len(ids), len(set(ids)), "task ids must be unique")
+        lower = raw.lower()
+        hits = [token for token in BANNED if token in lower]
+        self.assertEqual(hits, [], "banned vendor text in tasks.json: " + str(hits))
+
+    def test_tasks_hole_exists(self) -> None:
+        self.assertIn("/tasks", self.holes)
+        self.assertEqual(self.alias.get("tasks"), "/tasks")
+
+
 
 def main() -> int:
     try:

@@ -31,7 +31,14 @@ class StaticTests(unittest.TestCase):
         self.assertTrue(icons, "manifest.json icons is empty")
 
     def test_sw_cache_name(self) -> None:
-        self.assertIn("gopher-v5", read("sw.js"))
+        src = read("sw.js")
+        self.assertIn("gopher-v6", src)
+        self.assertIn("tasks.json", src)
+
+    def test_prompt_suggest(self) -> None:
+        self.assertIn('id="suggest"', read("index.html"))
+        js = read("app.js")
+        self.assertTrue("autoprompt" in js or "suggest" in js, "app.js should mention autoprompt or suggest")
 
     def test_game_exports(self) -> None:
         src = read("game.js")

@@ -49,7 +49,9 @@
     "todo": "/blueprint",
     "plugins": "/plugins",
     "plugin": "/plugins",
-    "orders": "/orders"
+    "orders": "/orders",
+    "tasks": "/tasks",
+    "task": "/tasks"
   },
   "holes": {
     "/": {
@@ -82,6 +84,15 @@
           "path": "/waitlist",
           "hint": "get in",
           "hint_es": "entra"
+        },
+        {
+          "n": "7",
+          "type": "7",
+          "name": "Tasks/",
+          "name_es": "Tareas/",
+          "path": "/tasks",
+          "hint": "100 orders in the prompt",
+          "hint_es": "100 órdenes en el prompt"
         },
         {
           "n": "8",
@@ -310,6 +321,15 @@
           "path": "/blueprint",
           "hint": "18 missing products",
           "hint_es": "18 productos que faltan"
+        },
+        {
+          "n": "14",
+          "type": "0",
+          "name": "Tasks",
+          "name_es": "Tareas",
+          "path": "/tasks",
+          "hint": "100 orders",
+          "hint_es": "100 órdenes"
         }
       ]
     },
@@ -553,6 +573,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-08-28 — prompt autoprompts, 100 tasks catalog.",
         "2026-08-28 — python product flags, fng fetch, parked Twilio webhooks. 82/100.",
         "2026-08-28 — maze FETCH polish, playable DIG, device watch/remind/draft. 81/100.",
         "2026-08-27/28 — DIG playable: 8 stages, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze.",
@@ -561,6 +582,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-08-28 — el prompt hace autoprompt, catálogo de 100 tareas.",
         "2026-08-28 — flags de producto python, fetch fng, webhooks Twilio aparcados. 82/100.",
         "2026-08-28 — pulido del laberinto FETCH, DIG jugable, watch/remind/draft del dispositivo. 81/100.",
         "2026-08-27/28 — DIG jugable: 8 etapas, un toque un tile, caen rocas. Escribe dig o Games/. FETCH sigue siendo el laberinto de 100 etapas.",
@@ -1026,14 +1048,16 @@
         "Open: 28 CI, 76 domain, 77 mail, 78 SMS, 79 voice, 80 cloud accounts, 81 billing, 82 prices, 83 SLA, 84 more plugins, 85 cloud order log, 86 store listing, 88 uptime product, 91 legal, 92 refunds, 93 DPA, 95 hiring, 97 demo video.",
         "Wire order: CI PAT workflow, domain, mail, billing (you name a real price), SMS/voice number, cloud accounts, uptime product, then legal/hiring/store/demo video.",
         "This wave: python live plugin flags, fng fetch, Twilio webhooks that 503 until env is set, waitlist mail hook if GOPHER_MAIL_HOOK is set.",
-        "Pages cannot run server.py. Do not invent prices, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, plugins, orders, or status."
+        "Pages cannot run server.py. Do not invent prices, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, plugins, orders, or status.",
+        "Type tasks in the prompt, or open /tasks. Autoprompt ranks live selectors. Parked products stay parked."
       ],
       "copy_es": [
         "82 de 100. Hueco jugable 74/75. Telefono de pago 8/25. Lo que falta es el producto duro, no el 18% del esfuerzo.",
         "Abierto: CI, dominio, correo, SMS, voz, cuentas, cobro, precios, SLA, mas plugins, log, tienda, uptime, legal, reembolsos, DPA, contratacion, video demo.",
         "Orden: CI, dominio, correo, cobro, SMS/voz, cuentas, uptime, luego legal/tienda/video.",
         "Esta ola: flags de plugins en python, fetch fng, webhooks Twilio en 503 hasta que haya env, hook de mail si GOPHER_MAIL_HOOK esta puesto.",
-        "Pages no corre server.py. No inventar precios, SMS ni un SLA."
+        "Pages no corre server.py. No inventar precios, SMS ni un SLA.",
+        "Escribe tasks en el prompt, o abre /tasks. El autoprompt ordena selectores vivos. Lo aparcado sigue aparcado."
       ],
       "note": "Not hiring. No fake openings. No fake SLA.",
       "note_es": "No contratamos. Sin SLA inventado."
@@ -1074,6 +1098,18 @@
       ],
       "note": "Type orders.",
       "note_es": "Escribe orders."
+    },
+    "/tasks": {
+      "title": "Tasks/",
+      "title_es": "Tareas/",
+      "copy": [
+        "100 tasks. Type in the prompt. Autoprompts as you type. Parked items do not fake a number."
+      ],
+      "copy_es": [
+        "100 tareas. Escribe en el prompt. Autoprompts mientras escribes. Lo aparcado no finge un número."
+      ],
+      "note": "Live fetches and games run. SMS, voice, mail, billing stay parked.",
+      "note_es": "Fetches y juegos vivos corren. SMS, voz, correo y cobro siguen aparcados."
     }
   }
 }

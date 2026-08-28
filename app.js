@@ -78,6 +78,18 @@
   var shoutTimer = 0;
   var deferredInstall = null;
   var questBound = false;
+  var TASKS = [];
+  var sugOpen = false;
+  var sugHi = -1;
+  var sugItems = [];
+  var idleTimer = 0;
+  var phTimer = 0;
+  var idleOff = 0;
+  var phOff = 0;
+  var DEFAULT_PH = "5   or   fetch btc   or   play";
+  var SUG_MAX = 8;
+  var SUG_IDLE = 5;
+
 
   function esc(s) {
     return String(s)
@@ -308,6 +320,11 @@
       else ds.textContent = pack.digStatus;
     }
     questPaint();
+    if (sugOpen) {
+      var cmdSug = $("command");
+      var qSug = cmdSug ? (cmdSug.value || "") : "";
+      paintSuggest(filterTasks(qSug), { hi: sugHi, idle: !String(qSug).trim() });
+    }
   }
 
   function bootHc() {
@@ -901,9 +918,517 @@
     if (dig.draw) dig.draw();
   }
 
+  /* autoprompt: ranked Gopher selectors for the 100-task catalog */
+  function prefersLessMotion() {
+    try {
+      return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    } catch (e) {
+      return false;
+    }
+  }
+  function taskTitle(row) {
+    if (!row) return "";
+    return (document.documentElement.lang === "es" && row.title_es) ? row.title_es : (row.title || row.q || "");
+  }
+  function taskHint(row) {
+    if (!row) return "";
+    return (document.documentElement.lang === "es" && row.hint_es) ? row.hint_es : (row.hint || "");
+  }
+  function gopherType(row) {
+    if (!row) return "1";
+    if (row.kind === "fetch") return "0";
+    if (row.kind === "parked") return "3";
+    if (row.kind === "queue") return "7";
+    return "1";
+  }
+  function liveTasks() {
+    var out = [], i;
+    for (i = 0; i < TASKS.length; i++) {
+      if (TASKS[i] && TASKS[i].live) out.push(TASKS[i]);
+    }
+    return out;
+  }
+  function rankNeedle(text, q) {
+    var str, re;
+    if (!text) return 0;
+    str = String(text).toLowerCase();
+    if (str === q) return 100;
+    if (str.indexOf(q) === 0) return 80;
+    try {
+      re = new RegExp("(^|[^a-z0-9])" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      if (re.test(str)) return 60;
+    } catch (e) {}
+    if (str.indexOf(q) >= 0) return 40;
+    return 0;
+  }
+  function rankTask(row, q) {
+    var best = 0, n, i, fields;
+    if (!row || !q) return 0;
+    fields = [row.q, row.title, row.title_es, row.hint, row.hint_es, row.id];
+    if (row.aliases && row.aliases.length) {
+      for (i = 0; i < row.aliases.length; i++) fields.push(row.aliases[i]);
+    }
+    for (i = 0; i < fields.length; i++) {
+      n = rankNeedle(fields[i], q);
+      if (n > best) best = n;
+    }
+    return best;
+  }
+  function idleSlice() {
+    var live = liveTasks(), out = [], i, n;
+    if (!live.length) return [];
+    n = Math.min(SUG_IDLE, live.length);
+    for (i = 0; i < n; i++) out.push(live[(idleOff + i) % live.length]);
+    return out;
+  }
+  function filterTasks(q) {
+    var i, row, score, scored = [];
+    q = (q || "").toLowerCase().trim();
+    if (!q) return idleSlice();
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      score = rankTask(row, q);
+      if (score > 0) scored.push({ row: row, score: score });
+    }
+    scored.sort(function (a, b) {
+      if (a.row.live && !b.row.live) return -1;
+      if (!a.row.live && b.row.live) return 1;
+      return b.score - a.score;
+    });
+    return scored.slice(0, SUG_MAX).map(function (item) { return item.row; });
+  }
+  function suggestEl() {
+    return $("suggest");
+  }
+  function setSugExpanded(on) {
+    var cmd = $("command");
+    sugOpen = !!on;
+    if (cmd) cmd.setAttribute("aria-expanded", on ? "true" : "false");
+    if (!on && cmd) cmd.removeAttribute("aria-activedescendant");
+  }
+  function hideSuggest() {
+    var el = suggestEl();
+    sugOpen = false;
+    sugHi = -1;
+    sugItems = [];
+    if (el) {
+      el.hidden = true;
+      el.innerHTML = "";
+    }
+    setSugExpanded(false);
+  }
+  function syncSugAria() {
+    var cmd = $("command");
+    if (!cmd) return;
+    if (sugOpen && sugHi >= 0) cmd.setAttribute("aria-activedescendant", "sug-" + sugHi);
+    else cmd.removeAttribute("aria-activedescendant");
+  }
+  function paintSuggest(items, opts) {
+    var el = suggestEl(), html = "", i, row, hi, title, hint, gtype;
+    opts = opts || {};
+    if (!el) return;
+    if (!items || !items.length) {
+      hideSuggest();
+      return;
+    }
+    sugItems = items;
+    if (opts.hi == null) sugHi = opts.idle ? -1 : 0;
+    else sugHi = opts.hi;
+    if (sugHi >= items.length) sugHi = items.length - 1;
+    html = "";
+    for (i = 0; i < items.length; i++) {
+      row = items[i];
+      title = taskTitle(row);
+      hint = taskHint(row);
+      gtype = gopherType(row);
+      hi = (i === sugHi) ? " active" : "";
+      html += "<li role='option' id='sug-" + i + "' aria-selected='" + (i === sugHi ? "true" : "false") + "'>" +
+        "<button type='button' class='sel" + hi + "' data-sug='" + i + "'>" +
+        "<span class='itype'>" + (i + 1) + "</span> " +
+        "<span class='idim'>" + gtype + "</span> " +
+        esc(title) +
+        " <span class='path'>" + esc(hint) + "</span></button></li>";
+    }
+    el.innerHTML = html;
+    el.hidden = false;
+    setSugExpanded(true);
+    el.querySelectorAll("button.sel").forEach(function (b) {
+      b.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
+      b.addEventListener("click", function () {
+        var n = +b.getAttribute("data-sug");
+        if (sugItems[n]) runTask(sugItems[n]);
+      });
+    });
+    syncSugAria();
+  }
+  function moveSug(dir) {
+    if (!sugItems.length) return;
+    if (sugHi < 0) sugHi = dir > 0 ? 0 : sugItems.length - 1;
+    else sugHi = (sugHi + dir + sugItems.length) % sugItems.length;
+    paintSuggest(sugItems, { hi: sugHi });
+  }
+  function acceptSug() {
+    var row, cmd;
+    if (sugHi < 0 || !sugItems[sugHi]) return;
+    row = sugItems[sugHi];
+    cmd = $("command");
+    if (cmd) cmd.value = row.q || "";
+    paintSuggest(filterTasks(cmd && cmd.value), { hi: 0 });
+  }
+  function parkedLine(row) {
+    var id = (row && row.id) || "";
+    if (id === "sms") return "parked. no SMS number. see plugins";
+    if (id === "voice") return "parked. no voice number. see plugins";
+    if (id === "mail") return "parked. no outbound mail. see plugins";
+    if (id === "billing") return "parked. no billing. see blueprint";
+    if (id === "prices") return "parked. no published prices. see blueprint";
+    if (id === "domain") return "parked. no custom domain. see blueprint";
+    if (id === "cloud-accounts") return "parked. device login only. see plugins";
+    if (id === "sla") return "parked. no SLA. see blueprint";
+    if (id === "hiring") return "parked. not hiring. see jobs";
+    return "parked. see plugins";
+  }
+  function afterHole(path, fn) {
+    if (pathNow() === path) {
+      fn();
+      return;
+    }
+    go(path);
+    setTimeout(fn, 40);
+  }
+  function runSet(row) {
+    var id = row.id, on, helpEl, gp, gm;
+    if (id === "spanish") {
+      applyLang("es");
+      setStatus($("ask-status"), "ok", "ok. spanish");
+      return;
+    }
+    if (id === "english") {
+      applyLang("en");
+      setStatus($("ask-status"), "ok", "ok. english");
+      return;
+    }
+    if (id === "high-contrast") {
+      applyHc(!document.documentElement.classList.contains("high-contrast"));
+      setStatus($("ask-status"), "ok", "ok. high contrast");
+      return;
+    }
+    if (id === "track") {
+      on = !readTrack();
+      writeTrack(on);
+      paintTrackBtn();
+      setStatus($("ask-status"), "ok", on ? "ok. track (this device, no beacon)" : "ok. track off");
+      return;
+    }
+    if (id === "help") {
+      helpEl = $("help");
+      if (helpEl) helpEl.hidden = false;
+      setStatus($("ask-status"), "ok", "ok. help");
+      return;
+    }
+    if (id === "fetch-pause") {
+      afterHole("/fetch", function () {
+        if (!game) bootGame();
+        if (game && game.pauseToggle) game.pauseToggle();
+        gp = $("g-pause");
+        if (gp && game) gp.textContent = game.paused ? "RESUME" : "PAUSE";
+        setStatus($("ask-status"), "ok", "ok. fetch pause");
+        if (game) setStatus($("g-status"), "", game.paused ? t("fetchPaused") : t("fetchPlay"));
+      });
+      return;
+    }
+    if (id === "fetch-key") {
+      afterHole("/fetch", function () {
+        if (!game) bootGame();
+        toggleKeyCard();
+        setStatus($("ask-status"), "ok", "ok. fetch key");
+      });
+      return;
+    }
+    if (id === "fetch-mute") {
+      afterHole("/fetch", function () {
+        if (!game) bootGame();
+        if (game) {
+          game.mute = true;
+          gm = $("g-mute");
+          if (gm) gm.textContent = "MUTE";
+        }
+        setStatus($("ask-status"), "ok", "ok. fetch mute");
+      });
+      return;
+    }
+    if (id === "fetch-sound") {
+      afterHole("/fetch", function () {
+        if (!game) bootGame();
+        if (game) {
+          game.mute = false;
+          gm = $("g-mute");
+          if (gm) gm.textContent = "SOUND";
+        }
+        setStatus($("ask-status"), "ok", "ok. fetch sound");
+      });
+      return;
+    }
+    if (id === "share-score") {
+      shareScore();
+      setStatus($("ask-status"), "ok", "ok. share score");
+      return;
+    }
+    setStatus($("ask-status"), "ok", "ok. " + (row.q || id));
+  }
+  function runTask(row) {
+    var q, cmd;
+    if (!row) return;
+    q = row.q || row.id || "";
+    cmd = $("command");
+    if (cmd) cmd.value = "";
+    hideSuggest();
+    stopIdleSpin();
+    if (row.run === "parked" || row.kind === "parked") {
+      if (row.path) go(row.path);
+      setStatus($("ask-status"), "", parkedLine(row));
+      return;
+    }
+    if (row.run === "nav") {
+      if (row.path) go(row.path);
+      setStatus($("ask-status"), "ok", "ok. " + q);
+      return;
+    }
+    if (row.run === "queue") {
+      queueKindOrder(q);
+      return;
+    }
+    if (row.run === "set") {
+      runSet(row);
+      return;
+    }
+    if (row.run === "ask") {
+      askServer(q);
+      return;
+    }
+    if (row.path) go(row.path);
+    else askServer(q);
+  }
+  function findTaskExact(q) {
+    var i, row, low;
+    low = (q || "").toLowerCase().trim();
+    if (!low) return null;
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      if (!row) continue;
+      if ((row.id || "").toLowerCase() === low) return row;
+      if ((row.q || "").toLowerCase() === low) return row;
+    }
+    return null;
+  }
+  function stopIdleSpin() {
+    if (idleTimer) {
+      clearInterval(idleTimer);
+      idleTimer = 0;
+    }
+  }
+  function showIdleSuggest() {
+    paintSuggest(idleSlice(), { idle: true });
+    if (prefersLessMotion()) return;
+    if (idleTimer) return;
+    idleTimer = setInterval(function () {
+      var cmd = $("command");
+      if (!cmd || document.activeElement !== cmd || (cmd.value || "").trim()) {
+        stopIdleSpin();
+        return;
+      }
+      idleOff += 1;
+      paintSuggest(idleSlice(), { idle: true });
+    }, 4000);
+  }
+  function onPromptInput() {
+    var cmd = $("command");
+    var q = cmd ? (cmd.value || "") : "";
+    stopIdleSpin();
+    if (!q.trim()) {
+      if (cmd && document.activeElement === cmd) showIdleSuggest();
+      else hideSuggest();
+      return;
+    }
+    paintSuggest(filterTasks(q), { idle: false });
+  }
+  function onPromptFocus() {
+    var cmd = $("command");
+    if (cmd && !(cmd.value || "").trim()) showIdleSuggest();
+    else onPromptInput();
+  }
+  function onPromptBlur() {
+    setTimeout(function () {
+      var cmd = $("command");
+      if (cmd && document.activeElement === cmd) return;
+      hideSuggest();
+      stopIdleSpin();
+    }, 160);
+  }
+  function onPromptKey(e) {
+    if (e.key === "ArrowDown") {
+      if (!sugOpen) {
+        if (!(($("command") && $("command").value) || "").trim()) showIdleSuggest();
+        else onPromptInput();
+      }
+      if (sugOpen && sugItems.length) {
+        e.preventDefault();
+        moveSug(1);
+      }
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      if (sugOpen && sugItems.length) {
+        e.preventDefault();
+        moveSug(-1);
+      }
+      return;
+    }
+    if (e.key === "Tab") {
+      if (sugOpen && sugHi >= 0 && sugItems[sugHi]) {
+        e.preventDefault();
+        acceptSug();
+      }
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (sugOpen) {
+        hideSuggest();
+        stopIdleSpin();
+        return;
+      }
+      if (e.target && e.target.blur) e.target.blur();
+      return;
+    }
+    if (e.key === "Enter") {
+      if (sugOpen && sugHi >= 0 && sugItems[sugHi]) {
+        e.preventDefault();
+        runTask(sugItems[sugHi]);
+      }
+    }
+  }
+  function tickPlaceholder() {
+    var cmd = $("command");
+    var live, item;
+    if (!cmd) return;
+    if ((cmd.value || "").trim()) return;
+    if (prefersLessMotion()) {
+      cmd.placeholder = DEFAULT_PH;
+      return;
+    }
+    live = liveTasks();
+    if (!live.length) {
+      cmd.placeholder = DEFAULT_PH;
+      return;
+    }
+    item = live[phOff % live.length];
+    cmd.placeholder = item.q || DEFAULT_PH;
+    phOff += 1;
+  }
+  function startPlaceholders() {
+    var cmd = $("command");
+    if (!cmd) return;
+    if (phTimer) {
+      clearInterval(phTimer);
+      phTimer = 0;
+    }
+    if (prefersLessMotion()) {
+      cmd.placeholder = DEFAULT_PH;
+      return;
+    }
+    tickPlaceholder();
+    phTimer = setInterval(tickPlaceholder, 4000);
+  }
+  function fallbackTasks() {
+    var out = [], seen = {}, path, hole, alias, coins, i, q, id;
+    function add(row) {
+      if (!row || !row.id || seen[row.id]) return;
+      seen[row.id] = 1;
+      out.push(row);
+    }
+    for (path in HOLES) {
+      if (!Object.prototype.hasOwnProperty.call(HOLES, path)) continue;
+      hole = HOLES[path] || {};
+      id = "nav-" + (path === "/" ? "home" : path.replace(/^\//, "").replace(/\W+/g, "-"));
+      q = path === "/" ? "home" : path.replace(/^\//, "").replace(/\//g, " ");
+      add({
+        id: id,
+        q: q,
+        title: hole.title || q,
+        title_es: hole.title_es || hole.title || q,
+        hint: "directory",
+        hint_es: "directorio",
+        kind: "nav",
+        run: "nav",
+        live: true,
+        path: path
+      });
+    }
+    for (alias in ALIAS) {
+      if (!Object.prototype.hasOwnProperty.call(ALIAS, alias)) continue;
+      add({
+        id: "alias-" + alias,
+        q: alias,
+        title: alias,
+        title_es: alias,
+        hint: ALIAS[alias],
+        hint_es: ALIAS[alias],
+        kind: "nav",
+        run: "nav",
+        live: true,
+        path: ALIAS[alias]
+      });
+    }
+    coins = ["btc", "eth", "sol", "xrp", "doge", "ada", "fg"];
+    for (i = 0; i < coins.length; i++) {
+      add({
+        id: "fetch-" + coins[i],
+        q: "fetch " + coins[i],
+        title: "fetch " + coins[i],
+        title_es: "fetch " + coins[i],
+        hint: "live ticker",
+        hint_es: "ticker en vivo",
+        kind: "fetch",
+        run: "ask",
+        live: true
+      });
+    }
+    return out;
+  }
+  function loadTasks() {
+    fetch("tasks.json", { headers: { Accept: "application/json" } })
+      .then(function (res) {
+        if (!res.ok) throw new Error("no tasks");
+        return res.json();
+      })
+      .then(function (data) {
+        var list = data && data.tasks;
+        TASKS = Array.isArray(list) ? list.filter(function (row) { return row && row.id && row.q; }) : [];
+        if (!TASKS.length) TASKS = fallbackTasks();
+        startPlaceholders();
+      })
+      .catch(function () {
+        TASKS = fallbackTasks();
+        startPlaceholders();
+      });
+  }
+  function bindPrompt() {
+    var cmd = $("command");
+    if (!cmd) return;
+    cmd.setAttribute("role", "combobox");
+    cmd.setAttribute("aria-autocomplete", "list");
+    cmd.setAttribute("aria-controls", "suggest");
+    cmd.setAttribute("aria-expanded", "false");
+    cmd.addEventListener("input", onPromptInput);
+    cmd.addEventListener("focus", onPromptFocus);
+    cmd.addEventListener("blur", onPromptBlur);
+    cmd.addEventListener("keydown", onPromptKey);
+  }
+
   function queueLocal(q) {
     try { localStorage.setItem("gopher_first_order", q); } catch (err) {}
-    setStatus($("ask-status"), "ok", "queued: “" + q + "”. leave an email or enter your hole.");
+    setStatus($("ask-status"), "ok", "ok. " + q);
     if ($("email")) $("email").focus();
   }
 
@@ -928,14 +1453,14 @@
         }
         if (body.kind === "doc") {
           showType0(body.title || "0 Document", body.text || "");
-          setStatus($("ask-status"), body.ok ? "ok" : "err", body.ok ? "fetched." : (body.text || "fetch failed."));
+          setStatus($("ask-status"), body.ok ? "ok" : "err", body.ok ? ("ok. " + q) : (body.text || "fetch failed."));
           if (body.ok !== false) questMark("fetch");
           return;
         }
         if (body.kind === "queued") {
           try { localStorage.setItem("gopher_first_order", q); } catch (err) {}
           showType0("0 Order", body.text || "queued in the hole.");
-          setStatus($("ask-status"), "ok", body.text || "queued in the hole.");
+          setStatus($("ask-status"), "ok", "ok. " + q);
           return;
         }
         queueLocal(q);
@@ -949,10 +1474,26 @@
   }
   function tickerId(q) {
     var low = (q || "").toLowerCase();
-    var map = { btc: "BTC", eth: "ETH", sol: "SOL", xrp: "XRP", doge: "DOGE", ada: "ADA" };
-    var k;
-    for (k in map) if (Object.prototype.hasOwnProperty.call(map, k) && low.indexOf(k) >= 0) return map[k];
-    return "BTC";
+    var map = {
+      bitcoin: "BTC", btc: "BTC",
+      ethereum: "ETH", eth: "ETH",
+      solana: "SOL", sol: "SOL",
+      ripple: "XRP", xrp: "XRP",
+      dogecoin: "DOGE", doge: "DOGE",
+      cardano: "ADA", ada: "ADA",
+      link: "LINK", uni: "UNI", avax: "AVAX", matic: "MATIC",
+      dot: "DOT", atom: "ATOM", near: "NEAR", apt: "APT",
+      sui: "SUI", ton: "TON"
+    };
+    var k, best = "", hit = "BTC";
+    for (k in map) {
+      if (!Object.prototype.hasOwnProperty.call(map, k)) continue;
+      if (low.indexOf(k) >= 0 && k.length >= best.length) {
+        best = k;
+        hit = map[k];
+      }
+    }
+    return hit;
   }
   function clientFetch(q) {
     if (!looksTicker(q)) { queueLocal(q); return; }
@@ -967,7 +1508,7 @@
           sessionStorage.setItem(SPOT_KEY, JSON.stringify({ id: id, amt: amt, at: Date.now() }));
         } catch (err) {}
         showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + amt + "\n\nsource    public spot");
-        setStatus($("ask-status"), "ok", "fetched.");
+        setStatus($("ask-status"), "ok", "ok. " + q);
         questMark("fetch");
       })
       .catch(function () {
@@ -1239,6 +1780,7 @@
       }
     }
     if (inField) {
+      if (e.target && e.target.id === "command") return;
       if (e.key === "Escape") e.target.blur();
       return;
     }
@@ -1280,26 +1822,45 @@
 
   $("ask-form").addEventListener("submit", function (ev) {
     ev.preventDefault();
-    var q = ($("command").value || "").trim();
+    var q, hit, alias, task;
+    if (sugOpen && sugHi >= 0 && sugItems[sugHi]) {
+      runTask(sugItems[sugHi]);
+      return;
+    }
+    q = ($("command").value || "").trim();
     if (!q) return;
     if (/^[0-9]$/.test(q)) {
-      var hit = itemsByN()[q];
-      if (hit) { go(hit.path); $("command").value = ""; return; }
+      hit = itemsByN()[q];
+      if (hit) { go(hit.path); $("command").value = ""; hideSuggest(); return; }
     }
     if (kindOrder(q)) {
       $("command").value = "";
+      hideSuggest();
       queueKindOrder(q);
       return;
     }
-    var alias = ALIAS[q.toLowerCase()];
-    if (alias) { go(alias); $("command").value = ""; return; }
+    alias = ALIAS[q.toLowerCase()];
+    if (alias) {
+      go(alias);
+      $("command").value = "";
+      hideSuggest();
+      setStatus($("ask-status"), "ok", "ok. " + q);
+      return;
+    }
     if (EMAIL_RE.test(q)) {
       $("email").value = q;
       $("command").value = "";
+      hideSuggest();
       $("form").requestSubmit();
       return;
     }
+    task = findTaskExact(q);
+    if (task) {
+      runTask(task);
+      return;
+    }
     $("command").value = "";
+    hideSuggest();
     askServer(q);
   });
 
@@ -1580,6 +2141,8 @@
   bootHc();
   paintStaging();
   bindTrackBtn();
+  bindPrompt();
+  loadTasks();
   render();
   tutShow();
   bindQuestBtns();

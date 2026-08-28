@@ -40,6 +40,9 @@ class ServerTests(unittest.TestCase):
         self.assertIn("/api/status", self.src)
         self.assertIn("uptime_s", self.src)
 
+    def test_get_api_tasks(self) -> None:
+        self.assertIn("/api/tasks", self.src)
+
     def test_get_api_orders(self) -> None:
         self.assertIn("/api/orders", self.src)
 

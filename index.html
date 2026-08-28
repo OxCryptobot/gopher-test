@@ -116,9 +116,10 @@
       <form id="ask-form" autocomplete="off">
         <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">select or ask:</span></label>
         <div class="row">
-          <input id="command" maxlength="280" placeholder="5   or   fetch btc   or   play" enterkeyhint="go">
+          <input id="command" maxlength="280" placeholder="5   or   fetch btc   or   play" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-controls="suggest" aria-expanded="false">
           <button type="submit" id="go">GO</button>
         </div>
+        <ol id="suggest" class="selectors suggest" role="listbox" hidden></ol>
         <p class="status-line" id="ask-status" role="status"></p>
         <p class="keys dim" data-i18n-html="keysHint">keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home</p>
       </form>

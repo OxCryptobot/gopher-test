@@ -40,6 +40,7 @@ HIDDEN = {
 # SHA-1 ETag for these GET static files (and other .html/.css/.js).
 ETAG_FILES = {
     "hole.json",
+    "tasks.json",
     "index.html",
     "style.css",
     "app.js",
@@ -75,6 +76,16 @@ TICKER_NAMES = {
     "DOGECOIN": "DOGE-USDT",
     "ADA": "ADA-USDT",
     "CARDANO": "ADA-USDT",
+    "LINK": "LINK-USDT",
+    "UNI": "UNI-USDT",
+    "AVAX": "AVAX-USDT",
+    "MATIC": "MATIC-USDT",
+    "DOT": "DOT-USDT",
+    "ATOM": "ATOM-USDT",
+    "NEAR": "NEAR-USDT",
+    "APT": "APT-USDT",
+    "SUI": "SUI-USDT",
+    "TON": "TON-USDT",
 }
 FETCH_WORDS = {"PRICE", "TICKER", "FETCH", "QUOTE", "SPOT", "PX"}
 SKIP_WORDS = FETCH_WORDS | {
@@ -469,7 +480,7 @@ class Handler(SimpleHTTPRequestHandler):
     def _cache_control(self) -> str:
         path = urlparse(self.path).path.lower()
         base = os.path.basename(path)
-        if base in ("index.html", "hole.json") or path in ("/", "/index.html", "/hole.json"):
+        if base in ("index.html", "hole.json", "tasks.json") or path in ("/", "/index.html", "/hole.json", "/tasks.json"):
             return "no-cache"
         if base.endswith((".png", ".css", ".js")):
             return "public, max-age=3600"
@@ -501,6 +512,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/status":
             self._status()
+            return
+        if path == "/api/tasks":
+            self._tasks()
             return
         if path == "/api/orders":
             self._orders()
@@ -576,6 +590,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "plugins": {
                     "ticker": True,
                     "fng": True,
+                    "tasks": True,
                     "mail": mail,
                     "sms": sms,
                     "voice": sms,
@@ -586,6 +601,25 @@ class Handler(SimpleHTTPRequestHandler):
                 "mail": "ready" if mail else "parked",
             },
         )
+
+    def _tasks(self) -> None:
+        path = os.path.join(ROOT, "tasks.json")
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            data = {}
+        tasks = data.get("tasks") if isinstance(data, dict) else None
+        if not isinstance(tasks, list):
+            tasks = []
+        payload = {
+            "ok": True,
+            "n": len(tasks),
+            "hole": "python",
+            "version": data.get("version", 1) if isinstance(data, dict) else 1,
+            "tasks": tasks,
+        }
+        self._json(200, payload)
 
     def _orders(self) -> None:
         with LOCK:

@@ -115,6 +115,13 @@ class LiveTests(unittest.TestCase):
             self.assertEqual(status.get("mail"), "parked")
             self.assertEqual((status.get("progress") or {}).get("done"), 82)
 
+            code, raw, tasks = http("GET", base + "/api/tasks")
+            self.assertEqual(code, 200)
+            self.assertIsInstance(tasks, dict)
+            self.assertIs(tasks.get("ok"), True)
+            self.assertEqual(tasks.get("n"), 100)
+            self.assertEqual(len(tasks.get("tasks") or []), 100)
+
             code, raw, body = http("POST", base + "/api/twilio/sms", data=b"")
             self.assertEqual(code, 503)
             self.assertIsInstance(body, dict)

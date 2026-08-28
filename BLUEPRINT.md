@@ -15,13 +15,18 @@ Type `blueprint` on the hole. Do not mark an item done until the real product ex
 - FETCH 100-stage maze, DIG 8-stage burrow
 - Waitlist JSON on `server.py`, device fallback on Pages
 - Device login (PBKDF2 localStorage)
-- Ticker `fetch btc` (ETH SOL XRP DOGE ADA)
+- Ticker `fetch btc` (ETH SOL XRP DOGE ADA LINK UNI AVAX MATIC DOT ATOM NEAR APT SUI TON)
 - Python fear/greed fetch (`fetch fg` / `fear greed` / `fng`)
 - Scores + Eternal GOPHER CHAMPIONS on python `/api/scores` and `/api/champions`
 - Watch / remind / draft as **device queues**, not SMS
 - EN/ES directory, shell, and 29 doc bodies
 - Python `/api/status` product flags and `/api/orders` last 20 (no emails)
 - Twilio webhook endpoints on python: HTTP 503 until env is set
+
+
+## Prompt / 100 tasks
+
+Live autoprompt on the hole: type in Prompt <search>, ranked selectors appear. Catalog is `tasks.json` (100). Parked products (SMS, voice, mail, billing, prices, domain, cloud accounts, SLA, hiring) still parked — they do not fake a number. Python `GET /api/tasks`. Pages uses static `tasks.json`.
 
 ## Open items (18)
 

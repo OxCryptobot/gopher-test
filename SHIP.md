@@ -20,7 +20,7 @@ Full list: 100 items in four phases. GOPHER AI only.
 The public hole is playable. Directory, FETCH, waitlist, and device login are live.
 
 1. [x] FETCH — 100-stage maze, one tap one tile (never auto-runs), home selector 5
-2. [x] hole.json — data-driven catalog (holes + aliases)
+2. [x] hole.json — data-driven catalog (holes + aliases). `tasks.json` is 100 prompt orders with live autoprompt
 3. [x] Hash routes — `#/docs`, `#/fetch`, `#/user`, and the rest of the tree
 4. [x] Device login — PBKDF2 (SHA-256, 120000 iterations) in localStorage
 5. [x] Waitlist — email form; server list locally, device fallback on Pages
@@ -53,7 +53,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 27. [x] TEST ribbon — show `TEST HOLE · not production` on the staging host
 28. [ ] CI workflow — YAML exists locally; PAT lacks `workflow` scope so Actions is not on GitHub yet
 29. [x] hole.json tests — selector 5 is FETCH/, `play` → `/fetch`, required holes, no banned vendor copy
-30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v5 (includes dig.js), game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile
+30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v6 (includes dig.js + tasks.json), game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile, prompt `#suggest`
 31. [x] A11y d-pad labels — `aria-label` on the pad and each direction
 32. [x] SHARE score — Web Share / clipboard of the FETCH result
 33. [x] INSTALL PWA hook — `beforeinstallprompt` and an INSTALL control
@@ -67,7 +67,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 41. [x] Live title — `document.title` follows the current hole
 42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
-44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: python product flags, fng fetch, parked Twilio webhooks, 82/100)
+44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: prompt autoprompts, 100 tasks catalog; python product flags, fng fetch, parked Twilio webhooks, 82/100)
 45. [x] Contact — GitHub + waitlist, no support number
 46. [x] Status hole — Pages is static; python `/health` is the process; no fake 99.9%, no fake uptime graph
 47. [x] Press hole — one paragraph, no invented metrics
