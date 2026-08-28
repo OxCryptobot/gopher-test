@@ -75,28 +75,28 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 
 Playable is not deep. Combo and waitlist rate-limit are already in. Public Pages leaderboard is not. Everything else here is next.
 
-51. [ ] i18n toggle — language switch, not only `/es`
-52. [ ] More FETCH levels / themes — distinct palettes and layouts beyond procedural lvl+1
+51. [x] i18n toggle — language switch, not only `/es`
+52. [x] More FETCH levels / themes — distinct palettes and layouts beyond procedural lvl+1
 53. [ ] Second game stub — another named hole under Games/
-54. [ ] Offline ticker cache — last good quote when the public spot is down
-55. [ ] Focus trap on the tutorial — Tab stays in the first-hole dialog
-56. [ ] Keyboard help overlay — a real overlay, not only the `?` status line
-57. [ ] High contrast — optional phosphor/contrast mode
-58. [ ] Print-safe skip — skip link and CRT do not wreck a print stylesheet
+54. [x] Offline ticker cache — last good quote when the public spot is down
+55. [x] Focus trap on the tutorial — Tab stays in the first-hole dialog
+56. [x] Keyboard help overlay — a real overlay, not only the `?` status line
+57. [x] High contrast — optional phosphor/contrast mode
+58. [x] Print-safe skip — skip link and CRT do not wreck a print stylesheet
 59. [x] Rate-limit already — waitlist POST capped on the python server (8 / hour / IP)
 60. [ ] Leaderboard on Pages via gist or static — not built; Pages has no `/api/scores`
-61. [ ] Haptic setting — user toggle, independent of MUTE
+61. [x] Haptic setting — user toggle, independent of MUTE
 62. [ ] Volume — gain control, not only MUTE / SOUND
 63. [x] Combo already — consecutive packet grabs add a point
-64. [ ] Restart confirm — START while a run is live asks before wiping the hole
+64. [x] Restart confirm — START while a run is live asks before wiping the hole
 65. [ ] Landscape lock hint — notice when the phone is the wrong way
-66. [ ] Safe-area insets — `env(safe-area-inset-*)` padding (viewport-fit is already cover)
-67. [ ] Manifest screenshots — install-store shots in `manifest.json`
-68. [ ] Maskable icon — purpose `maskable` (192 / 512)
+66. [x] Safe-area insets — `env(safe-area-inset-*)` padding (viewport-fit is already cover)
+67. [x] Manifest screenshots — install-store shots in `manifest.json`
+68. [x] Maskable icon — purpose `maskable` (192 / 512)
 69. [x] Share-card OG for FETCH — Open Graph + Twitter tags; description names FETCH
-70. [ ] Canonical URL — `link rel=canonical` on the production origin
-71. [ ] JSON-LD SoftwareApplication — structured data for the hole
-72. [ ] Sitemap all holes — every public selector, not only `/` and `#/fetch`
+70. [x] Canonical URL — `link rel=canonical` on the production origin
+71. [x] JSON-LD SoftwareApplication — structured data for the hole
+72. [x] Sitemap all holes — every public selector, not only `/` and `#/fetch`
 73. [x] 304 caching — python static files honor If-Modified-Since
 74. [ ] ETag — explicit validators on hole.json and the shell
 75. [x] Extra python headers already — nosniff, `X-Frame-Options: DENY`, Referrer-Policy, Permissions-Policy

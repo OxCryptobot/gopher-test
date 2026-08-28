@@ -5,6 +5,11 @@
   var COLS = 20, ROWS = 16, TILE = 8;
   var DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
   var DIRN = ["up", "down", "left", "right"];
+  var THEMES = [
+    { wall: "#0b330b", packet: "#b8ff9a", player: "#39ff14" },
+    { wall: "#146614", packet: "#d4ffb0", player: "#5cff38" },
+    { wall: "#1c2e14", packet: "#9aaa62", player: "#6a8a32" }
+  ];
 
   function rnd(n) { return Math.floor(Math.random() * n); }
 
@@ -14,6 +19,10 @@
     this.c.imageSmoothingEnabled = false;
     this.hooks = hooks || {};
     this.mute = true;
+    this.hapticOn = true;
+    this.volume = 0.03;
+    this.needConfirm = false;
+    this.theme = 0;
     this.running = false;
     this.paused = false;
     this.looping = false;
@@ -31,6 +40,8 @@
 
   FetchGame.prototype.reset = function (lvl) {
     this.lvl = lvl || 1;
+    this.theme = (this.lvl - 1) % 3;
+    this.needConfirm = false;
     if (lvl === 1) { this.score = 0; this.lives = 3; }
     this.px = 2; this.py = 8;
     this.need = 4 + this.lvl;
@@ -117,13 +128,21 @@
   };
 
   FetchGame.prototype.input = function (name) {
-    if (!this.running || this.dead || this.win || this.paused) return;
     var d = DIRS[name];
     if (!d) return;
+    if (this.needConfirm) {
+      this.needConfirm = false;
+      this.emit();
+      this.paint();
+    }
+    if (!this.running || this.dead || this.win || this.paused) return;
     this.step(d[0], d[1]);
   };
 
   FetchGame.prototype.pauseToggle = function () {
+    if (this.needConfirm) {
+      this.needConfirm = false;
+    }
     if (!this.running || this.dead) return;
     this.paused = !this.paused;
     this.emit();
@@ -143,7 +162,7 @@
       var g = ctx.createGain();
       o.type = "square";
       o.frequency.value = f;
-      g.gain.value = 0.03;
+      g.gain.value = this.volume;
       o.connect(g); g.connect(ctx.destination);
       o.start();
       o.stop(ctx.currentTime + 0.05);
@@ -152,9 +171,22 @@
 
   FetchGame.prototype.buzz = function (ms) {
     try {
+      if (!this.hapticOn) return;
       if (global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       if (global.navigator && global.navigator.vibrate) global.navigator.vibrate(ms);
     } catch (e) {}
+  };
+
+  FetchGame.prototype.hapticToggle = function () {
+    this.hapticOn = !this.hapticOn;
+    this.emit();
+  };
+
+  FetchGame.prototype.setVolume = function (n) {
+    n = +n;
+    if (!(n >= 0)) n = 0;
+    if (n > 0.08) n = 0.08;
+    this.volume = n;
   };
 
   FetchGame.prototype.speck = function (tx, ty) {
@@ -288,9 +320,10 @@
 
   FetchGame.prototype.paint = function () {
     var c = this.c, x, y, i, blink, p;
+    var pal = THEMES[this.theme] || THEMES[0];
     c.fillStyle = "#020302";
     c.fillRect(0, 0, 160, 144);
-    c.fillStyle = "#0b330b";
+    c.fillStyle = pal.wall;
     for (x = 0; x < COLS; x++) {
       c.fillRect(x * TILE, 0, TILE, TILE);
       c.fillRect(x * TILE, (ROWS - 1) * TILE, TILE, TILE);
@@ -305,7 +338,7 @@
     }
     blink = (Date.now() % 600) < 400;
     if (blink) {
-      c.fillStyle = "#b8ff9a";
+      c.fillStyle = pal.packet;
       for (i = 0; i < this.packets.length; i++) {
         c.fillRect(this.packets[i].x * TILE + 2, this.packets[i].y * TILE + 2, 4, 4);
       }
@@ -315,7 +348,7 @@
       c.fillRect(this.sludge[i].x * TILE + 1, this.sludge[i].y * TILE + 1, 6, 6);
     }
     var gx = this.px * TILE, gy = this.py * TILE;
-    c.fillStyle = "#39ff14";
+    c.fillStyle = pal.player;
     c.fillRect(gx + 1, gy + 2, 6, 5);
     c.fillRect(gx + 2, gy + 1, 4, 2);
     c.fillStyle = "#070908";
@@ -331,13 +364,18 @@
       c.fillStyle = "#ff6a3d";
       this.centerText("404", 68);
       this.centerText(String(this.score), 82);
+    } else if (this.needConfirm) {
+      c.fillStyle = "rgba(2,3,2,0.45)";
+      c.fillRect(0, 0, 160, 144);
+      c.fillStyle = pal.packet;
+      this.centerText("START?", 80);
     } else if (this.win) {
-      c.fillStyle = "#b8ff9a";
+      c.fillStyle = pal.packet;
       this.centerText("FETCHED", 80);
     } else if (this.paused) {
       c.fillStyle = "rgba(2,3,2,0.45)";
       c.fillRect(0, 0, 160, 144);
-      c.fillStyle = "#b8ff9a";
+      c.fillStyle = pal.packet;
       this.centerText("PAUSE", 80);
     }
     if (this.flash > 0) {
@@ -368,6 +406,13 @@
   };
 
   FetchGame.prototype.start = function () {
+    if (this.running && !this.dead && !this.needConfirm) {
+      this.needConfirm = true;
+      this.emit();
+      this.paint();
+      return;
+    }
+    this.needConfirm = false;
     this.score = 0;
     this.reset(1);
     this.dead = false;

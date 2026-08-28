@@ -64,8 +64,10 @@ body {
 .shell {
   width: min(var(--max), 100%);
   margin: 0 auto;
-  padding: var(--pad);
-  padding-bottom: calc(var(--pad) + 2rem);
+  padding-top: calc(var(--pad) + env(safe-area-inset-top, 0px));
+  padding-right: calc(var(--pad) + env(safe-area-inset-right, 0px));
+  padding-bottom: calc(var(--pad) + 2rem + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(var(--pad) + env(safe-area-inset-left, 0px));
   position: relative;
   z-index: 1;
 }
@@ -508,4 +510,68 @@ pre.gopher-doc {
 .stage-ribbon[hidden] { display: none; }
 body.staging {
   padding-top: 0;
+}
+
+html.high-contrast {
+  --fg: #b8ff9a;
+  --bg: #000;
+}
+
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(7, 9, 8, 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.help-overlay[hidden] { display: none !important; }
+.help-card {
+  border: 1px solid var(--fg-mid);
+  background: var(--bg-2);
+  box-shadow: var(--glow), inset 0 0 24px rgba(57, 255, 20, 0.05);
+  padding: 1.15rem 1.2rem 1.25rem;
+  max-width: 36ch;
+  width: min(36ch, 100%);
+}
+.help-card h2 {
+  letter-spacing: 0.18em;
+  text-shadow: var(--glow);
+}
+.help-card p { margin: 0 0 0.55rem; color: var(--fg-bright); }
+.help-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1.1rem;
+}
+.help-card li { margin: 0.4rem 0; }
+.help-card kbd { margin-right: 0.45rem; }
+.help-card button { width: 100%; }
+
+.tiny-row {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+button.tiny {
+  min-height: 28px;
+  min-width: auto;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--fg-dim);
+  border: 1px solid var(--fg-dim);
+  font-weight: 700;
+}
+button.tiny:hover {
+  color: var(--fg-bright);
+  border-color: var(--fg);
+}
+
+@media print {
+  .crt, .stage-ribbon, .dpad, .skip { display: none; }
 }

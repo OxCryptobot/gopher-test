@@ -31,7 +31,7 @@ class StaticTests(unittest.TestCase):
         self.assertTrue(icons, "manifest.json icons is empty")
 
     def test_sw_cache_name(self) -> None:
-        self.assertIn("gopher-v1", read("sw.js"))
+        self.assertIn("gopher-v2", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")

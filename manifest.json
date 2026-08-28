@@ -17,7 +17,23 @@
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "shots/app-home.png",
+      "sizes": "390x1400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "GOPHER AI home"
+    },
+    {
+      "src": "shots/app-fetch.png",
+      "sizes": "390x900",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "FETCH"
     }
   ]
 }

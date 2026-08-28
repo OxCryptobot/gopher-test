@@ -6,6 +6,9 @@
   var SESS_KEY = "gopher_session_v1";
   var BEST_KEY = "gopher_fetch_best_v1";
   var TUT_KEY = "gopher_tut_v1";
+  var LANG_KEY = "gopher_lang_v1";
+  var HC_KEY = "gopher_hc_v1";
+  var SPOT_KEY = "gopher_last_spot_v1";
 
   /* Scalable Gopher directory. Add an item in hole.json; this is the fallback. */
   var HOLES = {
@@ -146,6 +149,54 @@
     if (!el) return;
     el.className = "status-line" + (kind ? " " + kind : "");
     el.textContent = text;
+  }
+
+  function bootLang() {
+    var saved = "";
+    try { saved = localStorage.getItem(LANG_KEY) || ""; } catch (e) { saved = ""; }
+    if (saved === "es" || saved === "en") document.documentElement.lang = saved;
+  }
+  function applyLang(code) {
+    var lang = code === "es" ? "es" : "en";
+    document.documentElement.lang = lang;
+    try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  }
+
+  function bootHc() {
+    var v = "";
+    try { v = localStorage.getItem(HC_KEY) || ""; } catch (e) { v = ""; }
+    document.documentElement.classList.toggle("high-contrast", v === "1");
+  }
+  function applyHc(on) {
+    document.documentElement.classList.toggle("high-contrast", !!on);
+    try { localStorage.setItem(HC_KEY, on ? "1" : "0"); } catch (e) {}
+  }
+
+  function tutorialFocusables() {
+    var tut = $("tutorial");
+    if (!tut || tut.hidden) return [];
+    var card = tut.querySelector(".tutorial-card");
+    if (!card) return [];
+    var nodes = card.querySelectorAll(
+      "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+    );
+    var out = [], i, el;
+    for (i = 0; i < nodes.length; i++) {
+      el = nodes[i];
+      if (el.hidden) continue;
+      out.push(el);
+    }
+    return out;
+  }
+  function trapTutorialTab(e) {
+    var list = tutorialFocusables();
+    var i;
+    e.preventDefault();
+    if (!list.length) return;
+    i = list.indexOf(document.activeElement);
+    if (e.shiftKey) i = i <= 0 ? list.length - 1 : i - 1;
+    else i = (i < 0 || i >= list.length - 1) ? 0 : i + 1;
+    list[i].focus();
   }
 
   function session() {
@@ -478,10 +529,22 @@
       .then(function (j) {
         var amt = j && j.data && j.data.amount;
         if (!amt) throw new Error("empty");
+        try {
+          sessionStorage.setItem(SPOT_KEY, JSON.stringify({ id: id, amt: amt, at: Date.now() }));
+        } catch (err) {}
         showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + amt + "\n\nsource    public spot");
         setStatus($("ask-status"), "ok", "fetched.");
       })
-      .catch(function () { queueLocal(q); });
+      .catch(function () {
+        var stash = null;
+        try { stash = JSON.parse(sessionStorage.getItem(SPOT_KEY) || "null"); } catch (err) { stash = null; }
+        if (stash && stash.id === id && stash.amt != null && stash.amt !== "") {
+          showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + stash.amt + "\n\nsource    cached");
+          setStatus($("ask-status"), "ok", "cached");
+          return;
+        }
+        queueLocal(q);
+      });
   }
 
   function tutSeen() {
@@ -515,6 +578,11 @@
     var inField = e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA");
     var tut = $("tutorial");
     var tutOpen = tut && !tut.hidden;
+    var helpEl = $("help");
+    if (tutOpen && e.key === "Tab") {
+      trapTutorialTab(e);
+      return;
+    }
     if (tutOpen && !inField && (e.key === "Escape" || e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
       tutDismiss();
@@ -533,7 +601,7 @@
         e.preventDefault();
         scoreSent = false;
         game.start();
-        setStatus($("g-status"), "", "fetch packets. avoid orange sludge.");
+        if (game.running) setStatus($("g-status"), "", "fetch packets. avoid orange sludge.");
       }
       if (game.running) {
         if (e.key === "ArrowUp" || e.key === "w") { e.preventDefault(); game.input("up"); }
@@ -546,15 +614,34 @@
       if (e.key === "Escape") e.target.blur();
       return;
     }
-    if (e.key === "/" || e.key === "?") {
+    if (e.key === "/") {
       e.preventDefault();
       if (tutOpen) tutDismiss();
       go("/");
       $("command").focus();
-      if (e.key === "?") setStatus($("ask-status"), "", "1 Docs/ · 5 FETCH play · 6 waitlist · 9 user");
       return;
     }
-    if (e.key === "Escape" || e.key === "0") { go("/"); return; }
+    if (e.key === "?") {
+      e.preventDefault();
+      if (helpEl) {
+        helpEl.hidden = !helpEl.hidden;
+        return;
+      }
+      if (tutOpen) tutDismiss();
+      go("/");
+      $("command").focus();
+      setStatus($("ask-status"), "", "1 Docs/ · 5 FETCH play · 6 waitlist · 9 user");
+      return;
+    }
+    if (e.key === "Escape") {
+      if (helpEl && !helpEl.hidden) {
+        helpEl.hidden = true;
+        return;
+      }
+      go("/");
+      return;
+    }
+    if (e.key === "0") { go("/"); return; }
     var byN = itemsByN();
     if (byN[e.key]) {
       e.preventDefault();
@@ -676,7 +763,7 @@
     if (!game) bootGame();
     scoreSent = false;
     game.start();
-    setStatus($("g-status"), "", "fetch packets. avoid orange sludge.");
+    if (game.running) setStatus($("g-status"), "", "fetch packets. avoid orange sludge.");
   });
   $("g-mute").addEventListener("click", function () {
     if (!game) bootGame();
@@ -700,6 +787,25 @@
   }
   var gShare = $("g-share");
   if (gShare) gShare.addEventListener("click", function () { shareScore(); });
+  var gHaptic = $("g-haptic");
+  if (gHaptic) {
+    gHaptic.addEventListener("click", function () {
+      if (!game) bootGame();
+      if (game && game.hapticToggle) game.hapticToggle();
+    });
+  }
+  var langBtn = $("lang");
+  if (langBtn) {
+    langBtn.addEventListener("click", function () {
+      applyLang(document.documentElement.lang === "es" ? "en" : "es");
+    });
+  }
+  var contrastBtn = $("contrast");
+  if (contrastBtn) {
+    contrastBtn.addEventListener("click", function () {
+      applyHc(!document.documentElement.classList.contains("high-contrast"));
+    });
+  }
   window.addEventListener("beforeinstallprompt", function (e) {
     e.preventDefault();
     deferredInstall = e;
@@ -718,6 +824,19 @@
   if (tutEl) {
     tutEl.addEventListener("click", function (ev) {
       if (ev.target === tutEl) tutDismiss();
+    });
+  }
+  var helpOk = $("help-ok");
+  if (helpOk) {
+    helpOk.addEventListener("click", function () {
+      var el = $("help");
+      if (el) el.hidden = true;
+    });
+  }
+  var helpPane = $("help");
+  if (helpPane) {
+    helpPane.addEventListener("click", function (ev) {
+      if (ev.target === helpPane) helpPane.hidden = true;
     });
   }
 
@@ -747,6 +866,8 @@
     navigator.serviceWorker.register("sw.js").catch(function () {});
   }
 
+  bootLang();
+  bootHc();
   paintStaging();
   render();
   tutShow();
