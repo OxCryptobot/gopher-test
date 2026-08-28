@@ -4,7 +4,11 @@ Paid phone assistant. Menus, selectors, fetch.
 
 ## Live
 
-https://oxcryptobot.github.io/gopher/
+Production: https://oxcryptobot.github.io/gopher/
+
+Staging: https://oxcryptobot.github.io/gopher-test/
+
+Method: ship to staging first, then promote to production. Type `ship` on the hole for the 100-item list (`SHIP.md`).
 
 ## On the hole
 
