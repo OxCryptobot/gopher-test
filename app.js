@@ -182,26 +182,132 @@
       footer: "menus · selectors · fetch",
       fetchInfo: "Maze of 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Clock runs. Stage 100 is nearly impossible.",
       digInfo: "Second burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. FETCH stays the 100-stage maze.",
-      start: "press START. one tap, one tile."
+      fetchStatus: "press START. one tap, one tile. eat pellets. dodge orange foxes. beat the clock.",
+      digStatus: "press START. dig dirt. rocks fall.",
+      promptInfo: "Type a selector, a path, or an order. Same hole, either way.",
+      promptLabel: "select or ask:",
+      emailLabel: "email:",
+      keysHint: "keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home",
+      helpTitle: "keys",
+      help5: "FETCH",
+      helpPrompt: "prompt",
+      helpLogin: "login",
+      helpArrows: "arrows",
+      helpPause: "pause",
+      helpSounds: "Huzaaa / Clunk / Ouchies",
+      helpStar: "wall −0.1 hp · star ZAP/BLOCK",
+      helpKey: "FETCH key",
+      helpEsc: "home",
+      keyTitle: "FETCH key",
+      keyTap: "one tap, one tile",
+      keyPellet: "pellet · Huzaaa!",
+      keyWall: "wall · Clunk!!! · −0.1 hp",
+      keyFox: "fox · Ouchies! · −1 hp",
+      keyStar: "star · one per stage · ZAP a fox or BLOCK a hit",
+      keyClock: "clock · TIME OVER!",
+      keyClear: "stage clear · VICTORY!",
+      keyChamp: "all 100 · trophy · Eternal GOPHER CHAMPIONS",
+      questTitle: "first orders",
+      questPlay: "play FETCH",
+      questFetch: "fetch a ticker",
+      questWait: "join waitlist",
+      questDone: "quest done.",
+      questNext: "next: ",
+      fetchPaused: "paused. P or PAUSE to dig.",
+      fetchPlay: "fetch pellets. dodge foxes. KEY for the map.",
+      fetchDead: "404 hole. START to dig again.",
+      fetchWin: "fetched. next hole…",
+      digPlay: "dig dirt. rocks fall.",
+      digDead: "buried. START to dig again.",
+      digWin: "dug through.",
+      digMissing: "DIG engine not on this hole yet."
     },
     es: {
       footer: "menús · selectores · fetch",
-      fetchInfo: "Laberinto de 100 etapas. Un toque, una losa. Pellets Huzaaa!. Pared Clunk!!!. Zorros Ouchies!. El reloj corre. La 100 es casi imposible.",
-      digInfo: "Segunda madriguera. Un toque, una losa. Cava. Las rocas caen. 8 etapas. FETCH sigue siendo el laberinto de 100.",
-      start: "START. un toque, una losa."
+      fetchInfo: "Laberinto de 100 etapas. Un toque, una losa. Pellets Huzaaa!. Paredes Clunk!!!. Foxes naranjas Ouchies!. El reloj corre. La 100 es casi imposible.",
+      digInfo: "Segunda madriguera. Un toque, una losa. Cava. Las rocas caen. 8 etapas. FETCH sigue el laberinto de 100.",
+      fetchStatus: "pulsa START. un toque, una losa. pellets. foxes naranjas. el reloj.",
+      digStatus: "pulsa START. cava tierra. las rocas caen.",
+      promptInfo: "Selector, ruta u orden. El mismo hueco.",
+      promptLabel: "elige o pregunta:",
+      emailLabel: "email:",
+      keysHint: "teclas: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menú · <kbd>?</kbd> ayuda · <kbd>esc</kbd> inicio",
+      helpTitle: "teclas",
+      help5: "FETCH",
+      helpPrompt: "prompt",
+      helpLogin: "login",
+      helpArrows: "flechas",
+      helpPause: "pause",
+      helpSounds: "Huzaaa / Clunk / Ouchies",
+      helpStar: "pared −0.1 hp · estrella ZAP/BLOCK",
+      helpKey: "FETCH key",
+      helpEsc: "inicio",
+      keyTitle: "FETCH key",
+      keyTap: "un toque, una losa",
+      keyPellet: "pellet · Huzaaa!",
+      keyWall: "pared · Clunk!!! · −0.1 hp",
+      keyFox: "fox · Ouchies! · −1 hp",
+      keyStar: "estrella · una por etapa · ZAP a fox o BLOCK un golpe",
+      keyClock: "reloj · TIME OVER!",
+      keyClear: "etapa clara · VICTORY!",
+      keyChamp: "las 100 · copa · Eternal GOPHER CHAMPIONS",
+      questTitle: "primeras órdenes",
+      questPlay: "juega FETCH",
+      questFetch: "fetch un ticker",
+      questWait: "entra a la lista",
+      questDone: "misión hecha.",
+      questNext: "sigue: ",
+      fetchPaused: "pausa. P o PAUSE para cavar.",
+      fetchPlay: "pellets. foxes. KEY para el mapa.",
+      fetchDead: "404 hueco. START para cavar otra vez.",
+      fetchWin: "fetched. siguiente hueco…",
+      digPlay: "cava tierra. las rocas caen.",
+      digDead: "enterrado. START para cavar otra vez.",
+      digWin: "cavado.",
+      digMissing: "DIG aún no está en este hueco."
     }
   };
+  function t(key) {
+    var lang = document.documentElement.lang === "es" ? "es" : "en";
+    var pack = I18N[lang] || I18N.en;
+    if (pack[key] != null) return pack[key];
+    if (I18N.en[key] != null) return I18N.en[key];
+    return key;
+  }
   function applyLang(code) {
     var lang = code === "es" ? "es" : "en";
     var pack = I18N[lang] || I18N.en;
+    var nodes, i, el, key, gs, ds;
     document.documentElement.lang = lang;
     try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
-    var foot = document.querySelector("footer .dim");
-    if (foot) foot.textContent = pack.footer;
-    var fi = document.querySelector("#game > .info");
-    if (fi) fi.textContent = pack.fetchInfo;
-    var di = document.querySelector("#dig > .info");
-    if (di) di.textContent = pack.digInfo;
+    nodes = document.querySelectorAll("[data-i18n]");
+    for (i = 0; i < nodes.length; i++) {
+      el = nodes[i];
+      key = el.getAttribute("data-i18n");
+      if (key && pack[key] != null) el.textContent = pack[key];
+    }
+    nodes = document.querySelectorAll("[data-i18n-html]");
+    for (i = 0; i < nodes.length; i++) {
+      el = nodes[i];
+      key = el.getAttribute("data-i18n-html");
+      if (key && pack[key] != null) el.innerHTML = pack[key];
+    }
+    gs = $("g-status");
+    if (gs) {
+      if (game && game.dead) gs.textContent = pack.fetchDead;
+      else if (game && game.win) gs.textContent = pack.fetchWin;
+      else if (game && game.running && game.paused) gs.textContent = pack.fetchPaused;
+      else if (game && game.running) gs.textContent = pack.fetchPlay;
+      else gs.textContent = pack.fetchStatus;
+    }
+    ds = $("d-status");
+    if (ds) {
+      if (dig && dig.dead) ds.textContent = pack.digDead;
+      else if (dig && dig.win) ds.textContent = pack.digWin;
+      else if (dig && dig.running) ds.textContent = pack.digPlay;
+      else ds.textContent = pack.digStatus;
+    }
+    questPaint();
   }
 
   function bootHc() {
@@ -642,12 +748,12 @@
               showTrophy(whoName());
             }
           } else if (g.dead) {
-            setStatus($("g-status"), "err", "404 hole. START to dig again.");
+            setStatus($("g-status"), "err", t("fetchDead"));
             if (!scoreSent) {
               scoreSent = true;
               postScore(whoName(), g.score);
             }
-          } else if (g.win) setStatus($("g-status"), "ok", "fetched. next hole…");
+          } else if (g.win) setStatus($("g-status"), "ok", t("fetchWin"));
         },
         shout: shoutHud,
         onShout: shoutHud
@@ -703,7 +809,7 @@
   function bootDig() {
     var canvas = $("dig-canvas");
     if (!canvas || typeof DigGame !== "function") {
-      setStatus($("d-status"), "err", "DIG engine not on this hole yet.");
+      setStatus($("d-status"), "err", t("digMissing"));
       return;
     }
     if (!dig) {
@@ -713,8 +819,8 @@
           if (a) a.textContent = "score " + (g.score || 0);
           if (b) b.textContent = "lvl " + (g.lvl || 1);
           if (c) c.textContent = "lives " + (g.lives || 0);
-          if (g.dead) setStatus($("d-status"), "err", "buried. START to dig again.");
-          else if (g.win) setStatus($("d-status"), "ok", "dug through.");
+          if (g.dead) setStatus($("d-status"), "err", t("digDead"));
+          else if (g.win) setStatus($("d-status"), "ok", t("digWin"));
         }
       });
     }
@@ -895,7 +1001,7 @@
     if (!el) el = ensureQuestDom();
     bindQuestBtns();
     el.hidden = false;
-    labels = { play: "play FETCH", fetch: "fetch a ticker", wait: "join waitlist" };
+    labels = { play: t("questPlay"), fetch: t("questFetch"), wait: t("questWait") };
     steps = ["play", "fetch", "wait"];
     n = 0;
     html = "";
@@ -908,8 +1014,8 @@
     if (list) list.innerHTML = html;
     nextK = questNextKey(st);
     if (status) {
-      if (!nextK) status.textContent = "quest done.";
-      else status.textContent = n + "/3 · next: " + labels[nextK];
+      if (!nextK) status.textContent = t("questDone");
+      else status.textContent = n + "/3 · " + t("questNext") + labels[nextK];
     }
   }
   function questJump() {
@@ -1033,7 +1139,7 @@
         e.preventDefault();
         if (game.pauseToggle) game.pauseToggle();
         var paused = !!game.paused;
-        setStatus($("g-status"), "", paused ? "paused. P or PAUSE to dig." : "fetch pellets. dodge foxes. KEY for the map.");
+        setStatus($("g-status"), "", paused ? t("fetchPaused") : t("fetchPlay"));
         var gp = $("g-pause");
         if (gp) gp.textContent = paused ? "RESUME" : "PAUSE";
       }
@@ -1045,7 +1151,7 @@
         e.preventDefault();
         scoreSent = false;
         game.start();
-        if (game.running) setStatus($("g-status"), "", "fetch pellets. dodge foxes. KEY for the map.");
+        if (game.running) setStatus($("g-status"), "", t("fetchPlay"));
         questMark("play");
       }
       if (game.running) {
@@ -1215,7 +1321,7 @@
     if (!game) bootGame();
     scoreSent = false;
     game.start();
-    if (game.running) setStatus($("g-status"), "", "fetch pellets. dodge foxes. KEY for the map.");
+    if (game.running) setStatus($("g-status"), "", t("fetchPlay"));
     questMark("play");
   });
   $("g-mute").addEventListener("click", function () {
@@ -1234,7 +1340,7 @@
     if (!game) bootGame();
     if (game.pauseToggle) game.pauseToggle();
     gPause.textContent = game.paused ? "RESUME" : "PAUSE";
-    setStatus($("g-status"), "", game.paused ? "paused. P or PAUSE to dig." : "fetch pellets. dodge foxes. KEY for the map.");
+    setStatus($("g-status"), "", game.paused ? t("fetchPaused") : t("fetchPlay"));
   });
   var gKey = $("g-key");
   if (gKey) gKey.addEventListener("click", function () { toggleKeyCard(); });
@@ -1294,7 +1400,7 @@
   if (dStart) dStart.addEventListener("click", function () {
     if (!dig) bootDig();
     if (dig && dig.start) dig.start();
-    if (dig && dig.running) setStatus($("d-status"), "", "dig dirt. rocks fall.");
+    if (dig && dig.running) setStatus($("d-status"), "", t("digPlay"));
   });
   var dPause = $("d-pause");
   if (dPause) dPause.addEventListener("click", function () {

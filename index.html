@@ -53,17 +53,17 @@
 
   <div id="help" class="help-overlay" hidden>
     <div class="help-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
-      <h2 id="help-title">keys</h2>
+      <h2 id="help-title" data-i18n="helpTitle">keys</h2>
       <ul>
-        <li><kbd>5</kbd> FETCH</li>
-        <li><kbd>/</kbd> prompt</li>
-        <li><kbd>9</kbd> login</li>
-        <li>arrows</li>
-        <li><kbd>P</kbd> pause</li>
-        <li>Huzaaa / Clunk / Ouchies</li>
-        <li>wall −0.1 hp · star ZAP/BLOCK</li>
-        <li><kbd>K</kbd> FETCH key</li>
-        <li><kbd>esc</kbd> home</li>
+        <li><kbd>5</kbd> <span data-i18n="help5">FETCH</span></li>
+        <li><kbd>/</kbd> <span data-i18n="helpPrompt">prompt</span></li>
+        <li><kbd>9</kbd> <span data-i18n="helpLogin">login</span></li>
+        <li data-i18n="helpArrows">arrows</li>
+        <li><kbd>P</kbd> <span data-i18n="helpPause">pause</span></li>
+        <li data-i18n="helpSounds">Huzaaa / Clunk / Ouchies</li>
+        <li data-i18n="helpStar">wall −0.1 hp · star ZAP/BLOCK</li>
+        <li><kbd>K</kbd> <span data-i18n="helpKey">FETCH key</span></li>
+        <li><kbd>esc</kbd> <span data-i18n="helpEsc">home</span></li>
       </ul>
       <button type="button" id="help-ok">GOT IT</button>
     </div>
@@ -71,7 +71,7 @@
 
   <div id="quest" class="quest-overlay" hidden>
     <div class="quest-card" role="dialog" aria-modal="true" aria-labelledby="quest-title">
-      <h2 id="quest-title">first orders</h2>
+      <h2 id="quest-title" data-i18n="questTitle">first orders</h2>
       <ol id="quest-list">
         <li>press 5 / play FETCH</li>
         <li>type fetch btc</li>
@@ -112,18 +112,18 @@
 
     <section class="menu-block wait" id="ask">
       <h2><span class="itype">7</span> Prompt <span class="idim">&lt;search&gt;</span></h2>
-      <p class="info">Type a selector, a path, or an order. Same hole, either way.</p>
+      <p class="info" data-i18n="promptInfo">Type a selector, a path, or an order. Same hole, either way.</p>
       <form id="ask-form" autocomplete="off">
-        <label class="prompt" for="command"><span class="star">*</span> <span>select or ask:</span></label>
+        <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">select or ask:</span></label>
         <div class="row">
           <input id="command" maxlength="280" placeholder="5   or   fetch btc   or   play" enterkeyhint="go">
           <button type="submit" id="go">GO</button>
         </div>
         <p class="status-line" id="ask-status" role="status"></p>
-        <p class="keys dim">keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home</p>
+        <p class="keys dim" data-i18n-html="keysHint">keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home</p>
       </form>
       <form id="form" novalidate>
-        <label class="prompt" for="email"><span class="star">*</span> <span>email:</span></label>
+        <label class="prompt" for="email"><span class="star">*</span> <span data-i18n="emailLabel">email:</span></label>
         <div class="row">
           <input id="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="you@domain" required>
           <button type="submit" id="submit">ENTER</button>
@@ -155,7 +155,7 @@
 
     <section id="game" class="menu-block game-block" hidden>
       <h2><span class="itype">5</span> FETCH/</h2>
-      <p class="info">Maze of 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Clock runs. Stage 100 is nearly impossible.</p>
+      <p class="info" data-i18n="fetchInfo">Maze of 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Clock runs. Stage 100 is nearly impossible.</p>
       <div class="game-wrap">
         <canvas id="fetch" width="160" height="144" role="img" aria-label="FETCH, an 8-bit gopher game"></canvas>
         <p id="g-shout" class="g-shout" aria-live="assertive"></p>
@@ -192,16 +192,16 @@
         </div>
         <p class="status-line" id="g-status">press START. one tap, one tile. eat pellets. dodge orange foxes. beat the clock.</p>
         <aside id="g-keycard" class="g-keycard" hidden>
-          <h3>FETCH key</h3>
+          <h3 data-i18n="keyTitle">FETCH key</h3>
           <ul>
-            <li>one tap, one tile</li>
-            <li>pellet · Huzaaa!</li>
-            <li>wall · Clunk!!! · −0.1 hp</li>
-            <li>fox · Ouchies! · −1 hp</li>
-            <li>star · one per stage · ZAP a fox or BLOCK a hit</li>
-            <li>clock · TIME OVER!</li>
-            <li>stage clear · VICTORY!</li>
-            <li>all 100 · trophy · Eternal GOPHER CHAMPIONS</li>
+            <li data-i18n="keyTap">one tap, one tile</li>
+            <li data-i18n="keyPellet">pellet · Huzaaa!</li>
+            <li data-i18n="keyWall">wall · Clunk!!! · −0.1 hp</li>
+            <li data-i18n="keyFox">fox · Ouchies! · −1 hp</li>
+            <li data-i18n="keyStar">star · one per stage · ZAP a fox or BLOCK a hit</li>
+            <li data-i18n="keyClock">clock · TIME OVER!</li>
+            <li data-i18n="keyClear">stage clear · VICTORY!</li>
+            <li data-i18n="keyChamp">all 100 · trophy · Eternal GOPHER CHAMPIONS</li>
           </ul>
           <button type="button" id="g-key-ok">GOT IT</button>
         </aside>
@@ -224,7 +224,7 @@
 
     <section id="dig" class="menu-block game-block" hidden>
       <h2><span class="itype">8</span> DIG/</h2>
-      <p class="info">Second burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. FETCH stays the 100-stage maze.</p>
+      <p class="info" data-i18n="digInfo">Second burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. FETCH stays the 100-stage maze.</p>
       <div class="game-wrap">
         <canvas id="dig-canvas" width="160" height="144" role="img" aria-label="DIG, an 8-bit gopher digger"></canvas>
         <div class="game-hud">
@@ -250,7 +250,7 @@
     </section>
     <footer>
       <p>GOPHER AI</p>
-      <p class="dim">menus · selectors · fetch</p>
+      <p class="dim" data-i18n="footer">menus · selectors · fetch</p>
       <p class="tiny-row">
         <button type="button" id="lang" class="tiny">EN/ES</button>
         <button type="button" id="contrast" class="tiny">HI</button>

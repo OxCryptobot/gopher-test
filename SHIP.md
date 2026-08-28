@@ -4,7 +4,11 @@ Production: https://oxcryptobot.github.io/gopher/
 Staging: https://oxcryptobot.github.io/gopher-test/  
 Method: stage on test, then promote to production. Do not ship to production first. Production is frozen until promote.
 
-Status marks are honest as of 2026-08-27/28:
+Status marks are honest as of 2026-08-28.
+
+Progress: 81/100. Phase 0 25/25, phase 1 24/25 (28 CI blocked on workflow PAT), phase 2 25/25, phase 3 7/25.
+
+Open: 28, 76–86, 88, 90, 91–93, 95, 97.
 
 - `[x]` done on production
 - `[ ]` this staging wave, or next
@@ -32,7 +36,7 @@ The public hole is playable. Directory, FETCH, waitlist, and device login are li
 15. [x] PWA shell — `manifest.json`, `sw.js`, service worker register
 16. [x] 404 — `404.html`, selector-not-found, link home and FETCH
 17. [x] robots.txt — Allow `/`, Sitemap pointer
-18. [x] sitemap.xml — production origin plus `#/fetch`
+18. [x] sitemap.xml — production origin plus `#/fetch` and `#/dig`
 19. [x] security.txt — `.well-known/security.txt`
 20. [x] LICENSE — MIT, OxCryptobot 2026
 21. [x] CSP on the python server — Content-Security-Policy plus companion headers
@@ -43,13 +47,13 @@ The public hole is playable. Directory, FETCH, waitlist, and device login are li
 
 ## Phase 1 — Staging and quality (26–50)
 
-Staging exists. Quality docs and a11y basics that already landed on production are checked. The rest of this wave is still on the bench.
+Staging exists. Quality docs and a11y basics that already landed on production are checked. 24/25 done. Open: 28 CI workflow — YAML exists locally; PAT lacks `workflow` scope so Actions is not on GitHub yet.
 
 26. [x] Staging site — https://oxcryptobot.github.io/gopher-test/
 27. [x] TEST ribbon — show `TEST HOLE · not production` on the staging host
 28. [ ] CI workflow — YAML exists locally; PAT lacks `workflow` scope so Actions is not on GitHub yet
 29. [x] hole.json tests — selector 5 is FETCH/, `play` → `/fetch`, required holes, no banned vendor copy
-30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v3, game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile
+30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v4 (includes dig.js), game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile
 31. [x] A11y d-pad labels — `aria-label` on the pad and each direction
 32. [x] SHARE score — Web Share / clipboard of the FETCH result
 33. [x] INSTALL PWA hook — `beforeinstallprompt` and an INSTALL control
@@ -63,7 +67,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 41. [x] Live title — `document.title` follows the current hole
 42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
-44. [x] Changelog — `#/changelog`, dated 2026-08-27/28
+44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: maze FETCH polish, playable DIG, device watch/remind/draft, 81/100)
 45. [x] Contact — GitHub + waitlist, no support number
 46. [x] Status hole — Pages is static; python `/health` is the process; no fake 99.9%, no fake uptime graph
 47. [x] Press hole — one paragraph, no invented metrics

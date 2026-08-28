@@ -680,3 +680,8 @@ button.tiny:hover {
 #g-pwr { color: var(--fg-bright); }
 
 #g-hp-bar.low { background: var(--err); }
+
+html[lang="es"] .g-keycard li,
+html[lang="es"] .help-card li {
+  line-height: 1.45;
+}

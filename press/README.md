@@ -14,8 +14,10 @@ Assets for journalists and partners. Credit **GOPHER AI**. Do not invent metrics
 | `home.png` | Production hole home (directory, prompt, wordmark). |
 | `fetch.png` | FETCH, the 100-stage maze (selector 5). |
 | `icon.png` | App icon, 512×512 phosphor on near-black. |
+| `fetch-maze.png` | Staging still of the 100-stage FETCH maze (TEST ribbon on). |
+| `dig.png` | Staging still of DIG (8-stage burrow). |
 
-These are copies of live shots already on disk. Nothing generated for this pack.
+These are copies of live shots already on disk. Staging stills (`fetch-maze.png`, `dig.png`) include the TEST ribbon and the first-hole overlay. Not a demo video.
 
 ## Credit
 

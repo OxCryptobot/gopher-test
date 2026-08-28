@@ -162,7 +162,7 @@
           "type": "0",
           "name": "Changelog",
           "path": "/changelog",
-          "hint": "2026-08-27/28"
+          "hint": "2026-08-28"
         },
         {
           "n": "2",
@@ -385,6 +385,7 @@
     "/changelog": {
       "title": "Changelog/",
       "copy": [
+        "2026-08-28 \u2014 maze FETCH polish, playable DIG, device watch/remind/draft. 81/100.",
         "2026-08-27/28 \u2014 DIG playable: 8 stages, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze.",
         "2026-08-27/28 \u2014 FETCH extras: wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Device watch/remind/draft queues (not SMS).",
         "2026-08-27 \u2014 FETCH maze rewrite: 100 stages, alternate pathways, one tap one tile, energy pellets, orange foxes, clock.",
@@ -405,7 +406,7 @@
         "live fetch ticker in the prompt (fetch btc)",
         "PLAY CTA on home \u2014 5 PLAY FETCH"
       ],
-      "note": "Dated 2026-08-27/28. No older public log."
+      "note": "Dated 2026-08-28. No older public log before 2026-08-27."
     },
     "/contact": {
       "title": "Contact/",
