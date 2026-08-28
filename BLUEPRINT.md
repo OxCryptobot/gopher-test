@@ -30,7 +30,11 @@ Live autoprompt on the hole: type in Prompt <search>, ranked selectors appear. C
 
 ## Prompt UX
 
-The GOPHER prompt is always on (the star). One quiet nav row: GOPHER · search · tasks · waitlist · play. Directory is the page. Three answers under the prompt. MAZE and BURROW live under play. GOPHER is an on-device order router over 100 tasks. GitHub Pages uses a client ticker brain (never POST `/api/ask` on github.io). python `/api/ask` runs when `server.py` is up. A hosted model is parked until `GOPHER_LLM_HOOK` is set. No fake model name. No chat transcript.
+The GOPHER prompt is always on (the star). One quiet nav row: GOPHER · search · tasks · waitlist · play. Directory is the page. Three answers under the prompt. MAZE and BURROW live under play. GOPHER is an on-device order router over 100 tasks. GitHub Pages uses a client ticker brain (never POST `/api/ask` on github.io). python `/api/ask` runs when `server.py` is up. When `GOPHER_LLM_HOOK` is set, python fires the live bot webhook (`GOPHER_LLM_KEY` is sent when present). GitHub Pages cannot hold the key, so Pages stays the skill matcher. SMS and voice stay parked (no number). No fake model name. No chat transcript.
+
+## Live bot webhook
+
+Python `GOPHER_LLM_HOOK` + `GOPHER_LLM_KEY` fire the live bot webhook from this process. Optional `GOPHER_REPLY_URL` (or `GOPHER_PUBLIC_URL` + `/api/brain/reply`) is where answers POST back. GitHub Pages cannot hold the key so Pages stays the skill matcher. SMS/voice still parked (no number). `GET /api/status` llm is ready only when the hook env is set — wiring, not a live public brain until then.
 
 ## Open items (18)
 

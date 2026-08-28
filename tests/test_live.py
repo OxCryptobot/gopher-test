@@ -62,6 +62,9 @@ class LiveTests(unittest.TestCase):
             "TWILIO_NUMBER",
             "GOPHER_MAIL_HOOK",
             "GOPHER_LLM_HOOK",
+            "GOPHER_LLM_KEY",
+            "GOPHER_PUBLIC_URL",
+            "GOPHER_REPLY_URL",
             "SENDGRID_API_KEY",
             "GOPHER_TWILIO_SKIP_SIG",
         ):

@@ -3,15 +3,84 @@
 
 Reads server.py as text so tests never bind a port. Import is skipped because
 module import chdir()s the process; compile() still checks syntax.
+Live hook/reply tests import once and bind 127.0.0.1 only.
 """
 from __future__ import annotations
 
+import importlib.util
+import json
 import os
+import socket
 import sys
+import threading
+import time
 import unittest
+import urllib.error
+import urllib.request
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SERVER_PATH = os.path.join(ROOT, "server.py")
+
+_MOD = None
+ENV_KEYS = (
+    "GOPHER_LLM_HOOK",
+    "GOPHER_LLM_KEY",
+    "GOPHER_PUBLIC_URL",
+    "GOPHER_REPLY_URL",
+)
+
+
+def load_server():
+    global _MOD
+    if _MOD is None:
+        spec = importlib.util.spec_from_file_location("gopher_server", SERVER_PATH)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _MOD = mod
+    return _MOD
+
+
+def free_port() -> int:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(("127.0.0.1", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return port
+
+
+def http(method: str, url: str, data: bytes | None = None, headers: dict | None = None, timeout: int = 8):
+    hdrs = {"Accept": "application/json"}
+    if headers:
+        hdrs.update(headers)
+    req = urllib.request.Request(url, data=data, headers=hdrs, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8", errors="replace")
+            try:
+                parsed = json.loads(raw) if raw else None
+            except json.JSONDecodeError:
+                parsed = None
+            return resp.status, raw, parsed
+    except urllib.error.HTTPError as exc:
+        raw = exc.read().decode("utf-8", errors="replace")
+        try:
+            parsed = json.loads(raw) if raw else None
+        except json.JSONDecodeError:
+            parsed = None
+        return exc.code, raw, parsed
+
+
+class _EnvGuard:
+    def __init__(self) -> None:
+        self._saved = {k: os.environ.get(k) for k in ENV_KEYS}
+
+    def restore(self) -> None:
+        for k, v in self._saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
 
 
 class ServerTests(unittest.TestCase):
@@ -67,10 +136,182 @@ class ServerTests(unittest.TestCase):
     def test_twilio_parked_string(self) -> None:
         self.assertIn("twilio parked", self.src)
 
+    def test_brain_reply_route(self) -> None:
+        self.assertIn("/api/brain/reply", self.src)
+        self.assertIn("GOPHER_LLM_KEY", self.src)
+        self.assertIn("X-Webhook-Key", self.src)
+        self.assertIn("X-Webhook-Secret", self.src)
+        self.assertIn("brain parked", self.src)
+
+    def test_no_banned_vendor_copy(self) -> None:
+        lower = self.src.lower()
+        for token in ("grok", "spacexai"):
+            self.assertNotIn(token, lower)
+        self.assertNotIn("cursor", lower)
+
+
+class CaptureHandler(BaseHTTPRequestHandler):
+    last_headers: dict = {}
+    last_body: dict = {}
+    last_path = ""
+
+    def log_message(self, fmt: str, *args) -> None:
+        return
+
+    def do_POST(self) -> None:
+        n = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(n) if n else b""
+        CaptureHandler.last_headers = {k: v for k, v in self.headers.items()}
+        CaptureHandler.last_path = self.path
+        try:
+            CaptureHandler.last_body = json.loads(raw.decode("utf-8") or "{}")
+        except json.JSONDecodeError:
+            CaptureHandler.last_body = {}
+        self.send_response(204)
+        self.end_headers()
+
+
+class PostLlmHookTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.guard = _EnvGuard()
+        CaptureHandler.last_headers = {}
+        CaptureHandler.last_body = {}
+        CaptureHandler.last_path = ""
+
+    def tearDown(self) -> None:
+        self.guard.restore()
+
+    def test_post_llm_hook_sends_key_headers(self) -> None:
+        mod = load_server()
+        port = free_port()
+        httpd = ThreadingHTTPServer(("127.0.0.1", port), CaptureHandler)
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        try:
+            os.environ["GOPHER_LLM_HOOK"] = "http://127.0.0.1:%s/hook" % port
+            os.environ["GOPHER_LLM_KEY"] = "test-sender-key"
+            os.environ["GOPHER_PUBLIC_URL"] = "http://127.0.0.1:9"
+            os.environ.pop("GOPHER_REPLY_URL", None)
+            fired, text = mod.post_llm_hook("ping brain", "abc123")
+            self.assertTrue(fired)
+            self.assertIsNone(text)
+            hdrs = CaptureHandler.last_headers
+            self.assertEqual(hdrs.get("Authorization"), "Bearer test-sender-key")
+            self.assertEqual(hdrs.get("X-Webhook-Key"), "test-sender-key")
+            self.assertEqual(hdrs.get("X-Webhook-Secret"), "test-sender-key")
+            self.assertEqual(hdrs.get("Content-Type"), "application/json")
+            self.assertEqual(hdrs.get("User-Agent"), "GOPHER/0.1")
+            self.assertEqual(hdrs.get("Accept"), "application/json")
+            body = CaptureHandler.last_body
+            self.assertEqual(body.get("q"), "ping brain")
+            self.assertEqual(body.get("text"), "ping brain")
+            self.assertEqual(body.get("order_id"), "abc123")
+            self.assertEqual(body.get("channel"), "web")
+            self.assertEqual(body.get("reply_url"), "http://127.0.0.1:9/api/brain/reply")
+            self.assertEqual(CaptureHandler.last_path, "/hook")
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
+
+class BrainReplyTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.mod = load_server()
+        cls.mod.Handler.log_message = lambda self, fmt, *args: None
+        cls.port = free_port()
+        cls.httpd = ThreadingHTTPServer(("127.0.0.1", cls.port), cls.mod.Handler)
+        cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = "http://127.0.0.1:%s" % cls.port
+        deadline = time.time() + 8
+        last = "not started"
+        while time.time() < deadline:
+            try:
+                code, raw, _ = http("GET", cls.base + "/health")
+                if code == 200:
+                    return
+                last = "health %s %r" % (code, raw)
+            except Exception as exc:
+                last = str(exc)
+                time.sleep(0.05)
+        raise RuntimeError("hole did not start: " + last)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+
+    def setUp(self) -> None:
+        self.guard = _EnvGuard()
+
+    def tearDown(self) -> None:
+        self.guard.restore()
+
+    def test_brain_reply_503_without_key(self) -> None:
+        os.environ.pop("GOPHER_LLM_KEY", None)
+        payload = json.dumps({"id": "x", "q": "hi", "text": "yo", "ok": True}).encode("utf-8")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/brain/reply",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(code, 503)
+        self.assertIsInstance(body, dict)
+        self.assertIs(body.get("ok"), False)
+        self.assertEqual(body.get("error"), "brain parked")
+        blob = json.dumps(body).lower() + raw.lower()
+        self.assertNotIn("test-sender-key", blob)
+
+    def test_brain_reply_401_wrong_key(self) -> None:
+        os.environ["GOPHER_LLM_KEY"] = "hole-key"
+        payload = json.dumps({"id": "x", "q": "hi", "text": "yo", "ok": True}).encode("utf-8")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/brain/reply",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer wrong-key",
+            },
+        )
+        self.assertEqual(code, 401)
+        self.assertIsInstance(body, dict)
+        self.assertIs(body.get("ok"), False)
+        self.assertEqual(body.get("error"), "unauthorized")
+        blob = json.dumps(body).lower() + raw.lower()
+        self.assertNotIn("hole-key", blob)
+        self.assertNotIn("wrong-key", blob)
+
+    def test_brain_reply_200_matching_key(self) -> None:
+        os.environ["GOPHER_LLM_KEY"] = "hole-key"
+        payload = json.dumps(
+            {"id": "ord1", "q": "ping brain", "text": "ok from bot", "ok": True}
+        ).encode("utf-8")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/brain/reply",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "X-Webhook-Key": "hole-key",
+            },
+        )
+        self.assertEqual(code, 200)
+        self.assertIsInstance(body, dict)
+        self.assertIs(body.get("ok"), True)
+        blob = json.dumps(body).lower() + raw.lower()
+        self.assertNotIn("hole-key", blob)
+
 
 def main() -> int:
     try:
-        suite = unittest.defaultTestLoader.loadTestsFromTestCase(ServerTests)
+        loader = unittest.defaultTestLoader
+        suite = unittest.TestSuite()
+        suite.addTests(loader.loadTestsFromTestCase(ServerTests))
+        suite.addTests(loader.loadTestsFromTestCase(PostLlmHookTests))
+        suite.addTests(loader.loadTestsFromTestCase(BrainReplyTests))
         result = unittest.TextTestRunner(verbosity=2).run(suite)
         return 0 if result.wasSuccessful() else 1
     except AssertionError as exc:

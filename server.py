@@ -13,6 +13,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
+import uuid
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -254,26 +255,25 @@ def llm_ready() -> bool:
     return bool((os.environ.get("GOPHER_LLM_HOOK") or "").strip())
 
 
-def post_llm_hook(q: str) -> str | None:
-    url = (os.environ.get("GOPHER_LLM_HOOK") or "").strip()
-    if not url:
-        return None
-    payload = json.dumps({"q": q}).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=payload,
-        headers={
-            "Content-Type": "application/json",
-            "User-Agent": "GOPHER/0.1",
-            "Accept": "application/json, text/plain",
-        },
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=4) as resp:
-            raw = resp.read().decode("utf-8", errors="replace")
-    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
-        return None
+def llm_key() -> str:
+    return (os.environ.get("GOPHER_LLM_KEY") or "").strip()
+
+
+def llm_reply_url() -> str | None:
+    explicit = (os.environ.get("GOPHER_REPLY_URL") or "").strip()
+    if explicit:
+        return explicit
+    public = (os.environ.get("GOPHER_PUBLIC_URL") or "").strip().rstrip("/")
+    if public:
+        return public + "/api/brain/reply"
+    return None
+
+
+def new_order_id() -> str:
+    return uuid.uuid4().hex[:16]
+
+
+def _parse_llm_body(raw: str) -> str | None:
     raw = (raw or "").strip()
     if not raw:
         return None
@@ -286,9 +286,116 @@ def post_llm_hook(q: str) -> str | None:
             val = data.get(key)
             if isinstance(val, str) and val.strip():
                 return val.strip()[:8000]
+        return None
     if isinstance(data, str) and data.strip():
         return data.strip()[:8000]
-    return raw[:8000]
+    return None
+
+
+def post_llm_hook(q: str, order_id: str = "") -> tuple[bool, str | None]:
+    """POST the live bot webhook. Never log the key or hook query string.
+
+    Returns (fired, text). fired is True on HTTP 2xx. text is a parsed
+    answer, or None when the body is empty / has no text keys.
+    """
+    url = (os.environ.get("GOPHER_LLM_HOOK") or "").strip()
+    if not url:
+        return False, None
+    body: dict = {
+        "q": q,
+        "text": q,
+        "order_id": order_id or "",
+        "channel": "web",
+    }
+    reply_url = llm_reply_url()
+    if reply_url:
+        body["reply_url"] = reply_url
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "GOPHER/0.1",
+        "Accept": "application/json",
+    }
+    key = llm_key()
+    if key:
+        headers["Authorization"] = "Bearer " + key
+        headers["X-Webhook-Key"] = key
+        headers["X-Webhook-Secret"] = key
+    payload = json.dumps(body).encode("utf-8")
+    req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            raw = resp.read().decode("utf-8", errors="replace")
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return False, None
+    return True, _parse_llm_body(raw)
+
+
+def _header_bearer(headers) -> str:
+    auth = headers.get("Authorization") or ""
+    if auth.lower().startswith("bearer "):
+        return auth[7:].strip()
+    return ""
+
+
+def _brain_keys(headers, body: dict) -> list[str]:
+    keys: list[str] = []
+    bearer = _header_bearer(headers)
+    if bearer:
+        keys.append(bearer)
+    for name in ("X-Webhook-Key", "X-Webhook-Secret"):
+        val = (headers.get(name) or "").strip()
+        if val:
+            keys.append(val)
+    body_key = body.get("key") if isinstance(body, dict) else None
+    if isinstance(body_key, str) and body_key.strip():
+        keys.append(body_key.strip())
+    return keys
+
+
+def brain_key_ok(headers, body: dict) -> bool:
+    expected = llm_key()
+    if not expected:
+        return False
+    for got in _brain_keys(headers, body):
+        if not got:
+            continue
+        try:
+            if hmac.compare_digest(got, expected):
+                return True
+        except (TypeError, ValueError):
+            continue
+    return False
+
+
+def apply_brain_reply(order_id: str, q: str, text: str) -> None:
+    oid = (order_id or "").strip()[:64]
+    qn = (q or "").strip()[:280]
+    snippet = re.sub(r"\s+", " ", (text or "")).strip()[:8000]
+    with LOCK:
+        orders = load_list(ORDERS_PATH)
+        match = None
+        if oid:
+            for row in reversed(orders):
+                if isinstance(row, dict) and str(row.get("id") or "") == oid:
+                    match = row
+                    break
+        if match is None and qn:
+            for row in reversed(orders):
+                if isinstance(row, dict) and (row.get("q") or "").strip() == qn:
+                    match = row
+                    break
+        if match is None:
+            row = {"q": qn or "reply", "at": _now(), "kind": "ask"}
+            if oid:
+                row["id"] = oid
+            if snippet:
+                row["out"] = snippet[:120]
+            orders.append(row)
+        else:
+            if snippet:
+                match["out"] = snippet[:120]
+            match["at"] = _now()
+        save_list(ORDERS_PATH, orders)
 
 
 def twilio_ready() -> bool:
@@ -324,13 +431,16 @@ def twilio_sig_ok(url: str, params: dict[str, str], token: str, signature: str) 
         return False
 
 
-def log_order(q: str, kind: str, out: str = "") -> None:
+def log_order(q: str, kind: str, out: str = "", order_id: str = "") -> None:
     q = (q or "").strip()[:280]
     if not q:
         return
     k = (kind or "ask")[:24]
     snippet = re.sub(r"\s+", " ", (out or "")).strip()[:120]
     row = {"q": q, "at": _now(), "kind": k}
+    oid = (order_id or "").strip()[:64]
+    if oid:
+        row["id"] = oid
     if snippet:
         row["out"] = snippet
     with LOCK:
@@ -402,20 +512,34 @@ def fulfill_order(q: str) -> dict:
             "short": text,
             "out": text,
         }
+    order_id = new_order_id()
     if llm_ready():
-        hooked = post_llm_hook(q)
+        fired, hooked = post_llm_hook(q, order_id)
         if hooked:
             return {
                 "q": q,
+                "id": order_id,
                 "log_kind": "ask",
                 "http_code": 200,
                 "http": {"ok": True, "kind": "doc", "title": "0 GOPHER", "text": hooked},
                 "short": hooked[:120],
                 "out": hooked[:120],
             }
+        if fired:
+            text = "sent to GOPHER. answer lands in the bot thread."
+            return {
+                "q": q,
+                "id": order_id,
+                "log_kind": "ask",
+                "http_code": 200,
+                "http": {"ok": True, "kind": "queued", "text": text},
+                "short": text,
+                "out": text,
+            }
     text = "queued in the hole."
     return {
         "q": q,
+        "id": order_id,
         "log_kind": "ask",
         "http_code": 200,
         "http": {"ok": True, "kind": "queued", "text": text},
@@ -495,7 +619,16 @@ class Handler(SimpleHTTPRequestHandler):
     server_version = "GOPHER/0.1"
 
     def log_message(self, fmt: str, *args) -> None:
-        print(f"[gopher] {self.log_date_time_string()} {fmt % args}", file=sys.stderr)
+        safe = []
+        for a in args:
+            if isinstance(a, str) and "?" in a:
+                a = a.split("?", 1)[0]
+            safe.append(a)
+        try:
+            msg = fmt % tuple(safe)
+        except (TypeError, ValueError):
+            msg = fmt
+        print(f"[gopher] {self.log_date_time_string()} {msg}", file=sys.stderr)
 
     def list_directory(self, path: str):
         self.send_error(404, "Not found")
@@ -541,7 +674,7 @@ class Handler(SimpleHTTPRequestHandler):
     def translate_path(self, path: str) -> str:
         mapped = super().translate_path(path)
         name = os.path.basename(mapped)
-        if name in HIDDEN or name.endswith(".tmp"):
+        if name in HIDDEN or name.endswith(".tmp") or name.startswith(".env"):
             return os.path.join(ROOT, "__no_such_file__")
         try:
             rel = os.path.relpath(mapped, ROOT)
@@ -580,7 +713,7 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/waitlist":
             self._json(405, {"ok": False, "error": "POST an email to join."})
             return
-        if path in ("/api/ask", "/api/score", "/api/champions"):
+        if path in ("/api/ask", "/api/score", "/api/champions", "/api/brain/reply"):
             self._json(405, {"ok": False, "error": "POST only."})
             return
         return super().do_GET()
@@ -622,6 +755,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/twilio/voice/order":
             self._twilio_voice_order()
+            return
+        if path == "/api/brain/reply":
+            self._brain_reply()
             return
         self.send_error(404, "Not found")
 
@@ -691,6 +827,9 @@ class Handler(SimpleHTTPRequestHandler):
             k = entry.get("kind")
             if isinstance(k, str) and k:
                 row["kind"] = k[:24]
+            oid = entry.get("id")
+            if isinstance(oid, str) and oid.strip():
+                row["id"] = oid.strip()[:64]
             snippet = entry.get("out")
             if isinstance(snippet, str) and snippet.strip():
                 row["out"] = snippet.strip()[:120]
@@ -798,7 +937,12 @@ class Handler(SimpleHTTPRequestHandler):
             q = ""
         result = fulfill_order(q)
         if result["q"]:
-            log_order(result["q"], result["log_kind"], result.get("out") or "")
+            log_order(
+                result["q"],
+                result["log_kind"],
+                result.get("out") or "",
+                order_id=result.get("id") or "",
+            )
         self._json(result["http_code"], result["http"])
 
 
@@ -960,7 +1104,7 @@ class Handler(SimpleHTTPRequestHandler):
         body = form.get("Body") or ""
         result = fulfill_order(body)
         q = result["q"] or body.strip()[:280]
-        log_order(q, "sms", result.get("out") or result.get("short") or "")
+        log_order(q, "sms", result.get("out") or result.get("short") or "", order_id=result.get("id") or "")
         msg = (result.get("short") or "queued in the hole.")[:1500]
         xml = (
             '<?xml version="1.0" encoding="UTF-8"?>'
@@ -990,13 +1134,33 @@ class Handler(SimpleHTTPRequestHandler):
         spoken = (form.get("SpeechResult") or form.get("Digits") or "").strip()
         result = fulfill_order(spoken)
         q = result["q"] or spoken[:280]
-        log_order(q, "voice", result.get("out") or result.get("short") or "")
+        log_order(q, "voice", result.get("out") or result.get("short") or "", order_id=result.get("id") or "")
         msg = (result.get("short") or "queued in the hole.")[:1500]
         xml = (
             '<?xml version="1.0" encoding="UTF-8"?>'
             "<Response><Say>" + _esc(msg) + "</Say></Response>"
         )
         self._twiml(xml)
+
+    def _brain_reply(self) -> None:
+        data, err = self._read_json()
+        if not llm_key():
+            self._json(503, {"ok": False, "error": "brain parked"})
+            return
+        body = data if isinstance(data, dict) else {}
+        if not brain_key_ok(self.headers, body):
+            self._json(401, {"ok": False, "error": "unauthorized"})
+            return
+        if data is None:
+            self._json(400, {"ok": False, "error": err or "bad json"})
+            return
+        order_id = data.get("id") if isinstance(data.get("id"), str) else ""
+        if not order_id and isinstance(data.get("order_id"), str):
+            order_id = data.get("order_id") or ""
+        q = data.get("q") if isinstance(data.get("q"), str) else ""
+        text = data.get("text") if isinstance(data.get("text"), str) else ""
+        apply_brain_reply(order_id.strip(), q.strip(), text)
+        self._json(200, {"ok": True})
 
     def _fail(self, code: int, message: str) -> None:
         payload = {"ok": False, "status": "invalid", "error": message}
