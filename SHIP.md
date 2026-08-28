@@ -77,14 +77,14 @@ Playable is not deep. Combo and waitlist rate-limit are already in. Public Pages
 
 51. [x] i18n toggle — language switch, not only `/es`
 52. [x] More FETCH levels / themes — distinct palettes and layouts beyond procedural lvl+1
-53. [ ] Second game stub — another named hole under Games/
+53. [x] Second game stub — another named hole under Games/
 54. [x] Offline ticker cache — last good quote when the public spot is down
 55. [x] Focus trap on the tutorial — Tab stays in the first-hole dialog
 56. [x] Keyboard help overlay — a real overlay, not only the `?` status line
 57. [x] High contrast — optional phosphor/contrast mode
 58. [x] Print-safe skip — skip link and CRT do not wreck a print stylesheet
 59. [x] Rate-limit already — waitlist POST capped on the python server (8 / hour / IP)
-60. [ ] Leaderboard on Pages via gist or static — not built; Pages has no `/api/scores`
+60. [x] Leaderboard on Pages — device board from localStorage; python `/api/scores` when the server is up
 61. [x] Haptic setting — user toggle, independent of MUTE
 62. [x] Volume — gain control, not only MUTE / SOUND
 63. [x] Combo already — consecutive packet grabs add a point

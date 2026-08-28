@@ -32,7 +32,15 @@
     "jobs": "/jobs",
     "scores": "/scores",
     "board": "/scores",
-    "leaderboard": "/scores"
+    "leaderboard": "/scores",
+    "dig": "/dig",
+    "install": "/install",
+    "promote": "/promote",
+    "brand": "/brand",
+    "watch": "/watch",
+    "remind": "/remind",
+    "draft": "/draft",
+    "pwa": "/install"
   },
   "holes": {
     "/": {
@@ -132,7 +140,7 @@
           "type": "1",
           "name": "Site/",
           "path": "/docs/site",
-          "hint": "changelog, contact, ship"
+          "hint": "changelog, ship, install"
         },
         {
           "n": "9",
@@ -194,6 +202,27 @@
           "name": "ES",
           "path": "/es",
           "hint": "espa\u00f1ol stub"
+        },
+        {
+          "n": "8",
+          "type": "0",
+          "name": "Install",
+          "path": "/install",
+          "hint": "PWA on a phone"
+        },
+        {
+          "n": "9",
+          "type": "0",
+          "name": "Promote",
+          "path": "/promote",
+          "hint": "stage then prod"
+        },
+        {
+          "n": "10",
+          "type": "0",
+          "name": "Brand",
+          "path": "/brand",
+          "hint": "phosphor, not a book"
         }
       ]
     },
@@ -209,6 +238,13 @@
         },
         {
           "n": "2",
+          "type": "0",
+          "name": "DIG/",
+          "path": "/dig",
+          "hint": "queued, not playable"
+        },
+        {
+          "n": "3",
           "type": "0",
           "name": "Scores",
           "path": "/scores",
@@ -451,6 +487,76 @@
         "The hole board is GET /api/scores when python3 server.py is up. GitHub Pages has no board API; posts to /api/score no-op there."
       ],
       "note": "Type scores, board, or leaderboard. Play FETCH with selector 5."
+    },
+    "/dig": {
+      "title": "DIG/",
+      "copy": [
+        "DIG is not playable yet. It is queued.",
+        "FETCH is the live game. Home selector 5, path /fetch, or type play.",
+        "No screenshots. When DIG is a hole you can enter, this page will say so."
+      ],
+      "note": "Second game stub. Type dig. FETCH stays the only live burrow."
+    },
+    "/install": {
+      "title": "Install/",
+      "copy": [
+        "Put this hole on a phone home screen as a PWA. That is a bookmark with an icon, not a store app and not the paid phone assistant.",
+        "Production: https://oxcryptobot.github.io/gopher/",
+        "Staging: https://oxcryptobot.github.io/gopher-test/ \u2014 TEST HOLE, not production. Install the URL you mean."
+      ],
+      "steps": [
+        "iPhone (Safari): open the hole, tap Share, tap Add to Home Screen, add.",
+        "Android Chrome: open the hole, tap Install app, or the menu then Add to Home screen."
+      ],
+      "note": "Type install or pwa. Staging and production are different hosts. Do not mix them."
+    },
+    "/promote": {
+      "title": "Promote/",
+      "copy": "Runbook. Work on staging, then promote the same commit. No fake CI badge.",
+      "steps": [
+        "Work on staging.",
+        "Type ship.",
+        "Run tests: python3 tests/test_*.py",
+        "Push gopher-test.",
+        "If good, promote the same commit to OxCryptobot/gopher main.",
+        "Production Pages rebuilds."
+      ],
+      "note": "No CI badge on this hole. Stage on test, then production."
+    },
+    "/brand": {
+      "title": "Brand/",
+      "copy": [
+        "Phosphor #39ff14 on #070908. Monospace.",
+        "Short voice: orders not chat, selectors not sludge."
+      ],
+      "note": "Not a full brand book."
+    },
+    "/watch": {
+      "title": "Watch/",
+      "copy": [
+        "Watch is product intent, not a live phone selector.",
+        "GOPHER AI does not SMS a watch. There is no number that pings you yet.",
+        "Waitlist is the door \u2014 selector 6, or type waitlist."
+      ],
+      "note": "Do not pretend this sends texts."
+    },
+    "/remind": {
+      "title": "Remind/",
+      "copy": [
+        "Remind is product intent, not a live phone selector.",
+        "No reminder SMS. No alarm to a number.",
+        "Waitlist is the door \u2014 selector 6, or type waitlist."
+      ],
+      "note": "Do not pretend this sends texts."
+    },
+    "/draft": {
+      "title": "Draft/",
+      "copy": [
+        "Draft is product intent, not a live phone selector.",
+        "There is no SMS draft thread yet.",
+        "Waitlist is the door \u2014 selector 6, or type waitlist."
+      ],
+      "note": "Do not pretend this sends texts."
     }
   }
 }

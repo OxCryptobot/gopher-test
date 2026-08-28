@@ -439,7 +439,7 @@
   function render() {
     var path = pathNow();
     $("host").textContent = "gopher://gopher.ai:70" + path;
-    document.title = path === "/fetch" || path === "/games"
+    document.title = path === "/fetch"
       ? "FETCH — GOPHER AI"
       : (path === "/" ? "GOPHER AI" : ("GOPHER AI " + path));
     paintStaging();
@@ -464,13 +464,11 @@
       if (s) setStatus($("auth-status"), "ok", "you’re in as " + s.name + ".");
       return;
     }
-    if (path === "/fetch" || path === "/games") {
+    if (path === "/fetch") {
       askEl.hidden = false;
       gameEl.hidden = false;
-      if (path === "/fetch") {
-        var canvas = $("fetch");
-        if (canvas) canvas.setAttribute("aria-live", "polite");
-      }
+      var canvas = $("fetch");
+      if (canvas) canvas.setAttribute("aria-live", "polite");
       bootGame();
       return;
     }
