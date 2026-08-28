@@ -23,6 +23,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23070908'/%3E%3Ctext x='2' y='13' font-size='12' font-family='monospace' fill='%2339ff14'%3Eg%3C/text%3E%3C/svg%3E">
 </head>
 <body>
+  <div id="stage-ribbon" class="stage-ribbon" hidden>TEST HOLE · not production</div>
   <div class="crt" aria-hidden="true"></div>
   <a class="skip" href="#ask">Skip to prompt</a>
 
@@ -112,25 +113,27 @@
       <h2><span class="itype">5</span> FETCH/</h2>
       <p class="info">One tap, one tile. Collect blink packets. Walls bump. Orange sludge costs a life. Arrows, WASD, pad, or swipe. P pauses.</p>
       <div class="game-wrap">
-        <canvas id="fetch" width="160" height="144" aria-label="FETCH, an 8-bit gopher game"></canvas>
+        <canvas id="fetch" width="160" height="144" role="img" aria-label="FETCH, an 8-bit gopher game"></canvas>
         <div class="game-hud">
           <span id="g-score">score 0</span>
           <span id="g-lvl">lvl 1</span>
           <span id="g-lives">lives 3</span>
           <span id="g-best">best 0</span>
         </div>
-        <div class="dpad" aria-hidden="true">
-          <button type="button" data-dir="up">↑</button>
+        <div class="dpad" role="group" aria-label="direction pad">
+          <button type="button" data-dir="up" aria-label="up">↑</button>
           <div class="dpad-mid">
-            <button type="button" data-dir="left">←</button>
-            <button type="button" data-dir="down">↓</button>
-            <button type="button" data-dir="right">→</button>
+            <button type="button" data-dir="left" aria-label="left">←</button>
+            <button type="button" data-dir="down" aria-label="down">↓</button>
+            <button type="button" data-dir="right" aria-label="right">→</button>
           </div>
         </div>
         <div class="row">
           <button type="button" id="g-start">START</button>
           <button type="button" id="g-pause" class="ghost">PAUSE</button>
           <button type="button" id="g-mute" class="ghost">MUTE</button>
+          <button type="button" id="g-share" class="ghost">SHARE</button>
+          <button type="button" id="g-install" class="ghost" hidden>INSTALL</button>
         </div>
         <p class="status-line" id="g-status">press START. one direction per tap. fetch the blinking packets.</p>
       </div>

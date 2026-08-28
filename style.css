@@ -492,3 +492,20 @@ pre.gopher-doc {
   .crt { display: none; }
   * { animation: none !important; transition: none !important; }
 }
+
+.stage-ribbon {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  width: 100%;
+  background: #ff6a3d;
+  color: #070908;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 0.35rem 0.5rem;
+}
+.stage-ribbon[hidden] { display: none; }
+body.staging {
+  padding-top: 0;
+}

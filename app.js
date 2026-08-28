@@ -56,7 +56,8 @@
   var ALIAS = {
     about: "/about", how: "/how", caps: "/caps", capabilities: "/caps",
     privacy: "/privacy", fetch: "/fetch", game: "/fetch", play: "/fetch",
-    user: "/user", login: "/user", waitlist: "/waitlist", home: "/", menu: "/"
+    user: "/user", login: "/user", waitlist: "/waitlist", home: "/", menu: "/",
+    es: "/es"
   };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -64,6 +65,7 @@
   var heroEl = $("hero"), askEl = $("ask");
   var game = null;
   var scoreSent = false;
+  var deferredInstall = null;
 
   function esc(s) {
     return String(s)
@@ -84,6 +86,60 @@
     if (!path.startsWith("/")) path = "/" + path;
     if (location.hash !== "#" + path) location.hash = path;
     else render();
+  }
+
+  function isStaging() {
+    var path = location.pathname || "";
+    var q = location.search || "";
+    return path.indexOf("/gopher-test") === 0 || q.indexOf("env=test") !== -1;
+  }
+
+  function paintStaging() {
+    var el = $("stage-ribbon");
+    var on = isStaging();
+    document.body.classList.toggle("staging", on);
+    if (!on) {
+      if (el) el.hidden = true;
+      return;
+    }
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "stage-ribbon";
+      el.textContent = "TEST HOLE · not production";
+      el.style.position = "fixed";
+      el.style.top = "0";
+      el.style.left = "0";
+      el.style.right = "0";
+      el.style.zIndex = "200";
+      document.body.insertBefore(el, document.body.firstChild);
+    } else {
+      el.hidden = false;
+      el.textContent = "TEST HOLE · not production";
+    }
+  }
+
+  function shareScore() {
+    var n = (game && typeof game.score === "number") ? game.score : bestScore(whoName());
+    var msg = "FETCH score " + n + " on GOPHER AI";
+    if (navigator.share) {
+      navigator.share({ text: msg }).catch(function () {});
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).catch(function () {});
+      return;
+    }
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = msg;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (err) {}
   }
 
   function setStatus(el, kind, text) {
@@ -179,6 +235,7 @@
     if (data.holes) HOLES = data.holes;
     else if (data["/"] || data.items) HOLES = data.holes || data;
     if (data.alias) ALIAS = data.alias;
+    if (!ALIAS.es) ALIAS.es = "/es";
     materializeChildren(HOLES);
   }
 
@@ -286,6 +343,7 @@
     document.title = path === "/fetch" || path === "/games"
       ? "FETCH — GOPHER AI"
       : (path === "/" ? "GOPHER AI" : ("GOPHER AI " + path));
+    paintStaging();
     renderDir(path);
     paintWho();
     hideSpecial();
@@ -310,6 +368,10 @@
     if (path === "/fetch" || path === "/games") {
       askEl.hidden = false;
       gameEl.hidden = false;
+      if (path === "/fetch") {
+        var canvas = $("fetch");
+        if (canvas) canvas.setAttribute("aria-live", "polite");
+      }
       bootGame();
       return;
     }
@@ -628,6 +690,22 @@
     gPause.textContent = game.paused ? "RESUME" : "PAUSE";
     setStatus($("g-status"), "", game.paused ? "paused. P or PAUSE to dig." : "fetch packets. avoid orange sludge.");
   });
+  var gInstall = $("g-install");
+  if (gInstall) {
+    gInstall.addEventListener("click", function () {
+      if (deferredInstall && typeof deferredInstall.prompt === "function") {
+        deferredInstall.prompt();
+      }
+    });
+  }
+  var gShare = $("g-share");
+  if (gShare) gShare.addEventListener("click", function () { shareScore(); });
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    deferredInstall = e;
+    var btn = $("g-install");
+    if (btn) { btn.hidden = false; btn.disabled = false; }
+  });
   document.querySelectorAll(".dpad button").forEach(function (b) {
     b.addEventListener("click", function () {
       if (game) game.input(b.getAttribute("data-dir"));
@@ -669,6 +747,7 @@
     navigator.serviceWorker.register("sw.js").catch(function () {});
   }
 
+  paintStaging();
   render();
   tutShow();
   fetch("hole.json", { headers: { Accept: "application/json" } })
