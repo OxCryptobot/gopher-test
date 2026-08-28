@@ -833,6 +833,7 @@
         scoreSent = false;
         game.start();
         if (game.running) setStatus($("g-status"), "", "fetch packets. avoid orange sludge.");
+        questMark("play");
       }
       if (game.running) {
         if (e.key === "ArrowUp" || e.key === "w") { e.preventDefault(); game.input("up"); }
@@ -889,6 +890,11 @@
       var hit = itemsByN()[q];
       if (hit) { go(hit.path); $("command").value = ""; return; }
     }
+    if (kindOrder(q)) {
+      $("command").value = "";
+      queueKindOrder(q);
+      return;
+    }
     var alias = ALIAS[q.toLowerCase()];
     if (alias) { go(alias); $("command").value = ""; return; }
     if (EMAIL_RE.test(q)) {
@@ -928,12 +934,14 @@
         }
         $("form").classList.add("done");
         $("email").readOnly = true;
+        questMark("wait");
       })
       .catch(function () {
         stashLocal(email, order);
         setStatus(st, "ok", "ok. listed on this device.");
         $("form").classList.add("done");
         $("email").readOnly = true;
+        questMark("wait");
       });
   });
 
@@ -995,6 +1003,7 @@
     scoreSent = false;
     game.start();
     if (game.running) setStatus($("g-status"), "", "fetch packets. avoid orange sludge.");
+    questMark("play");
   });
   $("g-mute").addEventListener("click", function () {
     if (!game) bootGame();
@@ -1118,8 +1127,11 @@
   bootLang();
   bootHc();
   paintStaging();
+  bindTrackBtn();
   render();
   tutShow();
+  bindQuestBtns();
+  questPaint();
   fetch("hole.json", { headers: { Accept: "application/json" } })
     .then(function (res) {
       if (!res.ok) throw new Error("no hole");
