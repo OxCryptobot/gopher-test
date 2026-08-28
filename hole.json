@@ -553,6 +553,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-08-28 — python product flags, fng fetch, parked Twilio webhooks. 82/100.",
         "2026-08-28 — maze FETCH polish, playable DIG, device watch/remind/draft. 81/100.",
         "2026-08-27/28 — DIG playable: 8 stages, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze.",
         "2026-08-27/28 — FETCH extras: wall −0.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Device watch/remind/draft queues (not SMS).",
@@ -560,6 +561,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-08-28 — flags de producto python, fetch fng, webhooks Twilio aparcados. 82/100.",
         "2026-08-28 — pulido del laberinto FETCH, DIG jugable, watch/remind/draft del dispositivo. 81/100.",
         "2026-08-27/28 — DIG jugable: 8 etapas, un toque un tile, caen rocas. Escribe dig o Games/. FETCH sigue siendo el laberinto de 100 etapas.",
         "2026-08-27/28 — extras FETCH: muro −0.1 HP, estrella ZAP/BLOCK, KEY, trofeo, Eternal GOPHER CHAMPIONS. Colas watch/remind/draft del dispositivo (no SMS).",
@@ -775,7 +777,7 @@
         "LIVE Pages is static; python /health is the process; no fake uptime",
         "NEXT custom domain, mail waitlist, SMS number, voice in, cloud accounts, billing, published prices, SLA, plugins, cloud order log, store listing",
         "NEXT a real uptime hole (not a fake 99.9%)",
-        "NEXT full i18n (toggle + /es exist; still partial)",
+        "LIVE i18n EN/ES (toggle, directory, FETCH/DIG shell, 29 doc bodies). Buttons stay EN",
         "NEXT legal counsel, refund policy, DPA, hiring, demo video",
         "NEXT phone SMS for watch / remind / draft (device queues are live; no number)"
       ],
@@ -799,7 +801,7 @@
         "LIVE Pages es estático; python /health es el proceso; sin uptime inventado",
         "NEXT dominio propio, lista de espera por mail, número SMS, voz de entrada, cuentas en la nube, facturación, precios publicados, SLA, plugins, log de pedidos en la nube, ficha de tienda",
         "NEXT un hueco de uptime de verdad (no un 99.9% inventado)",
-        "NEXT i18n completo (el toggle y /es existen; aún parcial)",
+        "LIVE i18n EN/ES (toggle, directorio, FETCH/DIG, 29 textos). Botones en EN",
         "NEXT consejo legal, política de reembolso, DPA, contratación, video demo",
         "NEXT SMS de teléfono para watch / remind / draft (las colas del dispositivo están en vivo; no hay número)"
       ]
@@ -1020,17 +1022,17 @@
       "title": "Blueprint/",
       "title_es": "Plano/",
       "copy": [
-        "82 of 100. Phases 0-2 are the playable hole. Phase 3 is the paid phone assistant.",
+        "82 of 100. Playable hole 74/75. Paid phone 8/25. Remaining work is the hard product, not 18% of effort.",
         "Open: 28 CI, 76 domain, 77 mail, 78 SMS, 79 voice, 80 cloud accounts, 81 billing, 82 prices, 83 SLA, 84 more plugins, 85 cloud order log, 86 store listing, 88 uptime product, 91 legal, 92 refunds, 93 DPA, 95 hiring, 97 demo video.",
-        "This hole already runs: FETCH, DIG, waitlist file, device login, ticker fetch, device watch/remind/draft, python scores/champions/orders/status.",
-        "Pages cannot run server.py. /api/* on GitHub Pages is not a product backend.",
-        "Do not invent prices, SMS numbers, or a 99.9% SLA. Wire order: CI PAT workflow, domain, mail, billing, then SMS/voice.",
-        "Full guide: BLUEPRINT.md in the repo. Type blueprint, plugins, orders, or status."
+        "Wire order: CI PAT workflow, domain, mail, billing (you name a real price), SMS/voice number, cloud accounts, uptime product, then legal/hiring/store/demo video.",
+        "This wave: python live plugin flags, fng fetch, Twilio webhooks that 503 until env is set, waitlist mail hook if GOPHER_MAIL_HOOK is set.",
+        "Pages cannot run server.py. Do not invent prices, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, plugins, orders, or status."
       ],
       "copy_es": [
-        "82 de 100. Las fases 0-2 son el hueco jugable. La fase 3 es el asistente de pago.",
+        "82 de 100. Hueco jugable 74/75. Telefono de pago 8/25. Lo que falta es el producto duro, no el 18% del esfuerzo.",
         "Abierto: CI, dominio, correo, SMS, voz, cuentas, cobro, precios, SLA, mas plugins, log, tienda, uptime, legal, reembolsos, DPA, contratacion, video demo.",
-        "Ya corre: FETCH, DIG, waitlist, login del dispositivo, ticker, watch/remind/draft en el dispositivo, scores en python.",
+        "Orden: CI, dominio, correo, cobro, SMS/voz, cuentas, uptime, luego legal/tienda/video.",
+        "Esta ola: flags de plugins en python, fetch fng, webhooks Twilio en 503 hasta que haya env, hook de mail si GOPHER_MAIL_HOOK esta puesto.",
         "Pages no corre server.py. No inventar precios, SMS ni un SLA."
       ],
       "note": "Not hiring. No fake openings. No fake SLA.",
@@ -1041,20 +1043,22 @@
       "title_es": "Plugins/",
       "caps": [
         "ticker — live. type fetch btc (ETH SOL XRP DOGE ADA). Coinbase then OKX.",
-        "mail waitlist — parked. needs Resend/Mailgun/SendGrid. no outbound mail today.",
-        "SMS / voice — parked. needs Twilio or Sinch and a number.",
+        "fng — live on python. type fetch fg / fear greed / fng. Pages has no python.",
+        "SMS / voice — parked. Twilio skills installed, no number.",
+        "mail waitlist — parked. GOPHER_MAIL_HOOK or SendGrid not set. no outbound mail today.",
         "billing — parked. needs Stripe and a real price you name.",
         "identity — parked. device PBKDF2 only."
       ],
       "caps_es": [
-        "ticker — vivo. escribe fetch btc.",
-        "correo — aparcado. falta un proveedor de mail.",
-        "SMS / voz — aparcado. falta un numero.",
+        "ticker — vivo. escribe fetch btc (ETH SOL XRP DOGE ADA).",
+        "fng — vivo en python. escribe fetch fg / fear greed / fng. Pages no tiene python.",
+        "SMS / voz — aparcado. Skills de Twilio instalados, no hay numero.",
+        "correo — aparcado. GOPHER_MAIL_HOOK o SendGrid no estan puestos.",
         "cobro — aparcado. falta Stripe y un precio real.",
         "identidad — aparcado. solo PBKDF2 en el dispositivo."
       ],
-      "note": "Type plugins. Ticker is the only connected fetch today.",
-      "note_es": "Escribe plugins. El ticker es el unico fetch conectado hoy."
+      "note": "Type plugins. Ticker and python fng are live. SMS/voice/mail/billing parked.",
+      "note_es": "Escribe plugins. Ticker y fng en python estan vivos. SMS/voz/correo/cobro aparcados."
     },
     "/orders": {
       "title": "Orders/",

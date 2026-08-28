@@ -705,6 +705,7 @@
     viewEl.hidden = false;
     viewEl.innerHTML = "<h2>" + esc(doc.title || path) + "</h2>" + docHtml(doc);
     viewEl.focus();
+    if (path === "/plugins") appendLivePlugins();
   }
 
   function shoutHud(msg) {
@@ -812,18 +813,46 @@
     fetch("/api/status", { headers: { Accept: "application/json" } })
       .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
       .then(function (d) {
+        var p = (d && d.plugins) || {};
         var lines = [
           "hole     python",
           "uptime   " + (d && d.uptime_s != null ? d.uptime_s + "s" : "?"),
           "started  " + ((d && d.started) || ""),
           "requests " + ((d && d.requests) || 0),
-          "sla      false"
+          "sla      " + (d && d.sla === true ? "true" : "false"),
+          "ticker   " + (p.ticker ? "live" : "parked"),
+          "fng      " + (p.fng ? "live" : "parked"),
+          "twilio   " + ((d && d.twilio) || "parked"),
+          "sms      " + (p.sms ? "ready" : "parked"),
+          "voice    " + (p.voice ? "ready" : "parked"),
+          "mail     " + ((d && d.mail) || "parked"),
+          "billing  parked"
         ];
         if (el) el.textContent = lines.join("\n");
       })
       .catch(function () {
         if (el) el.textContent = "Pages hole: static files.\npython /api/status: no process.\nIf this page loaded, the static hole is up.\nnot a SLA.";
       });
+  }
+  function appendLivePlugins() {
+    fetch("/api/status", { headers: { Accept: "application/json" } })
+      .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
+      .then(function (d) {
+        var p = (d && d.plugins) || {};
+        var line = "live python: ticker=" + (p.ticker ? "live" : "parked")
+          + " fng=" + (p.fng ? "live" : "parked")
+          + " sms=" + (p.sms ? "ready" : "parked")
+          + " voice=" + (p.voice ? "ready" : "parked")
+          + " mail=" + ((d && d.mail) || "parked")
+          + " billing=" + (p.billing ? "ready" : "parked")
+          + " twilio=" + ((d && d.twilio) || "parked")
+          + " sla=" + (d && d.sla === true ? "true" : "false");
+        var pre = document.createElement("pre");
+        pre.className = "gopher-doc";
+        pre.textContent = line;
+        if (viewEl) viewEl.appendChild(pre);
+      })
+      .catch(function () { /* Pages: keep parked hole copy */ });
   }
   function paintOrders() {
     viewEl.hidden = false;
@@ -915,6 +944,7 @@
   }
 
   function looksTicker(q) {
+    if (/\bfng\b|fear\s*greed|\bfg\b/i.test(q || "")) return false;
     return /fetch|price|btc|eth|sol|xrp|doge|ada/i.test(q || "");
   }
   function tickerId(q) {

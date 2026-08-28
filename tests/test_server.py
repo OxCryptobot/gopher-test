@@ -49,6 +49,21 @@ class ServerTests(unittest.TestCase):
     def test_max_post_bytes(self) -> None:
         self.assertIn("MAX_POST_BYTES", self.src)
 
+    def test_twilio_routes(self) -> None:
+        self.assertIn("/api/twilio/sms", self.src)
+        self.assertIn("/api/twilio/voice", self.src)
+
+    def test_doge_in_ticker_names(self) -> None:
+        self.assertIn("TICKER_NAMES", self.src)
+        self.assertIn('"DOGE"', self.src)
+        self.assertIn("DOGE-USDT", self.src)
+
+    def test_sla_false(self) -> None:
+        self.assertIn('"sla": False', self.src)
+
+    def test_twilio_parked_string(self) -> None:
+        self.assertIn("twilio parked", self.src)
+
 
 def main() -> int:
     try:

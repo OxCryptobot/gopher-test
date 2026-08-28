@@ -31,7 +31,7 @@ class StaticTests(unittest.TestCase):
         self.assertTrue(icons, "manifest.json icons is empty")
 
     def test_sw_cache_name(self) -> None:
-        self.assertIn("gopher-v4", read("sw.js"))
+        self.assertIn("gopher-v5", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")
@@ -74,6 +74,14 @@ class StaticTests(unittest.TestCase):
 
     def test_404_links_to_fetch(self) -> None:
         self.assertIn("#/fetch", read("404.html"))
+
+    def test_no_banned_vendor_copy(self) -> None:
+        banned = ("grok", "spacexai")
+        for name in ("index.html", "app.js", "sw.js"):
+            src = read(name).lower()
+            for token in banned:
+                self.assertNotIn(token, src, name + " has " + token)
+            self.assertNotIn("cursor", src, name + " has cursor")
 
 
 def main() -> int:

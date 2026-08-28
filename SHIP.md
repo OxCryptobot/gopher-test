@@ -6,9 +6,9 @@ Method: stage on test, then promote to production. Do not ship to production fir
 
 Status marks are honest as of 2026-08-28.
 
-Progress: 82/100. Phase 0 25/25, phase 1 24/25 (28 CI blocked on workflow PAT), phase 2 25/25, phase 3 7/25.
+Progress: 82/100. Phase 0 25/25, phase 1 24/25 (28 CI blocked on workflow PAT), phase 2 25/25, phase 3 8/25.
 
-Open: 28, 76–86, 88, 90, 91–93, 95, 97.
+Open: 28, 76–86, 88, 91–93, 95, 97.
 
 - `[x]` done on production
 - `[ ]` this staging wave, or next
@@ -53,7 +53,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 27. [x] TEST ribbon — show `TEST HOLE · not production` on the staging host
 28. [ ] CI workflow — YAML exists locally; PAT lacks `workflow` scope so Actions is not on GitHub yet
 29. [x] hole.json tests — selector 5 is FETCH/, `play` → `/fetch`, required holes, no banned vendor copy
-30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v4 (includes dig.js), game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile
+30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v5 (includes dig.js), game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile
 31. [x] A11y d-pad labels — `aria-label` on the pad and each direction
 32. [x] SHARE score — Web Share / clipboard of the FETCH result
 33. [x] INSTALL PWA hook — `beforeinstallprompt` and an INSTALL control
@@ -67,7 +67,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 41. [x] Live title — `document.title` follows the current hole
 42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
-44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: maze FETCH polish, playable DIG, device watch/remind/draft, 82/100)
+44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: python product flags, fng fetch, parked Twilio webhooks, 82/100)
 45. [x] Contact — GitHub + waitlist, no support number
 46. [x] Status hole — Pages is static; python `/health` is the process; no fake 99.9%, no fake uptime graph
 47. [x] Press hole — one paragraph, no invented metrics
@@ -111,14 +111,14 @@ Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door
 
 76. [ ] Custom domain — gopher.ai (or successor) on the hole, not only github.io
 77. [ ] Mail waitlist — real outbound mail, not only a JSON file / device stash
-78. [ ] SMS number — a number people can text
-79. [ ] Voice in — talk to the number, order in the same thread
+78. [ ] SMS number — a number people can text. Twilio skills installed; python `/api/twilio/sms` returns 503 until TWILIO_NUMBER + TWILIO_AUTH_TOKEN exist. No number invented.
+79. [ ] Voice in — talk to the number, order in the same thread. Python `/api/twilio/voice` is parked the same way. No number invented.
 80. [ ] Cloud accounts — not device-only PBKDF2
 81. [ ] Billing — a paid SKU, not a mock table
 82. [ ] Published prices — public numbers only when they are real
 83. [ ] SLA — none today; do not invent one
-84. [ ] Plugins — connected tools that actually fetch
-85. [ ] Cloud order log — what was asked and what came back, off-device
+84. [ ] Plugins — connected tools that actually fetch. Ticker and python fng are live; SMS/voice/mail/billing still parked.
+85. [ ] Cloud order log — what was asked and what came back, off-device. Python `/api/orders` exists; GitHub Pages has no python process, so Pages is not a cloud log.
 86. [ ] Phone app store listing — a store page if/when there is an app
 87. [x] Analytics opt-in — TRACK? on the hole; default off; still sends nowhere
 88. [ ] Status page uptime — a real uptime hole, not only `/status` copy. Do not fake 99.9%

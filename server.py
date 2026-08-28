@@ -2,7 +2,9 @@
 """GOPHER landing + waitlist + ask/score. Tiny static server. No extra deps."""
 from __future__ import annotations
 
+import base64
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -69,10 +71,15 @@ TICKER_NAMES = {
     "SOLANA": "SOL-USDT",
     "XRP": "XRP-USDT",
     "RIPPLE": "XRP-USDT",
+    "DOGE": "DOGE-USDT",
+    "DOGECOIN": "DOGE-USDT",
+    "ADA": "ADA-USDT",
+    "CARDANO": "ADA-USDT",
 }
 FETCH_WORDS = {"PRICE", "TICKER", "FETCH", "QUOTE", "SPOT", "PX"}
 SKIP_WORDS = FETCH_WORDS | {
     "OF", "THE", "A", "AN", "FOR", "US", "USD", "USDT", "PLEASE", "GET", "SHOW", "ME", "LIVE",
+    "FG", "FNG", "FEAR", "GREED", "INDEX",
 }
 
 os.chdir(ROOT)
@@ -178,6 +185,202 @@ def format_ticker(tick: dict) -> str:
     if ts:
         lines.append("ts        " + str(ts))
     return "\n".join(lines)
+
+
+def looks_fng(q: str) -> bool:
+    s = re.sub(r"[^a-z0-9]+", " ", (q or "").lower()).strip()
+    words = s.split()
+    if not words:
+        return False
+    if "fng" in words:
+        return True
+    if "fear" in words and "greed" in words:
+        return True
+    if "fg" in words:
+        return True
+    return False
+
+
+def fetch_fng() -> dict | None:
+    url = "https://api.alternative.me/fng/?limit=1"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "GOPHER/0.1", "Accept": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError, ValueError):
+        return None
+    data = payload.get("data") or []
+    if not data or not isinstance(data, list) or not isinstance(data[0], dict):
+        return None
+    return data[0]
+
+
+def format_fng(row: dict) -> str:
+    value = row.get("value") or "?"
+    klass = row.get("value_classification") or "?"
+    ts = row.get("timestamp") or ""
+    lines = [
+        "Fear and Greed Index",
+        "",
+        "value     " + str(value),
+        "class     " + str(klass),
+        "",
+        "source    alternative.me fng",
+    ]
+    if ts:
+        lines.append("ts        " + str(ts))
+    return "\n".join(lines)
+
+
+def mail_ready() -> bool:
+    return bool(os.environ.get("GOPHER_MAIL_HOOK") or os.environ.get("SENDGRID_API_KEY"))
+
+
+def twilio_ready() -> bool:
+    return bool(os.environ.get("TWILIO_NUMBER") and os.environ.get("TWILIO_AUTH_TOKEN"))
+
+
+def mask_sms_number() -> str | None:
+    raw = (os.environ.get("TWILIO_NUMBER") or "").strip()
+    if not raw:
+        return None
+    digits = re.sub(r"\D", "", raw)
+    if len(digits) >= 4:
+        return "***" + digits[-4:]
+    return "***"
+
+
+def skip_twilio_sig() -> bool:
+    v = (os.environ.get("GOPHER_TWILIO_SKIP_SIG") or "").strip().lower()
+    return v in ("1", "true", "yes")
+
+
+def twilio_sig_ok(url: str, params: dict[str, str], token: str, signature: str) -> bool:
+    if not token or not signature:
+        return False
+    buf = url
+    for key in sorted(params):
+        buf += key + params[key]
+    digest = hmac.new(token.encode("utf-8"), buf.encode("utf-8"), hashlib.sha1).digest()
+    expected = base64.b64encode(digest).decode("ascii")
+    try:
+        return hmac.compare_digest(expected, signature)
+    except (TypeError, ValueError):
+        return False
+
+
+def log_order(q: str, kind: str, out: str = "") -> None:
+    q = (q or "").strip()[:280]
+    if not q:
+        return
+    k = (kind or "ask")[:24]
+    snippet = re.sub(r"\s+", " ", (out or "")).strip()[:120]
+    row = {"q": q, "at": _now(), "kind": k}
+    if snippet:
+        row["out"] = snippet
+    with LOCK:
+        orders = load_list(ORDERS_PATH)
+        orders.append(row)
+        save_list(ORDERS_PATH, orders)
+
+
+def fulfill_order(q: str) -> dict:
+    q = (q or "").strip()
+    if len(q) > 280:
+        q = q[:280]
+    if not q:
+        return {
+            "q": "",
+            "log_kind": "ask",
+            "http_code": 400,
+            "http": {"ok": False, "error": "empty order"},
+            "short": "empty order",
+            "out": "",
+        }
+    if looks_fng(q):
+        row = fetch_fng()
+        if row:
+            text = format_fng(row)
+            short = (
+                "Fear and Greed "
+                + str(row.get("value") or "?")
+                + " "
+                + str(row.get("value_classification") or "")
+            ).strip()
+            return {
+                "q": q,
+                "log_kind": "fng",
+                "http_code": 200,
+                "http": {"ok": True, "kind": "doc", "title": "0 Fear and Greed", "text": text},
+                "short": short,
+                "out": short,
+            }
+        text = "could not fetch fear/greed from the public index."
+        return {
+            "q": q,
+            "log_kind": "fng",
+            "http_code": 200,
+            "http": {"ok": False, "kind": "doc", "title": "3 Error", "text": text},
+            "short": text,
+            "out": text,
+        }
+    inst = parse_crypto(q)
+    if inst:
+        tick = okx_ticker(inst)
+        if tick:
+            text = format_ticker(tick)
+            short = inst + " last " + str(tick.get("last") or "?") + " (okx)"
+            return {
+                "q": q,
+                "log_kind": "ticker",
+                "http_code": 200,
+                "http": {"ok": True, "kind": "doc", "title": "0 " + inst, "text": text},
+                "short": short,
+                "out": short,
+            }
+        text = "could not fetch " + inst + " from the ticker hole."
+        return {
+            "q": q,
+            "log_kind": "ticker",
+            "http_code": 200,
+            "http": {"ok": False, "kind": "doc", "title": "3 Error", "text": text},
+            "short": text,
+            "out": text,
+        }
+    text = "queued in the hole."
+    return {
+        "q": q,
+        "log_kind": "ask",
+        "http_code": 200,
+        "http": {"ok": True, "kind": "queued", "text": text},
+        "short": text,
+        "out": text,
+    }
+
+
+def post_mail_hook(email: str, status: str) -> None:
+    url = (os.environ.get("GOPHER_MAIL_HOOK") or "").strip()
+    if not url or status != "joined":
+        return
+    payload = json.dumps({"email": email, "status": status, "at": _now()}).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "GOPHER/0.1",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            resp.read()
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return
 
 
 def waitlist_rate_limited(ip: str) -> bool:
@@ -345,10 +548,21 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/champions":
             self._champion_add()
             return
+        if path == "/api/twilio/sms":
+            self._twilio_sms()
+            return
+        if path == "/api/twilio/voice":
+            self._twilio_voice()
+            return
+        if path == "/api/twilio/voice/order":
+            self._twilio_voice_order()
+            return
         self.send_error(404, "Not found")
 
     def _status(self) -> None:
         up = max(0, int(time.time() - STARTED_AT))
+        sms = twilio_ready()
+        mail = mail_ready()
         self._json(
             200,
             {
@@ -358,6 +572,18 @@ class Handler(SimpleHTTPRequestHandler):
                 "started": datetime.fromtimestamp(STARTED_AT, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "requests": REQS,
                 "sla": False,
+                "progress": {"done": 82, "total": 100},
+                "plugins": {
+                    "ticker": True,
+                    "fng": True,
+                    "mail": mail,
+                    "sms": sms,
+                    "voice": sms,
+                    "billing": False,
+                },
+                "twilio": "ready" if sms else "parked",
+                "sms_number": mask_sms_number(),
+                "mail": "ready" if mail else "parked",
             },
         )
 
@@ -378,6 +604,9 @@ class Handler(SimpleHTTPRequestHandler):
             k = entry.get("kind")
             if isinstance(k, str) and k:
                 row["kind"] = k[:24]
+            snippet = entry.get("out")
+            if isinstance(snippet, str) and snippet.strip():
+                row["out"] = snippet.strip()[:120]
             out.append(row)
         self._json(200, out)
 
@@ -462,6 +691,8 @@ class Handler(SimpleHTTPRequestHandler):
                 status = "joined"
 
         body = {"ok": True, "status": status, "email": email}
+        if status == "joined":
+            post_mail_hook(email, status)
         if wants_json(self):
             self._json(200, body)
         else:
@@ -478,42 +709,10 @@ class Handler(SimpleHTTPRequestHandler):
         q = data.get("q")
         if not isinstance(q, str):
             q = ""
-        q = q.strip()
-        if not q:
-            self._json(400, {"ok": False, "error": "empty order"})
-            return
-        if len(q) > 280:
-            q = q[:280]
-        inst = parse_crypto(q)
-        if inst:
-            tick = okx_ticker(inst)
-            if tick:
-                self._json(
-                    200,
-                    {
-                        "ok": True,
-                        "kind": "doc",
-                        "title": "0 " + inst,
-                        "text": format_ticker(tick),
-                    },
-                )
-            else:
-                self._json(
-                    200,
-                    {
-                        "ok": False,
-                        "kind": "doc",
-                        "title": "3 Error",
-                        "text": "could not fetch " + inst + " from the ticker hole.",
-                    },
-                )
-            return
-        now = _now()
-        with LOCK:
-            orders = load_list(ORDERS_PATH)
-            orders.append({"q": q, "at": now, "kind": "ask"})
-            save_list(ORDERS_PATH, orders)
-        self._json(200, {"ok": True, "kind": "queued", "text": "queued in the hole."})
+        result = fulfill_order(q)
+        if result["q"]:
+            log_order(result["q"], result["log_kind"], result.get("out") or "")
+        self._json(result["http_code"], result["http"])
 
 
     def _champions(self) -> None:
@@ -626,6 +825,91 @@ class Handler(SimpleHTTPRequestHandler):
         parsed = parse_qs(text, keep_blank_values=True)
         values = parsed.get("email") or []
         return values[0] if values else None
+
+    def _read_form(self) -> dict[str, str]:
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            length = 0
+        raw = self.rfile.read(length) if length else b""
+        text = raw.decode("utf-8", errors="replace")
+        parsed = parse_qs(text, keep_blank_values=True)
+        out: dict[str, str] = {}
+        for key, vals in parsed.items():
+            out[key] = vals[0] if vals else ""
+        return out
+
+    def _public_url(self) -> str:
+        host = self.headers.get("Host") or (HOST + ":" + str(PORT))
+        proto = self.headers.get("X-Forwarded-Proto") or "http"
+        return proto + "://" + host + self.path
+
+    def _twilio_gate(self, form: dict[str, str]) -> bool:
+        """Return True if the request may proceed. Sends 503 or 403 otherwise."""
+        if not twilio_ready():
+            self._json(503, {"ok": False, "error": "twilio parked", "sms": False})
+            return False
+        if skip_twilio_sig():
+            return True
+        sig = self.headers.get("X-Twilio-Signature") or ""
+        token = os.environ.get("TWILIO_AUTH_TOKEN") or ""
+        if not twilio_sig_ok(self._public_url(), form, token, sig):
+            self._json(403, {"ok": False, "error": "bad signature"})
+            return False
+        return True
+
+    def _twiml(self, xml: str) -> None:
+        data = xml.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/xml; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def _twilio_sms(self) -> None:
+        form = self._read_form()
+        if not self._twilio_gate(form):
+            return
+        body = form.get("Body") or ""
+        result = fulfill_order(body)
+        q = result["q"] or body.strip()[:280]
+        log_order(q, "sms", result.get("out") or result.get("short") or "")
+        msg = (result.get("short") or "queued in the hole.")[:1500]
+        xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            "<Response><Message>" + _esc(msg) + "</Message></Response>"
+        )
+        self._twiml(xml)
+
+    def _twilio_voice(self) -> None:
+        form = self._read_form()
+        if not self._twilio_gate(form):
+            return
+        xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            "<Response>"
+            '<Gather input="speech dtmf" action="/api/twilio/voice/order" method="POST">'
+            "<Say>Gopher A I. Speak an order.</Say>"
+            "</Gather>"
+            "<Say>No order heard.</Say>"
+            "</Response>"
+        )
+        self._twiml(xml)
+
+    def _twilio_voice_order(self) -> None:
+        form = self._read_form()
+        if not self._twilio_gate(form):
+            return
+        spoken = (form.get("SpeechResult") or form.get("Digits") or "").strip()
+        result = fulfill_order(spoken)
+        q = result["q"] or spoken[:280]
+        log_order(q, "voice", result.get("out") or result.get("short") or "")
+        msg = (result.get("short") or "queued in the hole.")[:1500]
+        xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            "<Response><Say>" + _esc(msg) + "</Say></Response>"
+        )
+        self._twiml(xml)
 
     def _fail(self, code: int, message: str) -> None:
         payload = {"ok": False, "status": "invalid", "error": message}

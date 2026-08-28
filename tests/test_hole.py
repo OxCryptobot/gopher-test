@@ -20,6 +20,8 @@ REQUIRED_HOLES = (
     "/ship",
     "/scores",
     "/play",
+    "/blueprint",
+    "/plugins",
 )
 BANNED = ("grok", "cursor", "spacexai")
 TEXT_KEYS = ("copy", "caps", "note", "title")
