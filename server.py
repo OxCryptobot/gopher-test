@@ -250,6 +250,47 @@ def mail_ready() -> bool:
     return bool(os.environ.get("GOPHER_MAIL_HOOK") or os.environ.get("SENDGRID_API_KEY"))
 
 
+def llm_ready() -> bool:
+    return bool((os.environ.get("GOPHER_LLM_HOOK") or "").strip())
+
+
+def post_llm_hook(q: str) -> str | None:
+    url = (os.environ.get("GOPHER_LLM_HOOK") or "").strip()
+    if not url:
+        return None
+    payload = json.dumps({"q": q}).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "GOPHER/0.1",
+            "Accept": "application/json, text/plain",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            raw = resp.read().decode("utf-8", errors="replace")
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return None
+    raw = (raw or "").strip()
+    if not raw:
+        return None
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return raw[:8000]
+    if isinstance(data, dict):
+        for key in ("text", "answer", "out", "doc"):
+            val = data.get(key)
+            if isinstance(val, str) and val.strip():
+                return val.strip()[:8000]
+    if isinstance(data, str) and data.strip():
+        return data.strip()[:8000]
+    return raw[:8000]
+
+
 def twilio_ready() -> bool:
     return bool(os.environ.get("TWILIO_NUMBER") and os.environ.get("TWILIO_AUTH_TOKEN"))
 
@@ -361,6 +402,17 @@ def fulfill_order(q: str) -> dict:
             "short": text,
             "out": text,
         }
+    if llm_ready():
+        hooked = post_llm_hook(q)
+        if hooked:
+            return {
+                "q": q,
+                "log_kind": "ask",
+                "http_code": 200,
+                "http": {"ok": True, "kind": "doc", "title": "0 GOPHER", "text": hooked},
+                "short": hooked[:120],
+                "out": hooked[:120],
+            }
     text = "queued in the hole."
     return {
         "q": q,
@@ -599,6 +651,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "twilio": "ready" if sms else "parked",
                 "sms_number": mask_sms_number(),
                 "mail": "ready" if mail else "parked",
+                "llm": "ready" if llm_ready() else "parked",
             },
         )
 

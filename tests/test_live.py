@@ -61,6 +61,7 @@ class LiveTests(unittest.TestCase):
             "TWILIO_AUTH_TOKEN",
             "TWILIO_NUMBER",
             "GOPHER_MAIL_HOOK",
+            "GOPHER_LLM_HOOK",
             "SENDGRID_API_KEY",
             "GOPHER_TWILIO_SKIP_SIG",
         ):
@@ -113,6 +114,8 @@ class LiveTests(unittest.TestCase):
             self.assertIs(plugins.get("voice"), False)
             self.assertIs(status.get("sms_number"), None)
             self.assertEqual(status.get("mail"), "parked")
+            if "llm" in status:
+                self.assertEqual(status.get("llm"), "parked")
             self.assertEqual((status.get("progress") or {}).get("done"), 82)
 
             code, raw, tasks = http("GET", base + "/api/tasks")

@@ -55,8 +55,8 @@
   },
   "holes": {
     "/": {
-      "title": "Directory of GOPHER AI",
-      "title_es": "Directorio de GOPHER AI",
+      "title": "Directory of GOPHER AI — the prompt is the menu",
+      "title_es": "Directorio de GOPHER AI — el prompt es el menú",
       "items": [
         {
           "n": "1",
@@ -64,8 +64,8 @@
           "name": "Docs/",
           "name_es": "Docs/",
           "path": "/docs",
-          "hint": "about, play, legal, faq",
-          "hint_es": "acerca, jugar, legal, faq"
+          "hint": "or type below",
+          "hint_es": "o escribe abajo"
         },
         {
           "n": "5",
@@ -91,8 +91,8 @@
           "name": "Tasks/",
           "name_es": "Tareas/",
           "path": "/tasks",
-          "hint": "100 orders in the prompt",
-          "hint_es": "100 órdenes en el prompt"
+          "hint": "100 orders · prompt always on",
+          "hint_es": "100 órdenes · prompt siempre on"
         },
         {
           "n": "8",
@@ -573,6 +573,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-08-28 — sticky GOPHER prompt, always-on task selectors.",
         "2026-08-28 — prompt autoprompts, 100 tasks catalog.",
         "2026-08-28 — python product flags, fng fetch, parked Twilio webhooks. 82/100.",
         "2026-08-28 — maze FETCH polish, playable DIG, device watch/remind/draft. 81/100.",
@@ -582,6 +583,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-08-28 — prompt GOPHER sticky, selectores de tareas siempre on.",
         "2026-08-28 — el prompt hace autoprompt, catálogo de 100 tareas.",
         "2026-08-28 — flags de producto python, fetch fng, webhooks Twilio aparcados. 82/100.",
         "2026-08-28 — pulido del laberinto FETCH, DIG jugable, watch/remind/draft del dispositivo. 81/100.",
@@ -1049,7 +1051,8 @@
         "Wire order: CI PAT workflow, domain, mail, billing (you name a real price), SMS/voice number, cloud accounts, uptime product, then legal/hiring/store/demo video.",
         "This wave: python live plugin flags, fng fetch, Twilio webhooks that 503 until env is set, waitlist mail hook if GOPHER_MAIL_HOOK is set.",
         "Pages cannot run server.py. Do not invent prices, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, plugins, orders, or status.",
-        "Type tasks in the prompt, or open /tasks. Autoprompt ranks live selectors. Parked products stay parked."
+        "Type tasks in the prompt, or open /tasks. Autoprompt ranks live selectors. Parked products stay parked.",
+        "The GOPHER prompt is always on. Suggestions always listed. Hosted model parked until GOPHER_LLM_HOOK is set."
       ],
       "copy_es": [
         "82 de 100. Hueco jugable 74/75. Telefono de pago 8/25. Lo que falta es el producto duro, no el 18% del esfuerzo.",
@@ -1057,7 +1060,8 @@
         "Orden: CI, dominio, correo, cobro, SMS/voz, cuentas, uptime, luego legal/tienda/video.",
         "Esta ola: flags de plugins en python, fetch fng, webhooks Twilio en 503 hasta que haya env, hook de mail si GOPHER_MAIL_HOOK esta puesto.",
         "Pages no corre server.py. No inventar precios, SMS ni un SLA.",
-        "Escribe tasks en el prompt, o abre /tasks. El autoprompt ordena selectores vivos. Lo aparcado sigue aparcado."
+        "Escribe tasks en el prompt, o abre /tasks. El autoprompt ordena selectores vivos. Lo aparcado sigue aparcado.",
+        "El prompt GOPHER está siempre on. Sugerencias siempre listadas. Modelo hospedado aparcado hasta GOPHER_LLM_HOOK."
       ],
       "note": "Not hiring. No fake openings. No fake SLA.",
       "note_es": "No contratamos. Sin SLA inventado."
@@ -1103,13 +1107,13 @@
       "title": "Tasks/",
       "title_es": "Tareas/",
       "copy": [
-        "100 tasks. Type in the prompt. Autoprompts as you type. Parked items do not fake a number."
+        "100 tasks. The GOPHER prompt is always on. Suggestions stay listed. Hosted model parked."
       ],
       "copy_es": [
-        "100 tareas. Escribe en el prompt. Autoprompts mientras escribes. Lo aparcado no finge un número."
+        "100 tareas. El prompt GOPHER está siempre on. Las sugerencias se quedan listadas. Modelo hospedado aparcado."
       ],
-      "note": "Live fetches and games run. SMS, voice, mail, billing stay parked.",
-      "note_es": "Fetches y juegos vivos corren. SMS, voz, correo y cobro siguen aparcados."
+      "note": "Live fetches and games run. SMS, voice, mail, billing, hosted model stay parked.",
+      "note_es": "Fetches y juegos vivos corren. SMS, voz, correo, cobro y modelo hospedado siguen aparcados."
     }
   }
 }

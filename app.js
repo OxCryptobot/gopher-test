@@ -21,9 +21,10 @@
     "/": {
       title: "Directory of GOPHER AI",
       items: [
-        { n: "1", type: "1", name: "Docs/", path: "/docs", hint: "about, how, caps, privacy" },
+        { n: "1", type: "1", name: "Docs/", path: "/docs", hint: "or type below" },
         { n: "5", type: "1", name: "FETCH/", path: "/fetch", hint: "PLAY NOW — 8-bit burrow" },
         { n: "6", type: "7", name: "Waitlist", path: "/waitlist", hint: "get in" },
+        { n: "7", type: "7", name: "Tasks/", path: "/tasks", hint: "100 orders · prompt is the menu" },
         { n: "8", type: "1", name: "Games/", path: "/games", hint: "more holes" },
         { n: "9", type: "1", name: "User/", path: "/user", hint: "enter your hole" }
       ]
@@ -88,7 +89,7 @@
   var phOff = 0;
   var DEFAULT_PH = "5   or   fetch btc   or   play";
   var SUG_MAX = 8;
-  var SUG_IDLE = 5;
+  var SUG_IDLE = 8;
 
 
   function esc(s) {
@@ -184,6 +185,36 @@
     el.textContent = text;
   }
 
+  function setBrain(state, text) {
+    var el = $("brain");
+    var st = $("ask-status");
+    var labels = {
+      ready: "GOPHER · ready",
+      think: "GOPHER · fetching",
+      ok: "GOPHER · ok",
+      parked: "GOPHER · parked",
+      err: "GOPHER · err"
+    };
+    var label = labels[state] || ("GOPHER · " + (state || "ready"));
+    var bad = (state === "parked" || state === "err");
+    if (el) {
+      el.textContent = label;
+      el.className = "brain" + (bad ? " err" : "");
+    }
+    if (text != null && st) {
+      setStatus(st, state === "err" ? "err" : (state === "ok" ? "ok" : ""), text);
+    }
+  }
+
+  function showWaitForm(on) {
+    var el = $("wait-form");
+    if (el) el.hidden = !on;
+  }
+
+  function idleCount() {
+    return document.body.classList.contains("game-on") ? 6 : SUG_IDLE;
+  }
+
   function bootLang() {
     var saved = "";
     try { saved = localStorage.getItem(LANG_KEY) || ""; } catch (e) { saved = ""; }
@@ -196,8 +227,8 @@
       digInfo: "Second burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. FETCH stays the 100-stage maze.",
       fetchStatus: "press START. one tap, one tile. eat pellets. dodge orange foxes. beat the clock.",
       digStatus: "press START. dig dirt. rocks fall.",
-      promptInfo: "Type a selector, a path, or an order. Same hole, either way.",
-      promptLabel: "select or ask:",
+      promptInfo: "GOPHER is on. Type an order. It matches a selector and fetches.",
+      promptLabel: "ask gopher:",
       emailLabel: "email:",
       keysHint: "keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home",
       helpTitle: "keys",
@@ -240,8 +271,8 @@
       digInfo: "Segunda madriguera. Un toque, una losa. Cava. Las rocas caen. 8 etapas. FETCH sigue el laberinto de 100.",
       fetchStatus: "pulsa START. un toque, una losa. pellets. foxes naranjas. el reloj.",
       digStatus: "pulsa START. cava tierra. las rocas caen.",
-      promptInfo: "Selector, ruta u orden. El mismo hueco.",
-      promptLabel: "elige o pregunta:",
+      promptInfo: "GOPHER está on. Escribe una orden. Empata un selector y hace fetch.",
+      promptLabel: "ask gopher:",
       emailLabel: "email:",
       keysHint: "teclas: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menú · <kbd>?</kbd> ayuda · <kbd>esc</kbd> inicio",
       helpTitle: "teclas",
@@ -320,11 +351,9 @@
       else ds.textContent = pack.digStatus;
     }
     questPaint();
-    if (sugOpen) {
-      var cmdSug = $("command");
-      var qSug = cmdSug ? (cmdSug.value || "") : "";
-      paintSuggest(filterTasks(qSug), { hi: sugHi, idle: !String(qSug).trim() });
-    }
+    var cmdSug = $("command");
+    var qSug = cmdSug ? (cmdSug.value || "") : "";
+    paintSuggest(filterTasks(qSug), { hi: sugHi, idle: !String(qSug).trim() });
   }
 
   function bootHc() {
@@ -601,7 +630,11 @@
   function renderDir(path) {
     var nav = navHole(path);
     var hole = nav.hole || { items: [], title: "Directory" };
-    var html = "<p class='info dim'>" + esc((document.documentElement.lang === "es" && hole.title_es) ? hole.title_es : (hole.title || "Directory")) + "</p><div class='selectors'>";
+    var html = "<p class='info dim'>" + esc((document.documentElement.lang === "es" && hole.title_es) ? hole.title_es : (hole.title || "Directory")) + "</p>";
+    if (nav.path === "/") {
+      html += "<p class='info dim'>the prompt is the menu · or type below</p>";
+    }
+    html += "<div class='selectors'>";
     if (nav.path !== "/") {
       html += "<button type='button' class='sel' data-path='" + parentPath(nav.path) + "' data-n='0'>" +
         "<span class='itype'>0</span> ../ <span class='path'>parent</span></button>";
@@ -638,7 +671,7 @@
     if (digEl) digEl.hidden = true;
     if (game) game.stop();
     if (dig) dig.stop();
-    askEl.hidden = false;
+    if (askEl) askEl.hidden = false;
     viewEl.hidden = false;
     viewEl.innerHTML =
       "<h2><span class='itype'>0</span> " + esc(title || "Document") + "</h2>" +
@@ -648,6 +681,7 @@
 
   function render() {
     var path = pathNow();
+    var gameOn = (path === "/fetch" || path === "/dig");
     $("host").textContent = "gopher://gopher.ai:70" + path;
     document.title = path === "/fetch"
       ? "FETCH — GOPHER AI"
@@ -656,19 +690,26 @@
     renderDir(path);
     paintWho();
     hideSpecial();
-    if (dirEl) dirEl.hidden = (path === "/fetch" || path === "/dig");
+    if (dirEl) dirEl.hidden = gameOn;
+    if (askEl) askEl.hidden = false;
+    document.body.classList.toggle("game-on", gameOn);
+    showWaitForm(path === "/" || path === "/waitlist");
+    if (gameOn) {
+      var cmdGame = $("command");
+      if (cmdGame && !(cmdGame.value || "").trim() && TASKS.length) paintSuggest(idleSlice(), { idle: true });
+    }
 
     if (path === "/" || path === "/waitlist") {
       heroEl.hidden = false;
-      askEl.hidden = false;
-      if (path === "/waitlist") $("email").focus();
+      if (path === "/waitlist") {
+        var em = $("email");
+        if (em) em.focus();
+      }
       return;
     }
     heroEl.hidden = true;
-    askEl.hidden = true;
 
     if (path === "/user") {
-      askEl.hidden = false;
       authEl.hidden = false;
       var s = session();
       $("auth-out").hidden = !s;
@@ -676,7 +717,6 @@
       return;
     }
     if (path === "/fetch") {
-      askEl.hidden = true;
       gameEl.hidden = false;
       var canvas = $("fetch");
       if (canvas) canvas.setAttribute("aria-live", "polite");
@@ -685,7 +725,6 @@
       return;
     }
     if (path === "/dig") {
-      askEl.hidden = true;
       if (digEl) digEl.hidden = false;
       bootDig();
       return;
@@ -703,7 +742,6 @@
       return;
     }
     if (path === "/scores") {
-      askEl.hidden = false;
       viewEl.hidden = false;
       viewEl.innerHTML = "<h2>0 Scores/</h2><p class='info'>device best, hole board if the server is up, and Eternal GOPHER CHAMPIONS who cleared all 100.</p><pre class='gopher-doc' id='scoreboard'>loading…</pre>";
       paintScores();
@@ -716,7 +754,6 @@
       return;
     }
     if (doc.items && doc.items.length && !doc.html && !doc.copy && !doc.steps && !doc.caps) {
-      askEl.hidden = false;
       return;
     }
     viewEl.hidden = false;
@@ -843,6 +880,7 @@
           "sms      " + (p.sms ? "ready" : "parked"),
           "voice    " + (p.voice ? "ready" : "parked"),
           "mail     " + ((d && d.mail) || "parked"),
+          "llm      " + ((d && d.llm) || "parked"),
           "billing  parked"
         ];
         if (el) el.textContent = lines.join("\n");
@@ -861,6 +899,7 @@
           + " sms=" + (p.sms ? "ready" : "parked")
           + " voice=" + (p.voice ? "ready" : "parked")
           + " mail=" + ((d && d.mail) || "parked")
+          + " llm=" + ((d && d.llm) || "parked")
           + " billing=" + (p.billing ? "ready" : "parked")
           + " twilio=" + ((d && d.twilio) || "parked")
           + " sla=" + (d && d.sla === true ? "true" : "false");
@@ -975,11 +1014,47 @@
     return best;
   }
   function idleSlice() {
-    var live = liveTasks(), out = [], i, n;
+    var live = liveTasks(), out = [], i, n, cap;
     if (!live.length) return [];
-    n = Math.min(SUG_IDLE, live.length);
+    cap = idleCount();
+    n = Math.min(cap, live.length);
     for (i = 0; i < n; i++) out.push(live[(idleOff + i) % live.length]);
     return out;
+  }
+  function noMatchRows() {
+    var parked = [], out = [], i, row;
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      if (row && (row.kind === "parked" || row.run === "parked")) parked.push(row);
+    }
+    out = parked.slice(0, 3);
+    out.push({
+      id: "no-match",
+      q: "play",
+      title: "no match · try fetch btc or play",
+      title_es: "sin match · prueba fetch btc o play",
+      hint: "type an order",
+      hint_es: "escribe una orden",
+      kind: "nav",
+      run: "nav",
+      live: true,
+      path: "/fetch"
+    });
+    return out;
+  }
+  function rankTop(q) {
+    var i, row, score, best = null;
+    q = (q || "").toLowerCase().trim();
+    if (!q) return null;
+    for (i = 0; i < TASKS.length; i++) {
+      row = TASKS[i];
+      score = rankTask(row, q);
+      if (score <= 0) continue;
+      if (!best || score > best.score || (score === best.score && row.live && !best.row.live)) {
+        best = { row: row, score: score };
+      }
+    }
+    return best;
   }
   function filterTasks(q) {
     var i, row, score, scored = [];
@@ -990,6 +1065,7 @@
       score = rankTask(row, q);
       if (score > 0) scored.push({ row: row, score: score });
     }
+    if (!scored.length) return noMatchRows();
     scored.sort(function (a, b) {
       if (a.row.live && !b.row.live) return -1;
       if (!a.row.live && b.row.live) return 1;
@@ -1007,15 +1083,8 @@
     if (!on && cmd) cmd.removeAttribute("aria-activedescendant");
   }
   function hideSuggest() {
-    var el = suggestEl();
-    sugOpen = false;
     sugHi = -1;
-    sugItems = [];
-    if (el) {
-      el.hidden = true;
-      el.innerHTML = "";
-    }
-    setSugExpanded(false);
+    paintSuggest(idleSlice(), { idle: true, hi: -1 });
   }
   function syncSugAria() {
     var cmd = $("command");
@@ -1028,11 +1097,19 @@
     opts = opts || {};
     if (!el) return;
     if (!items || !items.length) {
-      hideSuggest();
+      if (!opts._idleRetry) {
+        paintSuggest(idleSlice(), { idle: true, _idleRetry: true });
+        return;
+      }
+      el.hidden = false;
+      el.innerHTML = "<li role='option' id='sug-0' aria-selected='true'><button type='button' class='sel active'><span class='itype'>1</span> GOPHER · ready <span class='path'>100 tasks</span></button></li>";
+      sugItems = [];
+      sugHi = 0;
+      setSugExpanded(true);
       return;
     }
     sugItems = items;
-    if (opts.hi == null) sugHi = opts.idle ? -1 : 0;
+    if (opts.hi == null) sugHi = 0;
     else sugHi = opts.hi;
     if (sugHi >= items.length) sugHi = items.length - 1;
     html = "";
@@ -1056,7 +1133,7 @@
       b.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
       b.addEventListener("click", function () {
         var n = +b.getAttribute("data-sug");
-        if (sugItems[n]) runTask(sugItems[n]);
+        if (sugItems[n]) handleOrder(sugItems[n].q || sugItems[n].id || "");
       });
     });
     syncSugAria();
@@ -1182,16 +1259,16 @@
     q = row.q || row.id || "";
     cmd = $("command");
     if (cmd) cmd.value = "";
-    hideSuggest();
-    stopIdleSpin();
+    paintSuggest(idleSlice(), { idle: true });
+    showIdleSuggest();
     if (row.run === "parked" || row.kind === "parked") {
       if (row.path) go(row.path);
-      setStatus($("ask-status"), "", parkedLine(row));
+      setBrain("parked", parkedLine(row));
       return;
     }
     if (row.run === "nav") {
       if (row.path) go(row.path);
-      setStatus($("ask-status"), "ok", "ok. " + q);
+      setBrain("ok", "ok. " + q);
       return;
     }
     if (row.run === "queue") {
@@ -1200,6 +1277,7 @@
     }
     if (row.run === "set") {
       runSet(row);
+      setBrain("ok", "ok. " + q);
       return;
     }
     if (row.run === "ask") {
@@ -1210,7 +1288,7 @@
     else askServer(q);
   }
   function findTaskExact(q) {
-    var i, row, low;
+    var i, row, low, j;
     low = (q || "").toLowerCase().trim();
     if (!low) return null;
     for (i = 0; i < TASKS.length; i++) {
@@ -1218,8 +1296,59 @@
       if (!row) continue;
       if ((row.id || "").toLowerCase() === low) return row;
       if ((row.q || "").toLowerCase() === low) return row;
+      if (row.aliases && row.aliases.length) {
+        for (j = 0; j < row.aliases.length; j++) {
+          if (String(row.aliases[j] || "").toLowerCase() === low) return row;
+        }
+      }
     }
     return null;
+  }
+
+  function handleOrder(q) {
+    var hit, task, top, alias, cmd, form;
+    q = (q || "").trim();
+    if (!q) return;
+    cmd = $("command");
+    if (cmd) cmd.value = "";
+    paintSuggest(idleSlice(), { idle: true });
+    showIdleSuggest();
+    if (/^[0-9]$/.test(q)) {
+      hit = itemsByN()[q];
+      if (hit && hit.path) {
+        go(hit.path);
+        setBrain("ok", "ok. " + q);
+        return;
+      }
+    }
+    task = findTaskExact(q);
+    if (task) {
+      runTask(task);
+      return;
+    }
+    top = rankTop(q);
+    if (top && top.score >= 80) {
+      runTask(top.row);
+      return;
+    }
+    if (kindOrder(q)) {
+      queueKindOrder(q);
+      return;
+    }
+    alias = ALIAS[q.toLowerCase()];
+    if (alias) {
+      go(alias);
+      setBrain("ok", "ok. " + q);
+      return;
+    }
+    if (EMAIL_RE.test(q)) {
+      if ($("email")) $("email").value = q;
+      showWaitForm(true);
+      form = $("form");
+      if (form && form.requestSubmit) form.requestSubmit();
+      return;
+    }
+    askServer(q);
   }
   function stopIdleSpin() {
     if (idleTimer) {
@@ -1233,7 +1362,7 @@
     if (idleTimer) return;
     idleTimer = setInterval(function () {
       var cmd = $("command");
-      if (!cmd || document.activeElement !== cmd || (cmd.value || "").trim()) {
+      if (!cmd || (cmd.value || "").trim()) {
         stopIdleSpin();
         return;
       }
@@ -1244,12 +1373,11 @@
   function onPromptInput() {
     var cmd = $("command");
     var q = cmd ? (cmd.value || "") : "";
-    stopIdleSpin();
     if (!q.trim()) {
-      if (cmd && document.activeElement === cmd) showIdleSuggest();
-      else hideSuggest();
+      showIdleSuggest();
       return;
     }
+    stopIdleSpin();
     paintSuggest(filterTasks(q), { idle: false });
   }
   function onPromptFocus() {
@@ -1261,31 +1389,37 @@
     setTimeout(function () {
       var cmd = $("command");
       if (cmd && document.activeElement === cmd) return;
-      hideSuggest();
-      stopIdleSpin();
+      if (cmd && !(cmd.value || "").trim()) showIdleSuggest();
     }, 160);
   }
   function onPromptKey(e) {
+    var cmd = $("command");
+    var empty = cmd && !(cmd.value || "").trim();
+    if (empty && /^[0-9]$/.test(e.key)) {
+      e.preventDefault();
+      handleOrder(e.key);
+      return;
+    }
     if (e.key === "ArrowDown") {
-      if (!sugOpen) {
-        if (!(($("command") && $("command").value) || "").trim()) showIdleSuggest();
+      if (!sugItems.length) {
+        if (empty) showIdleSuggest();
         else onPromptInput();
       }
-      if (sugOpen && sugItems.length) {
+      if (sugItems.length) {
         e.preventDefault();
         moveSug(1);
       }
       return;
     }
     if (e.key === "ArrowUp") {
-      if (sugOpen && sugItems.length) {
+      if (sugItems.length) {
         e.preventDefault();
         moveSug(-1);
       }
       return;
     }
     if (e.key === "Tab") {
-      if (sugOpen && sugHi >= 0 && sugItems[sugHi]) {
+      if (sugHi >= 0 && sugItems[sugHi]) {
         e.preventDefault();
         acceptSug();
       }
@@ -1293,18 +1427,15 @@
     }
     if (e.key === "Escape") {
       e.preventDefault();
-      if (sugOpen) {
-        hideSuggest();
-        stopIdleSpin();
-        return;
-      }
       if (e.target && e.target.blur) e.target.blur();
       return;
     }
     if (e.key === "Enter") {
-      if (sugOpen && sugHi >= 0 && sugItems[sugHi]) {
+      var typed = cmd ? (cmd.value || "").trim() : "";
+      if (typed) return;
+      if (sugHi >= 0 && sugItems[sugHi] && sugItems[sugHi].id !== "no-match") {
         e.preventDefault();
-        runTask(sugItems[sugHi]);
+        handleOrder(sugItems[sugHi].q || sugItems[sugHi].id || "");
       }
     }
   }
@@ -1407,10 +1538,16 @@
         TASKS = Array.isArray(list) ? list.filter(function (row) { return row && row.id && row.q; }) : [];
         if (!TASKS.length) TASKS = fallbackTasks();
         startPlaceholders();
+        paintSuggest(idleSlice(), { idle: true });
+        showIdleSuggest();
+        setBrain("ready", TASKS.length + " tasks · ticker live · SMS parked");
       })
       .catch(function () {
         TASKS = fallbackTasks();
         startPlaceholders();
+        paintSuggest(idleSlice(), { idle: true });
+        showIdleSuggest();
+        setBrain("ready", TASKS.length + " tasks · ticker live · SMS parked");
       });
   }
   function bindPrompt() {
@@ -1419,7 +1556,7 @@
     cmd.setAttribute("role", "combobox");
     cmd.setAttribute("aria-autocomplete", "list");
     cmd.setAttribute("aria-controls", "suggest");
-    cmd.setAttribute("aria-expanded", "false");
+    cmd.setAttribute("aria-expanded", "true");
     cmd.addEventListener("input", onPromptInput);
     cmd.addEventListener("focus", onPromptFocus);
     cmd.addEventListener("blur", onPromptBlur);
@@ -1428,7 +1565,7 @@
 
   function queueLocal(q) {
     try { localStorage.setItem("gopher_first_order", q); } catch (err) {}
-    setStatus($("ask-status"), "ok", "ok. " + q);
+    setBrain("ok", "ok. " + q);
     if ($("email")) $("email").focus();
   }
 
@@ -1437,7 +1574,7 @@
       queueKindOrder(q);
       return;
     }
-    setStatus($("ask-status"), "", "fetching…");
+    setBrain("think", "fetching…");
     fetch("/api/ask", {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
@@ -1453,17 +1590,20 @@
         }
         if (body.kind === "doc") {
           showType0(body.title || "0 Document", body.text || "");
-          setStatus($("ask-status"), body.ok ? "ok" : "err", body.ok ? ("ok. " + q) : (body.text || "fetch failed."));
-          if (body.ok !== false) questMark("fetch");
+          if (body.ok === false) setBrain("err", body.text || "fetch failed.");
+          else {
+            setBrain("ok", "ok. " + q);
+            questMark("fetch");
+          }
           return;
         }
         if (body.kind === "queued") {
           try { localStorage.setItem("gopher_first_order", q); } catch (err) {}
           showType0("0 Order", body.text || "queued in the hole.");
-          setStatus($("ask-status"), "ok", "ok. " + q);
+          setBrain("ok", "ok. " + q);
           return;
         }
-        queueLocal(q);
+        clientFetch(q);
       })
       .catch(function () { clientFetch(q); });
   }
@@ -1495,10 +1635,14 @@
     }
     return hit;
   }
+  function noMatchDoc() {
+    showType0("0 GOPHER", "GOPHER did not match. Try: fetch btc · play · blueprint");
+    setBrain("ok", "no match · try fetch btc or play");
+  }
   function clientFetch(q) {
-    if (!looksTicker(q)) { queueLocal(q); return; }
+    if (!looksTicker(q)) { noMatchDoc(); return; }
     var id = tickerId(q);
-    setStatus($("ask-status"), "", "fetching…");
+    setBrain("think", "fetching…");
     fetch("https://api.coinbase.com/v2/prices/" + id + "-USD/spot")
       .then(function (res) { return res.json(); })
       .then(function (j) {
@@ -1508,7 +1652,7 @@
           sessionStorage.setItem(SPOT_KEY, JSON.stringify({ id: id, amt: amt, at: Date.now() }));
         } catch (err) {}
         showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + amt + "\n\nsource    public spot");
-        setStatus($("ask-status"), "ok", "ok. " + q);
+        setBrain("ok", "ok. " + q);
         questMark("fetch");
       })
       .catch(function () {
@@ -1516,11 +1660,12 @@
         try { stash = JSON.parse(sessionStorage.getItem(SPOT_KEY) || "null"); } catch (err) { stash = null; }
         if (stash && stash.id === id && stash.amt != null && stash.amt !== "") {
           showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + stash.amt + "\n\nsource    cached");
-          setStatus($("ask-status"), "ok", "cached");
+          setBrain("ok", "cached");
           questMark("fetch");
           return;
         }
-        queueLocal(q);
+        setBrain("err", "fetch failed.");
+        noMatchDoc();
       });
   }
 
@@ -1646,7 +1791,6 @@
       return;
     }
     if (key === "fetch") {
-      if (askEl && askEl.hidden) go("/");
       cmd = $("command");
       if (cmd) {
         cmd.placeholder = "fetch btc";
@@ -1654,7 +1798,7 @@
       }
       return;
     }
-    if (askEl && askEl.hidden) go("/");
+    go("/waitlist");
     em = $("email");
     if (em) em.focus();
   }
@@ -1787,8 +1931,7 @@
     if (e.key === "/") {
       e.preventDefault();
       if (tutOpen) tutDismiss();
-      go("/");
-      $("command").focus();
+      if ($("command")) $("command").focus();
       return;
     }
     if (e.key === "?") {
@@ -1808,6 +1951,10 @@
         helpEl.hidden = true;
         return;
       }
+      if (document.activeElement && document.activeElement.id === "command") {
+        document.activeElement.blur();
+        return;
+      }
       go("/");
       return;
     }
@@ -1822,46 +1969,9 @@
 
   $("ask-form").addEventListener("submit", function (ev) {
     ev.preventDefault();
-    var q, hit, alias, task;
-    if (sugOpen && sugHi >= 0 && sugItems[sugHi]) {
-      runTask(sugItems[sugHi]);
-      return;
-    }
-    q = ($("command").value || "").trim();
+    var q = ($("command").value || "").trim();
     if (!q) return;
-    if (/^[0-9]$/.test(q)) {
-      hit = itemsByN()[q];
-      if (hit) { go(hit.path); $("command").value = ""; hideSuggest(); return; }
-    }
-    if (kindOrder(q)) {
-      $("command").value = "";
-      hideSuggest();
-      queueKindOrder(q);
-      return;
-    }
-    alias = ALIAS[q.toLowerCase()];
-    if (alias) {
-      go(alias);
-      $("command").value = "";
-      hideSuggest();
-      setStatus($("ask-status"), "ok", "ok. " + q);
-      return;
-    }
-    if (EMAIL_RE.test(q)) {
-      $("email").value = q;
-      $("command").value = "";
-      hideSuggest();
-      $("form").requestSubmit();
-      return;
-    }
-    task = findTaskExact(q);
-    if (task) {
-      runTask(task);
-      return;
-    }
-    $("command").value = "";
-    hideSuggest();
-    askServer(q);
+    handleOrder(q);
   });
 
   $("form").addEventListener("submit", function (ev) {
@@ -2142,6 +2252,7 @@
   paintStaging();
   bindTrackBtn();
   bindPrompt();
+  setBrain("ready", "100 tasks · ticker live · SMS parked");
   loadTasks();
   render();
   tutShow();

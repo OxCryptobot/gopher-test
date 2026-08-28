@@ -32,13 +32,33 @@ class StaticTests(unittest.TestCase):
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v6", src)
+        self.assertIn("gopher-v7", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
-        self.assertIn('id="suggest"', read("index.html"))
+        html = read("index.html")
         js = read("app.js")
-        self.assertTrue("autoprompt" in js or "suggest" in js, "app.js should mention autoprompt or suggest")
+        css = read("style.css")
+        self.assertIn('id="ask"', html)
+        self.assertIn('id="suggest"', html)
+        self.assertIn("gopher-v7", read("sw.js"))
+        self.assertTrue(
+            "setBrain" in js or "GOPHER · ready" in js,
+            "app.js should mention setBrain or GOPHER · ready",
+        )
+        self.assertTrue(
+            "game-on" in css or "game-on" in js,
+            "game-on should appear in css or js",
+        )
+        ask_start = html.find('id="ask"')
+        self.assertGreaterEqual(ask_start, 0)
+        ask_end = html.find("</section>", ask_start)
+        ask_chunk = html[ask_start:ask_end] if ask_end > ask_start else ""
+        self.assertNotIn('id="form"', ask_chunk, "waitlist form should not sit inside #ask")
+        self.assertTrue(
+            'id="wait-form"' in html or 'id="form"' in html,
+            "waitlist form should exist as #wait-form or #form",
+        )
 
     def test_game_exports(self) -> None:
         src = read("game.js")

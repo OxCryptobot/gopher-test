@@ -28,6 +28,10 @@ Type `blueprint` on the hole. Do not mark an item done until the real product ex
 
 Live autoprompt on the hole: type in Prompt <search>, ranked selectors appear. Catalog is `tasks.json` (100). Parked products (SMS, voice, mail, billing, prices, domain, cloud accounts, SLA, hiring) still parked — they do not fake a number. Python `GET /api/tasks`. Pages uses static `tasks.json`.
 
+## Prompt UX
+
+The GOPHER prompt is always on (sticky command bar). Task selectors stay listed. GOPHER is an on-device order router over 100 tasks + python `/api/ask` when `server.py` is up. A hosted model is parked until `GOPHER_LLM_HOOK` is set. No fake model name. No chat transcript.
+
 ## Open items (18)
 
 | # | Item | Status | What “done” is | Blocked on |

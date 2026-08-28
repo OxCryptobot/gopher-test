@@ -86,6 +86,14 @@ body {
 }
 .status .clock { white-space: nowrap; }
 .host { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#brain {
+  color: var(--fg-bright);
+  letter-spacing: 0.08em;
+  text-transform: none;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+#brain.err, #brain.parked { color: var(--err); }
 
 .mascot {
   margin: 0 0 1.1rem;
@@ -686,10 +694,21 @@ html[lang="es"] .help-card li {
   line-height: 1.45;
 }
 
-/* autoprompt: Gopher selector list under the prompt */
+/* GOPHER prompt: sticky command bar + always-on selectors */
+#ask {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--fg-dim);
+  margin-top: 0.75rem;
+}
+body.staging #ask { top: 1.6rem; }
+#wait-form[hidden] { display: none !important; }
 #suggest.suggest {
   margin: 0.35rem 0 0;
-  max-height: 18rem;
+  max-height: 14rem;
   overflow: auto;
 }
 #suggest.suggest[hidden] { display: none !important; }
@@ -700,3 +719,15 @@ html[lang="es"] .help-card li {
   text-shadow: var(--glow);
   background: rgba(57, 255, 20, 0.07);
 }
+body.game-on #ask .info,
+body.game-on #ask .keys,
+body.game-on #wait-form { display: none; }
+body.game-on #ask {
+  padding-top: 0.45rem;
+  margin-top: 0.45rem;
+}
+body.game-on #ask h2 {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+body.game-on #suggest.suggest { max-height: 7rem; }

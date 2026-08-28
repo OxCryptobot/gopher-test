@@ -88,9 +88,36 @@
   <div class="shell">
     <header class="status">
       <span class="host" id="host">gopher://gopher.ai:70/1</span>
+      <span class="brain" id="brain">GOPHER · ready</span>
       <span class="who" id="who">guest</span>
       <span class="clock" id="clock"></span>
     </header>
+
+    <section class="menu-block wait" id="ask">
+      <h2><span class="itype">7</span> GOPHER/ <span class="idim">&lt;ask&gt;</span></h2>
+      <p class="info" data-i18n="promptInfo">GOPHER is on. Type an order. It matches a selector and fetches.</p>
+      <form id="ask-form" autocomplete="off">
+        <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">ask gopher:</span></label>
+        <div class="row">
+          <input id="command" maxlength="280" placeholder="5   or   fetch btc   or   play" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-controls="suggest" aria-expanded="true">
+          <button type="submit" id="go">GO</button>
+        </div>
+        <ol id="suggest" class="selectors suggest" role="listbox"></ol>
+        <p class="status-line" id="ask-status" role="status">100 tasks · ticker live · SMS parked</p>
+        <p class="keys dim" data-i18n-html="keysHint">keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home</p>
+      </form>
+    </section>
+
+    <section class="menu-block wait" id="wait-form" hidden>
+      <form id="form" novalidate>
+        <label class="prompt" for="email"><span class="star">*</span> <span data-i18n="emailLabel">email:</span></label>
+        <div class="row">
+          <input id="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="you@domain" required>
+          <button type="submit" id="submit">ENTER</button>
+        </div>
+        <p class="status-line" id="form-status" role="status"></p>
+      </form>
+    </section>
 
     <section class="hero" id="hero">
       <pre class="mascot" aria-hidden="true">
@@ -108,29 +135,6 @@
         <a class="play-cta" href="#/fetch">5 PLAY FETCH</a>
         <span class="dim">arrows · WASD · pad</span>
       </p>
-    </section>
-
-    <section class="menu-block wait" id="ask">
-      <h2><span class="itype">7</span> Prompt <span class="idim">&lt;search&gt;</span></h2>
-      <p class="info" data-i18n="promptInfo">Type a selector, a path, or an order. Same hole, either way.</p>
-      <form id="ask-form" autocomplete="off">
-        <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">select or ask:</span></label>
-        <div class="row">
-          <input id="command" maxlength="280" placeholder="5   or   fetch btc   or   play" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-controls="suggest" aria-expanded="false">
-          <button type="submit" id="go">GO</button>
-        </div>
-        <ol id="suggest" class="selectors suggest" role="listbox" hidden></ol>
-        <p class="status-line" id="ask-status" role="status"></p>
-        <p class="keys dim" data-i18n-html="keysHint">keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home</p>
-      </form>
-      <form id="form" novalidate>
-        <label class="prompt" for="email"><span class="star">*</span> <span data-i18n="emailLabel">email:</span></label>
-        <div class="row">
-          <input id="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="you@domain" required>
-          <button type="submit" id="submit">ENTER</button>
-        </div>
-        <p class="status-line" id="form-status" role="status"></p>
-      </form>
     </section>
 
     <nav class="toc" id="dir" aria-label="Gopher directory"></nav>
