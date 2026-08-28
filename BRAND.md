@@ -48,9 +48,9 @@ Orders, not chat. Selectors, not sludge.
 You send an order. It fetches. Same hole, either way.
 
 - Imperative. Short. Numbered when it is a list.
-- Product line: *A paid phone assistant. Menus, selectors, fetch.*
+- Product line: *Paid phone assistant. Search, then do the task.*
 - Tag: *1991 protocol. 2026 interface.*
-- Controls stay verbs: GO, ENTER, GOT IT, PLAY FETCH.
+- Controls stay verbs: GO, ENTER, GOT IT. Play is a side quest, not the pitch.
 - Name the product **GOPHER AI**. Always both words. Always caps.
 
 ## Do

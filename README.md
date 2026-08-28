@@ -1,6 +1,6 @@
 # GOPHER AI
 
-Paid phone assistant. Menus, selectors, fetch.
+Paid phone assistant. Search, then do the task.
 
 ## Live
 
@@ -13,15 +13,16 @@ Method: ship to staging first, then promote to production. Type `ship` on the ho
 ## On the hole
 
 - Numbered Gopher directory (edit `hole.json`; the page loads it)
-- Nested selectors: **Docs/**, **Games/**, **User/**
-- Prompt: type a selector, alias (`play`, `login`), or an order
-- Live fetch: type `fetch btc` (or ETH, SOL, XRP, `price`) to pull a ticker as a type-0 document
-- **FETCH/** — 100-stage maze (selector `5`). One tap, one tile. Energy pellets, orange foxes, clock.
+- Nested selectors: **Docs/**, **Play/**, **Tasks/**, **User/**
+- Prompt: type a selector, alias (`tasks`, `maze`, `login`), or an order
+- **FETCH** = search. Type `fetch btc` (or ETH, SOL, XRP, `fear greed`) as a type-0 document
+- **DIG** = do a task from the 100 (`tasks`, watch / remind / draft)
+- **Play/** — side quest: **MAZE/** (`#/fetch`) and **BURROW/** (`#/dig`). Kill time between searches.
 - **User/** — device login (selector `9`). Passphrases are PBKDF2-hashed in localStorage. Not a cloud account yet.
 
 ## Keys
 
-`/` prompt · `1` Docs/ · `5` Games/FETCH · `9` user · `0` / `esc` home · arrows in FETCH
+`/` prompt · `1` Docs/ · `5` Play/ · `7` Tasks/ · `9` user · `0` / `esc` home · WASD in MAZE when the prompt is not focused
 
 ## Local
 

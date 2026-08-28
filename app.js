@@ -22,8 +22,8 @@
       title: "Directory of GOPHER AI",
       items: [
         { n: "1", type: "1", name: "Docs/", path: "/docs", hint: "or type below" },
-        { n: "5", type: "1", name: "FETCH/", path: "/fetch", hint: "PLAY NOW — 8-bit burrow" },
-        { n: "7", type: "7", name: "Tasks/", path: "/tasks", hint: "100 orders · prompt is the menu" },
+        { n: "5", type: "1", name: "Play/", path: "/games", hint: "side quest · MAZE + BURROW" },
+        { n: "7", type: "7", name: "Tasks/", path: "/tasks", hint: "DIG · 100 tasks" },
         { n: "9", type: "1", name: "User/", path: "/user", hint: "enter your hole" }
       ]
     },
@@ -50,7 +50,7 @@
         "<li><span class='itype'>0</span> Voice and SMS in. A reply out.</li>" +
         "<li><span class='itype'>0</span> Orders, not chat.</li>" +
         "<li><span class='itype'>0</span> Numbered menus + a modern ask box.</li>" +
-        "<li><span class='itype'>0</span> FETCH, an original 8-bit hole.</li>" +
+        "<li><span class='itype'>0</span> FETCH is search. DIG is a task from the 100. MAZE and BURROW kill time between searches.</li>" +
         "<li><span class='itype'>0</span> A log of what was asked and what came back.</li>" +
         "</ul>" +
         "<p class='info dim'>Not a general chatbot. Not a free public menu.</p>"
@@ -63,9 +63,10 @@
 
   var ALIAS = {
     about: "/about", how: "/how", caps: "/caps", capabilities: "/caps",
-    privacy: "/privacy", fetch: "/fetch", game: "/fetch", play: "/fetch",
+    privacy: "/privacy", fetch: "/fetch", maze: "/fetch", game: "/fetch",
+    play: "/games", burrow: "/dig", dig: "/dig", search: "/",
     user: "/user", login: "/user", waitlist: "/waitlist", home: "/", menu: "/",
-    es: "/es"
+    tasks: "/tasks", es: "/es"
   };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -85,8 +86,8 @@
   var phTimer = 0;
   var idleOff = 0;
   var phOff = 0;
-  var DEFAULT_PH = "5   or   fetch btc   or   play";
-  var SUG_MAX = 8;
+  var DEFAULT_PH = "fetch btc   or   tasks   or   remind me";
+  var SUG_MAX = 3;
   var SUG_IDLE = 3;
 
 
@@ -102,6 +103,8 @@
     var h = (location.hash || "#/").replace(/^#/, "");
     if (!h.startsWith("/")) h = "/" + h;
     if (h.length > 1 && h.endsWith("/")) h = h.slice(0, -1);
+    if (h === "/maze") h = "/fetch";
+    if (h === "/burrow") h = "/dig";
     return h || "/";
   }
 
@@ -155,7 +158,7 @@
 
   function shareScore() {
     var n = (game && typeof game.score === "number") ? game.score : bestScore(whoName());
-    var msg = "FETCH score " + n + " on GOPHER AI";
+    var msg = "MAZE score " + n + " on GOPHER AI";
     if (navigator.share) {
       navigator.share({ text: msg }).catch(function () {});
       return;
@@ -213,17 +216,19 @@
   }
 
   function paintTopbar(path) {
-    var key = "home";
-    if (path === "/fetch") key = "fetch";
-    else if (path === "/dig") key = "dig";
-    else if (path === "/waitlist") key = "waitlist";
-    else if (path === "/user") key = "user";
-    else if (path !== "/") key = "";
+    var keys = {};
+    if (path === "/") {
+      keys.home = 1;
+      keys.search = 1;
+    } else if (path === "/tasks") keys.tasks = 1;
+    else if (path === "/waitlist") keys.waitlist = 1;
+    else if (path === "/games" || path === "/play" || path === "/fetch" || path === "/dig" || path === "/maze" || path === "/burrow") keys.play = 1;
     var nodes = document.querySelectorAll("#chrome [data-nav]");
-    var i, a;
+    var i, a, nav;
     for (i = 0; i < nodes.length; i++) {
       a = nodes[i];
-      a.classList.toggle("active", a.getAttribute("data-nav") === key);
+      nav = a.getAttribute("data-nav");
+      a.classList.toggle("active", !!keys[nav]);
     }
   }
 
@@ -238,31 +243,34 @@
   }
   var I18N = {
     en: {
-      footer: "menus · selectors · fetch",
-      fetchInfo: "Maze of 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Clock runs. Stage 100 is nearly impossible.",
-      digInfo: "Second burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. FETCH stays the 100-stage maze.",
+      footer: "search · tasks · waitlist",
+      fetchInfo: "MAZE. Side quest. 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Kill time between searches.",
+      digInfo: "BURROW. Side quest. One tap, one tile. Dig dirt. Rocks fall. 8 stages. Kill time between searches.",
       fetchStatus: "press START. one tap, one tile. eat pellets. dodge orange foxes. beat the clock.",
       digStatus: "press START. dig dirt. rocks fall.",
-      promptInfo: "GOPHER is on. Type an order. It matches a selector and fetches.",
+      promptInfo: "GOPHER is on. Type an order. FETCH is search. DIG is a task.",
       promptLabel: "ask gopher:",
       emailLabel: "email:",
       navHome: "home",
-      navGames: "games",
+      navGames: "play",
+      navPlay: "play",
       navWaitlist: "waitlist",
       navUser: "user",
-      heroGames: "games: FETCH · DIG in the bar",
+      heroLine: "Paid phone assistant. Search, then do the task.",
+      heroGames: "side quest: MAZE · BURROW under play",
+      sugCap: "GOPHER:",
       keysHint: "keys: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menu · <kbd>?</kbd> help · <kbd>esc</kbd> home",
       helpTitle: "keys",
-      help5: "FETCH",
+      help5: "play",
       helpPrompt: "prompt",
       helpLogin: "login",
       helpArrows: "arrows",
       helpPause: "pause",
       helpSounds: "Huzaaa / Clunk / Ouchies",
       helpStar: "wall −0.1 hp · star ZAP/BLOCK",
-      helpKey: "FETCH key",
+      helpKey: "MAZE key",
       helpEsc: "home",
-      keyTitle: "FETCH key",
+      keyTitle: "MAZE key",
       keyTap: "one tap, one tile",
       keyPellet: "pellet · Huzaaa!",
       keyWall: "wall · Clunk!!! · −0.1 hp",
@@ -272,7 +280,7 @@
       keyClear: "stage clear · VICTORY!",
       keyChamp: "all 100 · trophy · Eternal GOPHER CHAMPIONS",
       questTitle: "first orders",
-      questPlay: "play FETCH",
+      questPlay: "open play",
       questFetch: "fetch a ticker",
       questWait: "join waitlist",
       questDone: "quest done.",
@@ -284,34 +292,37 @@
       digPlay: "dig dirt. rocks fall.",
       digDead: "buried. START to dig again.",
       digWin: "dug through.",
-      digMissing: "DIG engine not on this hole yet."
+      digMissing: "BURROW engine not on this hole yet."
     },
     es: {
-      footer: "menús · selectores · fetch",
-      fetchInfo: "Laberinto de 100 etapas. Un toque, una losa. Pellets Huzaaa!. Paredes Clunk!!!. Foxes naranjas Ouchies!. El reloj corre. La 100 es casi imposible.",
-      digInfo: "Segunda madriguera. Un toque, una losa. Cava. Las rocas caen. 8 etapas. FETCH sigue el laberinto de 100.",
+      footer: "search · tasks · waitlist",
+      fetchInfo: "MAZE. Side quest. 100 etapas. Un toque, una losa. Pellets Huzaaa!. Paredes Clunk!!!. Foxes naranjas Ouchies!. Mata el tiempo entre búsquedas.",
+      digInfo: "BURROW. Side quest. Un toque, una losa. Cava. Las rocas caen. 8 etapas. Mata el tiempo entre búsquedas.",
       fetchStatus: "pulsa START. un toque, una losa. pellets. foxes naranjas. el reloj.",
       digStatus: "pulsa START. cava tierra. las rocas caen.",
-      promptInfo: "GOPHER está on. Escribe una orden. Empata un selector y hace fetch.",
+      promptInfo: "GOPHER está on. Escribe una orden. FETCH es search. DIG es una tarea.",
       promptLabel: "ask gopher:",
       emailLabel: "email:",
       navHome: "inicio",
-      navGames: "juegos",
+      navGames: "play",
+      navPlay: "play",
       navWaitlist: "waitlist",
       navUser: "usuario",
-      heroGames: "juegos: FETCH · DIG en la barra",
+      heroLine: "Asistente de teléfono de pago. Search, then do the task.",
+      heroGames: "side quest: MAZE · BURROW en play",
+      sugCap: "GOPHER:",
       keysHint: "teclas: <kbd>/</kbd> prompt · <kbd>1</kbd>–<kbd>9</kbd> menú · <kbd>?</kbd> ayuda · <kbd>esc</kbd> inicio",
       helpTitle: "teclas",
-      help5: "FETCH",
+      help5: "play",
       helpPrompt: "prompt",
       helpLogin: "login",
       helpArrows: "flechas",
       helpPause: "pause",
       helpSounds: "Huzaaa / Clunk / Ouchies",
       helpStar: "pared −0.1 hp · estrella ZAP/BLOCK",
-      helpKey: "FETCH key",
+      helpKey: "MAZE key",
       helpEsc: "inicio",
-      keyTitle: "FETCH key",
+      keyTitle: "MAZE key",
       keyTap: "un toque, una losa",
       keyPellet: "pellet · Huzaaa!",
       keyWall: "pared · Clunk!!! · −0.1 hp",
@@ -321,7 +332,7 @@
       keyClear: "etapa clara · VICTORY!",
       keyChamp: "las 100 · copa · Eternal GOPHER CHAMPIONS",
       questTitle: "primeras órdenes",
-      questPlay: "juega FETCH",
+      questPlay: "abre play",
       questFetch: "fetch un ticker",
       questWait: "entra a la lista",
       questDone: "misión hecha.",
@@ -333,7 +344,7 @@
       digPlay: "cava tierra. las rocas caen.",
       digDead: "enterrado. START para cavar otra vez.",
       digWin: "cavado.",
-      digMissing: "DIG aún no está en este hueco."
+      digMissing: "BURROW aún no está en este hueco."
     }
   };
   function t(key) {
@@ -720,15 +731,16 @@
     var host = $("host");
     if (host) host.textContent = "gopher://gopher.ai:70" + path;
     document.title = path === "/fetch"
-      ? "FETCH — GOPHER AI"
-      : (path === "/dig" ? "DIG — GOPHER AI" : (path === "/" ? "GOPHER AI" : ("GOPHER AI " + path)));
+      ? "MAZE — GOPHER AI"
+      : (path === "/dig" ? "BURROW — GOPHER AI" : (path === "/" ? "GOPHER AI" : ("GOPHER AI " + path)));
     paintStaging();
     renderDir(path);
     paintWho();
     hideSpecial();
     if (dirEl) dirEl.hidden = gameOn;
     if (askEl) askEl.hidden = false;
-    if (heroEl) heroEl.hidden = true;
+    if (heroEl) heroEl.hidden = path !== "/";
+    document.body.classList.toggle("home-on", path === "/");
     document.body.classList.toggle("game-on", gameOn);
     showWaitForm(path === "/waitlist");
     paintTopbar(path);
@@ -1049,12 +1061,33 @@
     }
     return best;
   }
+  function pickRot(list, off) {
+    if (!list || !list.length) return null;
+    return list[off % list.length];
+  }
   function idleSlice() {
-    var live = liveTasks(), out = [], i, n, cap;
+    var live = liveTasks(), out = [], seen = {}, cap, i, row;
+    var fetches = [], queues = [], games = [], rest = [];
     if (!live.length) return [];
     cap = idleCount();
-    n = Math.min(cap, live.length);
-    for (i = 0; i < n; i++) out.push(live[(idleOff + i) % live.length]);
+    for (i = 0; i < live.length; i++) {
+      row = live[i];
+      if (!row) continue;
+      if (row.kind === "fetch") fetches.push(row);
+      else if (row.kind === "queue" || row.id === "tasks" || row.id === "watch" || row.id === "remind" || row.id === "draft") queues.push(row);
+      else if (row.kind === "game" || row.id === "fetch-hole" || row.id === "dig" || row.id === "games") games.push(row);
+      else rest.push(row);
+    }
+    function add(item) {
+      if (!item || seen[item.id] || out.length >= cap) return;
+      seen[item.id] = 1;
+      out.push(item);
+    }
+    add(pickRot(fetches, idleOff));
+    add(pickRot(queues, idleOff));
+    add(pickRot(games, idleOff));
+    add(pickRot(rest, idleOff));
+    for (i = 0; i < live.length && out.length < cap; i++) add(live[(idleOff + i) % live.length]);
     return out;
   }
   function noMatchRows() {
@@ -1063,20 +1096,20 @@
       row = TASKS[i];
       if (row && (row.kind === "parked" || row.run === "parked")) parked.push(row);
     }
-    out = parked.slice(0, 3);
+    out = parked.slice(0, 2);
     out.push({
       id: "no-match",
-      q: "play",
-      title: "no match · try fetch btc or play",
-      title_es: "sin match · prueba fetch btc o play",
+      q: "tasks",
+      title: "no match · try fetch btc or tasks",
+      title_es: "sin match · prueba fetch btc o tasks",
       hint: "type an order",
       hint_es: "escribe una orden",
       kind: "nav",
       run: "nav",
       live: true,
-      path: "/fetch"
+      path: "/tasks"
     });
-    return out;
+    return out.slice(0, SUG_MAX);
   }
   function rankTop(q) {
     var i, row, score, best = null;
@@ -1132,6 +1165,7 @@
     var el = suggestEl(), html = "", i, row, hi, title, hint, gtype;
     opts = opts || {};
     if (!el) return;
+    if (items && items.length > SUG_MAX) items = items.slice(0, SUG_MAX);
     if (!items || !items.length) {
       if (!opts._idleRetry) {
         paintSuggest(idleSlice(), { idle: true, _idleRetry: true });
@@ -1982,7 +2016,7 @@
       if (tutOpen) tutDismiss();
       go("/");
       $("command").focus();
-      setStatus($("ask-status"), "", "1 Docs/ · 5 FETCH play · 6 waitlist · 9 user");
+      setStatus($("ask-status"), "", "1 Docs/ · 5 Play/ · 7 Tasks/ · 9 user");
       return;
     }
     if (e.key === "Escape") {

@@ -96,13 +96,14 @@ body {
 #brain.err, #brain.parked { color: var(--err); }
 
 .mascot {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.35rem;
   color: var(--fg);
   text-shadow: var(--glow);
-  font-size: 0.7rem;
-  line-height: 1.2;
+  font-size: 0.86rem;
+  line-height: 1.18;
   letter-spacing: 0;
   overflow: hidden;
+  white-space: pre;
 }
 
 h1 {
@@ -296,7 +297,7 @@ footer .dim { letter-spacing: 0.08em; font-weight: 400; margin-top: 0.25rem; fon
 
 @media (min-width: 540px) {
   h1 { font-size: 1.28rem; }
-  .mascot { font-size: 0.78rem; }
+  .mascot { font-size: 0.95rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -694,15 +695,19 @@ html[lang="es"] .help-card li {
   line-height: 1.45;
 }
 
-/* GOPHER chrome: one sticky nav row + compact prompt */
+/* GOPHER chrome: one sticky nav row; prompt sits under the mascot on home */
 .chrome {
+  position: static;
+  background: var(--bg);
+  padding-bottom: 0;
+}
+#chrome {
   position: sticky;
   top: 0;
   z-index: 20;
   background: var(--bg);
-  padding-bottom: 0.15rem;
 }
-body.staging .chrome { top: 1.6rem; }
+body.staging #chrome { top: 1.6rem; }
 
 #chrome {
   display: flex;
@@ -747,16 +752,25 @@ body.staging .chrome { top: 1.6rem; }
 #chrome a.brand.active {
   background: rgba(57, 255, 20, 0.07);
 }
-#chrome a[data-nav="fetch"],
-#chrome a[data-nav="dig"] {
-  text-transform: none;
-  letter-spacing: 0.1em;
+#chrome a[data-nav="search"],
+#chrome a[data-nav="tasks"] {
+  text-transform: lowercase;
+  letter-spacing: 0.08em;
   font-weight: 700;
   color: var(--fg-mid);
 }
-#chrome a[data-nav="fetch"].active,
-#chrome a[data-nav="dig"].active {
+#chrome a[data-nav="search"].active,
+#chrome a[data-nav="tasks"].active {
   color: var(--fg-bright);
+}
+#chrome a[data-nav="play"] {
+  color: var(--fg-dim);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+#chrome a[data-nav="play"].active {
+  color: var(--fg-mid);
 }
 #chrome .brain {
   margin-left: auto;
@@ -783,16 +797,34 @@ body.staging .chrome { top: 1.6rem; }
   white-space: nowrap;
 }
 
-.hero { margin-top: 1.1rem; }
+.hero { margin-top: 0.55rem; margin-bottom: 0; }
 .hero[hidden] { display: none !important; }
+.hero .breath { margin: 0 0 0.15rem; font-size: 0.86rem; }
 .hero .tag { font-size: 0.8rem; color: var(--fg-dim); }
+.sug-cap {
+  margin: 0.35rem 0 0.05rem;
+  font-size: 0.72rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.1em;
+}
+body.home-on .toc { margin-top: 0.7rem; }
+body.home-on .selectors button.sel,
+body.home-on #suggest.suggest .sel {
+  min-height: 36px;
+  padding: 0.22rem 0.15rem;
+}
+body.home-on footer { margin-top: 1.1rem; }
+body.home-on .shell {
+  padding-top: calc(0.55rem + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
+}
 
 /* Compact prompt: one line, no wait box */
 #ask {
   position: static;
   z-index: auto;
-  margin-top: 0.45rem;
-  padding: 0.2rem 0 0.35rem;
+  margin-top: 0.25rem;
+  padding: 0.1rem 0 0.2rem;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -817,8 +849,8 @@ body.staging .chrome { top: 1.6rem; }
 #ask .status-line:empty { display: none; }
 #wait-form[hidden] { display: none !important; }
 #suggest.suggest {
-  margin: 0.25rem 0 0;
-  max-height: 14rem;
+  margin: 0.1rem 0 0;
+  max-height: 9.5rem;
   overflow: auto;
 }
 #suggest.suggest[hidden] { display: none !important; }

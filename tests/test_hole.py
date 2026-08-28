@@ -13,6 +13,7 @@ HOLE_PATH = os.path.join(ROOT, "hole.json")
 REQUIRED_HOLES = (
     "/docs",
     "/fetch",
+    "/dig",
     "/privacy",
     "/pricing",
     "/terms",
@@ -93,7 +94,7 @@ class HoleTests(unittest.TestCase):
         self.assertIsInstance(self.holes, dict)
         self.assertIsInstance(self.alias, dict)
 
-    def test_home_selector_5_is_fetch(self) -> None:
+    def test_home_selector_5_is_play(self) -> None:
         home = self.holes.get("/")
         self.assertIsInstance(home, dict, "holes['/'] missing")
         items = home.get("items") or []
@@ -106,15 +107,20 @@ class HoleTests(unittest.TestCase):
                 break
         self.assertIsNotNone(match, "holes['/'] has no selector n=5")
         name = str(match.get("name") or "")
+        upper = name.rstrip("/").upper()
         self.assertTrue(
-            name.rstrip("/").upper() == "FETCH" or "FETCH/" in name.upper() or name.upper() == "FETCH/",
-            f"selector n=5 name is {name!r}, expected FETCH/",
+            upper in ("PLAY", "SEARCH") or name.upper() in ("PLAY/", "SEARCH/"),
+            f"selector n=5 name is {name!r}, expected Play/ or Search/",
         )
-        self.assertEqual(match.get("path"), "/fetch")
+        self.assertNotIn("FETCH", name.upper())
+        self.assertIn(match.get("path"), ("/games", "/", "/play"))
 
-    def test_aliases_fetch_and_play_map_to_fetch(self) -> None:
+    def test_aliases_maze_burrow_and_play(self) -> None:
         self.assertEqual(self.alias.get("fetch"), "/fetch")
-        self.assertEqual(self.alias.get("play"), "/fetch")
+        self.assertEqual(self.alias.get("maze"), "/fetch")
+        self.assertEqual(self.alias.get("burrow"), "/dig")
+        self.assertEqual(self.alias.get("dig"), "/dig")
+        self.assertEqual(self.alias.get("play"), "/games")
 
     def test_required_holes_exist(self) -> None:
         known = catalog_paths(self.data)

@@ -17,15 +17,15 @@ Full list: 100 items in four phases. GOPHER AI only.
 
 ## Phase 0 — Playable hole (1–25)
 
-The public hole is playable. Directory, FETCH, waitlist, and device login are live.
+The public hole is playable. Directory, search (FETCH), tasks (DIG), waitlist, and device login are live. MAZE/BURROW are a side quest.
 
-1. [x] FETCH — 100-stage maze, one tap one tile (never auto-runs), home selector 5
+1. [x] MAZE — 100-stage maze side quest, one tap one tile (never auto-runs), Play/ selector 5
 2. [x] hole.json — data-driven catalog (holes + aliases). `tasks.json` is 100 prompt orders with live autoprompt
 3. [x] Hash routes — `#/docs`, `#/fetch`, `#/user`, and the rest of the tree
 4. [x] Device login — PBKDF2 (SHA-256, 120000 iterations) in localStorage
 5. [x] Waitlist — email form; server list locally, device fallback on Pages
 6. [x] Ticker fetch — `fetch btc` (ETH, SOL, XRP, DOGE, ADA) as a type-0 document
-7. [x] PLAY CTA — FETCH and DIG in the chrome nav; home selector 5 still FETCH/
+7. [x] Chrome — GOPHER · search · tasks · waitlist · play; home selector 5 is Play/
 8. [x] First-hole tutorial — GOT IT, stored on device
 9. [x] D-pad — on-screen FETCH controls
 10. [x] WASD + arrows — one tap, one tile
@@ -52,8 +52,8 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 26. [x] Staging site — https://oxcryptobot.github.io/gopher-test/
 27. [x] TEST ribbon — show `TEST HOLE · not production` on the staging host
 28. [ ] CI workflow — YAML exists locally; PAT lacks `workflow` scope so Actions is not on GitHub yet
-29. [x] hole.json tests — selector 5 is FETCH/, `play` → `/fetch`, required holes, no banned vendor copy
-30. [x] Static tests — chrome nav FETCH/DIG/waitlist, SUG_IDLE 3, hero hidden, manifest name, sw cache gopher-v9 (includes dig.js + tasks.json), game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile, prompt `#suggest`
+29. [x] hole.json tests — selector 5 is Play/, `maze` → `/fetch`, `burrow` → `/dig`, `play` → `/games`, required holes, no banned vendor copy
+30. [x] Static tests — chrome nav search/tasks/waitlist/play, SUG_MAX 3, mascot on home hero, manifest name, sw cache gopher-v10 (includes dig.js + tasks.json), game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile, prompt `#suggest`
 31. [x] A11y d-pad labels — `aria-label` on the pad and each direction
 32. [x] SHARE score — Web Share / clipboard of the FETCH result
 33. [x] INSTALL PWA hook — `beforeinstallprompt` and an INSTALL control
@@ -67,7 +67,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 41. [x] Live title — `document.title` follows the current hole
 42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
-44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: quiet chrome, one nav row + compact GOPHER prompt, 3 idle selectors; python product flags, fng fetch, parked Twilio webhooks, 82/100)
+44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: FETCH is search, DIG is tasks, MAZE/BURROW side quest, 3 answers, 82/100)
 45. [x] Contact — GitHub + waitlist, no support number
 46. [x] Status hole — Pages is static; python `/health` is the process; no fake 99.9%, no fake uptime graph
 47. [x] Press hole — one paragraph, no invented metrics
@@ -81,7 +81,7 @@ Playable is not deep. Combo and waitlist rate-limit are already in. DIG is playa
 
 51. [x] i18n toggle — language switch, not only `/es`
 52. [x] FETCH maze — 100 stages with alternate pathways; energy pellets (Huzaaa!); orange foxes (Ouchies! −1 HP); walls Clunk!!! (−0.1 HP); star ZAP/BLOCK; KEY; stage clear VICTORY!; clock 0 TIME OVER!; all 100 GOPHER CHAMPION! + trophy + Eternal GOPHER CHAMPIONS; 3 HP; reasonable time limit; foxes +0.01 speed per stage; stage 100 nearly impossible; mute defaults on (browser autoplay)
-53. [x] DIG — playable 8-stage burrow (one tap, one tile, rocks fall). Type `dig` or Games/. FETCH stays the 100-stage maze
+53. [x] BURROW — playable 8-stage burrow side quest (one tap, one tile, rocks fall). Type `burrow` or Play/. DIG is a task from the 100
 54. [x] Offline ticker cache — last good quote when the public spot is down
 55. [x] Focus trap on the tutorial — Tab stays in the first-hole dialog
 56. [x] Keyboard help overlay — a real overlay, not only the `?` status line
@@ -132,5 +132,5 @@ Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door
 96. [x] Press kit images — `press/home.png`, `press/fetch.png`, `press/icon.png`
 97. [ ] Demo video — FETCH + the directory, no stock sludge
 98. [x] Brand book — working `BRAND.md` (not a 40-page PDF)
-99. [x] Onboarding quest — play FETCH, fetch btc, waitlist
+99. [x] Onboarding quest — fetch btc, tasks, waitlist
 100. [x] Watch / remind / draft as device queues (type `watch`, `remind`, `draft` — stored on this device, not SMS, no number). [x] Promote runbook in PROMOTE.md. [x] PWA install hole `/install`. [ ] Phone SMS watch / remind / draft.

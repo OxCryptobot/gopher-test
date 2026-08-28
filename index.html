@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#070908">
-  <meta name="description" content="GOPHER AI is a paid phone assistant. Menus, selectors, fetch. Play FETCH.">
+  <meta name="description" content="GOPHER AI is a paid phone assistant. Search, then do the task.">
   <meta property="og:title" content="GOPHER AI">
-  <meta property="og:description" content="A paid phone assistant. Menus, selectors, fetch. Play FETCH.">
+  <meta property="og:description" content="A paid phone assistant. Search, then do the task.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://oxcryptobot.github.io/gopher/">
   <meta property="og:image" content="https://oxcryptobot.github.io/gopher/shots/app-home.png">
   <meta property="og:site_name" content="GOPHER AI">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="GOPHER AI">
-  <meta name="twitter:description" content="A paid phone assistant. Menus, selectors, fetch. Play FETCH.">
+  <meta name="twitter:description" content="A paid phone assistant. Search, then do the task.">
   <meta name="twitter:image" content="https://oxcryptobot.github.io/gopher/shots/app-home.png">
   <title>GOPHER AI</title>
   <link rel="stylesheet" href="style.css">
@@ -28,8 +28,8 @@
     "@type": "SoftwareApplication",
     "name": "GOPHER AI",
     "url": "https://oxcryptobot.github.io/gopher/",
-    "description": "Menus, selectors, fetch.",
-    "applicationCategory": "GameApplication"
+    "description": "Paid phone assistant. Search, then do the task.",
+    "applicationCategory": "SoftwareApplication"
   }
   </script>
 </head>
@@ -43,7 +43,7 @@
       <h2 id="tut-title">first hole</h2>
       <p>A Gopher directory. Selectors, not sludge.</p>
       <ul>
-        <li><kbd>5</kbd> play FETCH</li>
+        <li><kbd>5</kbd> play</li>
         <li><kbd>/</kbd> ask the hole</li>
         <li><kbd>9</kbd> login</li>
       </ul>
@@ -55,14 +55,14 @@
     <div class="help-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
       <h2 id="help-title" data-i18n="helpTitle">keys</h2>
       <ul>
-        <li><kbd>5</kbd> <span data-i18n="help5">FETCH</span></li>
+        <li><kbd>5</kbd> <span data-i18n="help5">play</span></li>
         <li><kbd>/</kbd> <span data-i18n="helpPrompt">prompt</span></li>
         <li><kbd>9</kbd> <span data-i18n="helpLogin">login</span></li>
         <li data-i18n="helpArrows">arrows</li>
         <li><kbd>P</kbd> <span data-i18n="helpPause">pause</span></li>
         <li data-i18n="helpSounds">Huzaaa / Clunk / Ouchies</li>
         <li data-i18n="helpStar">wall −0.1 hp · star ZAP/BLOCK</li>
-        <li><kbd>K</kbd> <span data-i18n="helpKey">FETCH key</span></li>
+        <li><kbd>K</kbd> <span data-i18n="helpKey">MAZE key</span></li>
         <li><kbd>esc</kbd> <span data-i18n="helpEsc">home</span></li>
       </ul>
       <button type="button" id="help-ok">GOT IT</button>
@@ -73,8 +73,8 @@
     <div class="quest-card" role="dialog" aria-modal="true" aria-labelledby="quest-title">
       <h2 id="quest-title" data-i18n="questTitle">first orders</h2>
       <ol id="quest-list">
-        <li>press 5 / play FETCH</li>
         <li>type fetch btc</li>
+        <li>open tasks</li>
         <li>join waitlist</li>
       </ol>
       <p id="quest-status"></p>
@@ -89,38 +89,15 @@
     <div class="chrome">
     <nav id="chrome" aria-label="GOPHER">
       <a href="#/" data-nav="home" class="brand">GOPHER</a>
-      <a href="#/fetch" data-nav="fetch">FETCH</a>
-      <a href="#/dig" data-nav="dig">DIG</a>
+      <a href="#/" data-nav="search">search</a>
+      <a href="#/tasks" data-nav="tasks">tasks</a>
       <a href="#/waitlist" data-nav="waitlist" data-i18n="navWaitlist">waitlist</a>
-      <a href="#/user" data-nav="user" data-i18n="navUser">user</a>
+      <a href="#/games" data-nav="play" data-i18n="navPlay">play</a>
       <span id="who" class="who" hidden></span>
       <span id="brain" class="brain">ready</span>
       <span id="clock" class="clock"></span>
     </nav>
-
-    <section id="ask">
-      <form id="ask-form" autocomplete="off">
-        <div class="ask-line">
-          <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">ask gopher:</span></label>
-          <input id="command" maxlength="280" placeholder="5   or   fetch btc   or   play" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-controls="suggest" aria-expanded="true">
-          <button type="submit" id="go">GO</button>
-        </div>
-        <ol id="suggest" class="selectors suggest" role="listbox"></ol>
-        <p class="status-line" id="ask-status" role="status"></p>
-      </form>
-    </section>
     </div>
-
-    <section class="menu-block wait" id="wait-form" hidden>
-      <form id="form" novalidate>
-        <label class="prompt" for="email"><span class="star">*</span> <span data-i18n="emailLabel">email:</span></label>
-        <div class="row">
-          <input id="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="you@domain" required>
-          <button type="submit" id="submit">ENTER</button>
-        </div>
-        <p class="status-line" id="form-status" role="status"></p>
-      </form>
-    </section>
 
     <section class="hero" id="hero" hidden>
       <pre class="mascot" aria-hidden="true">
@@ -131,9 +108,31 @@
         .-'     '-.
        / GOPHER AI \
        '-----------'</pre>
-      <h1>GOPHER AI</h1>
-      <p class="breath">A paid phone assistant. You send an order. It fetches.</p>
-      <p class="tag" data-i18n="heroGames">games: FETCH · DIG in the bar</p>
+      <p class="breath" data-i18n="heroLine">Paid phone assistant. Search, then do the task.</p>
+    </section>
+
+    <section id="ask">
+      <form id="ask-form" autocomplete="off">
+        <div class="ask-line">
+          <label class="prompt" for="command"><span class="star">*</span> <span data-i18n="promptLabel">ask gopher:</span></label>
+          <input id="command" maxlength="280" placeholder="fetch btc   or   tasks   or   remind me" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-controls="suggest" aria-expanded="true">
+          <button type="submit" id="go">GO</button>
+        </div>
+        <p class="sug-cap" id="sug-cap" data-i18n="sugCap">GOPHER:</p>
+        <ol id="suggest" class="selectors suggest" role="listbox"></ol>
+        <p class="status-line" id="ask-status" role="status"></p>
+      </form>
+    </section>
+
+    <section class="menu-block wait" id="wait-form" hidden>
+      <form id="form" novalidate>
+        <label class="prompt" for="email"><span class="star">*</span> <span data-i18n="emailLabel">email:</span></label>
+        <div class="row">
+          <input id="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="you@domain" required>
+          <button type="submit" id="submit">ENTER</button>
+        </div>
+        <p class="status-line" id="form-status" role="status"></p>
+      </form>
     </section>
 
     <nav class="toc" id="dir" aria-label="Gopher directory"></nav>
@@ -158,10 +157,10 @@
     </section>
 
     <section id="game" class="menu-block game-block" hidden>
-      <h2><span class="itype">5</span> FETCH/</h2>
+      <h2><span class="itype">5</span> MAZE/</h2>
       <p class="info" data-i18n="fetchInfo">Maze of 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Clock runs. Stage 100 is nearly impossible.</p>
       <div class="game-wrap">
-        <canvas id="fetch" width="160" height="144" role="img" aria-label="FETCH, an 8-bit gopher game"></canvas>
+        <canvas id="fetch" width="160" height="144" role="img" aria-label="MAZE, an 8-bit gopher game"></canvas>
         <p id="g-shout" class="g-shout" aria-live="assertive"></p>
         <div class="game-hud">
           <span id="g-score">score 0</span>
@@ -174,7 +173,7 @@
           <span id="g-time">time 50</span>
           <span id="g-best">best 0</span>
         </div>
-        <p id="land-hint" class="land-hint" hidden>turn the phone. FETCH wants a tall hole.</p>
+        <p id="land-hint" class="land-hint" hidden>turn the phone. MAZE wants a tall hole.</p>
         <div class="dpad" role="group" aria-label="direction pad">
           <button type="button" data-dir="up" aria-label="up">↑</button>
           <div class="dpad-mid">
@@ -189,14 +188,14 @@
           <button type="button" id="g-key" class="ghost">KEY</button>
           <button type="button" id="g-mute" class="ghost">MUTE</button>
           <label class="vol" for="g-vol">VOL</label>
-          <input id="g-vol" type="range" min="0" max="8" value="3" aria-label="FETCH volume">
+          <input id="g-vol" type="range" min="0" max="8" value="3" aria-label="MAZE volume">
           <button type="button" id="g-share" class="ghost">SHARE</button>
           <button type="button" id="g-haptic" class="ghost">HAPTIC</button>
           <button type="button" id="g-install" class="ghost" hidden>INSTALL</button>
         </div>
         <p class="status-line" id="g-status">press START. one tap, one tile. eat pellets. dodge orange foxes. beat the clock.</p>
         <aside id="g-keycard" class="g-keycard" hidden>
-          <h3 data-i18n="keyTitle">FETCH key</h3>
+          <h3 data-i18n="keyTitle">MAZE key</h3>
           <ul>
             <li data-i18n="keyTap">one tap, one tile</li>
             <li data-i18n="keyPellet">pellet · Huzaaa!</li>
@@ -227,16 +226,16 @@
 
 
     <section id="dig" class="menu-block game-block" hidden>
-      <h2><span class="itype">8</span> DIG/</h2>
-      <p class="info" data-i18n="digInfo">Second burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. FETCH stays the 100-stage maze.</p>
+      <h2><span class="itype">8</span> BURROW/</h2>
+      <p class="info" data-i18n="digInfo">Side quest burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. Kill time between searches.</p>
       <div class="game-wrap">
-        <canvas id="dig-canvas" width="160" height="144" role="img" aria-label="DIG, an 8-bit gopher digger"></canvas>
+        <canvas id="dig-canvas" width="160" height="144" role="img" aria-label="BURROW, an 8-bit gopher digger"></canvas>
         <div class="game-hud">
           <span id="d-score">score 0</span>
           <span id="d-lvl">lvl 1</span>
           <span id="d-lives">lives 3</span>
         </div>
-        <div class="dpad" role="group" aria-label="DIG direction pad">
+        <div class="dpad" role="group" aria-label="BURROW direction pad">
           <button type="button" data-dig="up" aria-label="up">↑</button>
           <div class="dpad-mid">
             <button type="button" data-dig="left" aria-label="left">←</button>
@@ -254,7 +253,7 @@
     </section>
     <footer>
       <p>GOPHER AI</p>
-      <p class="dim" data-i18n="footer">menus · selectors · fetch</p>
+      <p class="dim" data-i18n="footer">search · tasks · waitlist</p>
       <p class="tiny-row">
         <button type="button" id="lang" class="tiny">EN/ES</button>
         <button type="button" id="contrast" class="tiny">HI</button>
@@ -263,7 +262,7 @@
       </p>
     </footer>
   </div>
-  <noscript><p class="info" style="padding:1rem">GOPHER AI needs JavaScript. Open this page with JS on, then press 5 for FETCH.</p></noscript>
+  <noscript><p class="info" style="padding:1rem">GOPHER AI needs JavaScript. Open this page with JS on, then ask gopher.</p></noscript>
   <script src="game.js"></script>
   <script src="dig.js"></script>
   <script src="app.js"></script>

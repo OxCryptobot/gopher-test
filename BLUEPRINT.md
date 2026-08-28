@@ -12,7 +12,7 @@ Type `blueprint` on the hole. Do not mark an item done until the real product ex
 ## What already works
 
 - Playable hole on staging and (older) production Pages
-- FETCH 100-stage maze, DIG 8-stage burrow
+- FETCH is search; DIG is a task from the 100; MAZE/BURROW side quest
 - Waitlist JSON on `server.py`, device fallback on Pages
 - Device login (PBKDF2 localStorage)
 - Ticker `fetch btc` (ETH SOL XRP DOGE ADA LINK UNI AVAX MATIC DOT ATOM NEAR APT SUI TON)
@@ -30,7 +30,7 @@ Live autoprompt on the hole: type in Prompt <search>, ranked selectors appear. C
 
 ## Prompt UX
 
-The GOPHER prompt is always on (sticky compact bar, the star). One quiet nav row: GOPHER · FETCH · DIG · waitlist · user. Directory is the page. Idle task selectors show 3. GOPHER is an on-device order router over 100 tasks + python `/api/ask` when `server.py` is up. A hosted model is parked until `GOPHER_LLM_HOOK` is set. No fake model name. No chat transcript.
+The GOPHER prompt is always on (the star). One quiet nav row: GOPHER · search · tasks · waitlist · play. Directory is the page. Three answers under the prompt. MAZE and BURROW live under play. GOPHER is an on-device order router over 100 tasks + python `/api/ask` when `server.py` is up. A hosted model is parked until `GOPHER_LLM_HOOK` is set. No fake model name. No chat transcript.
 
 ## Open items (18)
 
