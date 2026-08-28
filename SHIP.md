@@ -2,9 +2,9 @@
 
 Production: https://oxcryptobot.github.io/gopher/  
 Staging: https://oxcryptobot.github.io/gopher-test/  
-Method: stage on test, then promote to production. Do not ship to production first.
+Method: stage on test, then promote to production. Do not ship to production first. Production is frozen until promote.
 
-Status marks are honest as of 2026-08-27:
+Status marks are honest as of 2026-08-27/28:
 
 - `[x]` done on production
 - `[ ]` this staging wave, or next
@@ -36,7 +36,7 @@ The public hole is playable. Directory, FETCH, waitlist, and device login are li
 19. [x] security.txt — `.well-known/security.txt`
 20. [x] LICENSE — MIT, OxCryptobot 2026
 21. [x] CSP on the python server — Content-Security-Policy plus companion headers
-22. [x] `/health` — local python liveness (`ok` / JSON)
+22. [x] `/health` — local python liveness (`ok` / JSON). Pages is static; this is the process, not a fake 99.9%
 23. [x] `/api/scores` — GET board when `python3 server.py` is up
 24. [x] Nested docs — Docs/, Site/, Legal/, Games/, User/
 25. [x] FAQ, pricing, and terms holes — no invented prices, no fake SLA
@@ -49,7 +49,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 27. [x] TEST ribbon — show `TEST HOLE · not production` on the staging host
 28. [ ] CI workflow — YAML exists locally; PAT lacks `workflow` scope so Actions is not on GitHub yet
 29. [x] hole.json tests — selector 5 is FETCH/, `play` → `/fetch`, required holes, no banned vendor copy
-30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v3, game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), 404, `server.py` compile
+30. [x] Static tests — PLAY FETCH, manifest name, sw cache gopher-v3, game exports, maze strings (fox, Huzaaa, Clunk, Ouchies, TIME OVER, GOPHER CHAMPION), dig.js exists and exports DigGame, 404, `server.py` compile
 31. [x] A11y d-pad labels — `aria-label` on the pad and each direction
 32. [x] SHARE score — Web Share / clipboard of the FETCH result
 33. [x] INSTALL PWA hook — `beforeinstallprompt` and an INSTALL control
@@ -63,9 +63,9 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 41. [x] Live title — `document.title` follows the current hole
 42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
-44. [x] Changelog — `#/changelog`, dated 2026-08-27
+44. [x] Changelog — `#/changelog`, dated 2026-08-27/28
 45. [x] Contact — GitHub + waitlist, no support number
-46. [x] Status hole — Pages vs local python, no fake uptime graph
+46. [x] Status hole — Pages is static; python `/health` is the process; no fake 99.9%, no fake uptime graph
 47. [x] Press hole — one paragraph, no invented metrics
 48. [x] Jobs hole — not hiring; no fake roles
 49. [x] `/es` stub — one Spanish hole, rest of the tree in English
@@ -73,18 +73,18 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 
 ## Phase 2 — Depth (51–75)
 
-Playable is not deep. Combo and waitlist rate-limit are already in. A true global board is python `/api/scores` only; GitHub Pages cannot host one. Everything else here is next.
+Playable is not deep. Combo and waitlist rate-limit are already in. DIG is playable this wave (type `dig` or Games/). A true global board and Eternal GOPHER CHAMPIONS are python `/api/scores` and `/api/champions` only; GitHub Pages cannot host them.
 
 51. [x] i18n toggle — language switch, not only `/es`
-52. [x] FETCH maze — 100 stages with alternate pathways; energy pellets (Huzaaa!); orange foxes (Ouchies!); walls Clunk!!!; stage clear VICTORY!; clock 0 TIME OVER!; all 100 GOPHER CHAMPION!; 3 HP; reasonable time limit; foxes +0.01 speed per stage; stage 100 nearly impossible; mute defaults on (browser autoplay)
-53. [x] Second game stub — another named hole under Games/
+52. [x] FETCH maze — 100 stages with alternate pathways; energy pellets (Huzaaa!); orange foxes (Ouchies! −1 HP); walls Clunk!!! (−0.1 HP); star ZAP/BLOCK; KEY; stage clear VICTORY!; clock 0 TIME OVER!; all 100 GOPHER CHAMPION! + trophy + Eternal GOPHER CHAMPIONS; 3 HP; reasonable time limit; foxes +0.01 speed per stage; stage 100 nearly impossible; mute defaults on (browser autoplay)
+53. [x] DIG — playable 8-stage burrow (one tap, one tile, rocks fall). Type `dig` or Games/. FETCH stays the 100-stage maze
 54. [x] Offline ticker cache — last good quote when the public spot is down
 55. [x] Focus trap on the tutorial — Tab stays in the first-hole dialog
 56. [x] Keyboard help overlay — a real overlay, not only the `?` status line
 57. [x] High contrast — optional phosphor/contrast mode
 58. [x] Print-safe skip — skip link and CRT do not wreck a print stylesheet
 59. [x] Rate-limit already — waitlist POST capped on the python server (8 / hour / IP)
-60. [x] Leaderboard — device best in localStorage on every hole; server-wide board is GET `/api/scores` when `python3 server.py` is up. GitHub Pages has no python process, so the live Pages hole cannot host a true global board
+60. [x] Leaderboard — device best in localStorage on every hole; server-wide board is GET `/api/scores` and Eternal GOPHER CHAMPIONS is GET `/api/champions` when `python3 server.py` is up. GitHub Pages has no python process, so the live Pages hole cannot host a true global board or global champions list
 61. [x] Haptic setting — user toggle, independent of MUTE
 62. [x] Volume — gain control, not only MUTE / SOUND. Mute defaults on (browser autoplay). Friendly chiptune + FX
 63. [x] Combo already — consecutive pellet grabs add a point
@@ -117,9 +117,9 @@ Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door
 85. [ ] Cloud order log — what was asked and what came back, off-device
 86. [ ] Phone app store listing — a store page if/when there is an app
 87. [x] Analytics opt-in — TRACK? on the hole; default off; still sends nowhere
-88. [ ] Status page uptime — a real uptime hole, not only `/status` copy
+88. [ ] Status page uptime — a real uptime hole, not only `/status` copy. Do not fake 99.9%
 89. [x] Error reporting — on-device log only (`gopher_log_v1`), no cloud
-90. [ ] i18n full — directory and FETCH strings, not a stub
+90. [ ] i18n full — directory and FETCH strings, not a stub (toggle + `/es` exist; still partial)
 91. [ ] Legal counsel pass — paid-service terms before money moves
 92. [ ] Refund policy — with billing, not before
 93. [ ] DPA — when there is a processor relationship
@@ -129,5 +129,4 @@ Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door
 97. [ ] Demo video — FETCH + the directory, no stock sludge
 98. [x] Brand book — working `BRAND.md` (not a 40-page PDF)
 99. [x] Onboarding quest — play FETCH, fetch btc, waitlist
-100. [ ] Watch / remind / draft live (not phone yet). [x] Promote runbook in PROMOTE.md. PWA install hole still landing.
-
+100. [x] Watch / remind / draft as device queues (type `watch`, `remind`, `draft` — stored on this device, not SMS, no number). [x] Promote runbook in PROMOTE.md. [x] PWA install hole `/install`. [ ] Phone SMS watch / remind / draft.

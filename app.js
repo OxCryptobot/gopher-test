@@ -14,6 +14,7 @@
   var QUEST_KEY = "gopher_quest_v1";
   var LOG_KEY = "gopher_log_v1";
   var TRACK_KEY = "gopher_track_v1";
+  var KIND_KEY = "gopher_kind_v1";
 
   /* Scalable Gopher directory. Add an item in hole.json; this is the fallback. */
   var HOLES = {
@@ -69,9 +70,10 @@
   };
 
   var $ = function (id) { return document.getElementById(id); };
-  var dirEl = $("dir"), viewEl = $("view"), authEl = $("auth"), gameEl = $("game");
+  var dirEl = $("dir"), viewEl = $("view"), authEl = $("auth"), gameEl = $("game"), digEl = $("dig");
   var heroEl = $("hero"), askEl = $("ask");
   var game = null;
+  var dig = null;
   var scoreSent = false;
   var shoutTimer = 0;
   var deferredInstall = null;
@@ -175,10 +177,31 @@
     try { saved = localStorage.getItem(LANG_KEY) || ""; } catch (e) { saved = ""; }
     if (saved === "es" || saved === "en") document.documentElement.lang = saved;
   }
+  var I18N = {
+    en: {
+      footer: "menus · selectors · fetch",
+      fetchInfo: "Maze of 100 stages. One tap, one tile. Eat pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies!. Clock runs. Stage 100 is nearly impossible.",
+      digInfo: "Second burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. FETCH stays the 100-stage maze.",
+      start: "press START. one tap, one tile."
+    },
+    es: {
+      footer: "menús · selectores · fetch",
+      fetchInfo: "Laberinto de 100 etapas. Un toque, una losa. Pellets Huzaaa!. Pared Clunk!!!. Zorros Ouchies!. El reloj corre. La 100 es casi imposible.",
+      digInfo: "Segunda madriguera. Un toque, una losa. Cava. Las rocas caen. 8 etapas. FETCH sigue siendo el laberinto de 100.",
+      start: "START. un toque, una losa."
+    }
+  };
   function applyLang(code) {
     var lang = code === "es" ? "es" : "en";
+    var pack = I18N[lang] || I18N.en;
     document.documentElement.lang = lang;
     try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+    var foot = document.querySelector("footer .dim");
+    if (foot) foot.textContent = pack.footer;
+    var fi = document.querySelector("#game > .info");
+    if (fi) fi.textContent = pack.fetchInfo;
+    var di = document.querySelector("#dig > .info");
+    if (di) di.textContent = pack.digInfo;
   }
 
   function bootHc() {
@@ -471,15 +494,19 @@
   function hideSpecial() {
     authEl.hidden = true;
     gameEl.hidden = true;
+    if (digEl) digEl.hidden = true;
     viewEl.hidden = true;
     if (game) game.stop();
+    if (dig) dig.stop();
   }
 
   function showType0(title, text) {
     heroEl.hidden = true;
     authEl.hidden = true;
     gameEl.hidden = true;
+    if (digEl) digEl.hidden = true;
     if (game) game.stop();
+    if (dig) dig.stop();
     askEl.hidden = false;
     viewEl.hidden = false;
     viewEl.innerHTML =
@@ -525,6 +552,20 @@
       questMark("play");
       return;
     }
+    if (path === "/dig") {
+      askEl.hidden = false;
+      if (digEl) digEl.hidden = false;
+      bootDig();
+      return;
+    }
+    if (path === "/watch" || path === "/remind" || path === "/draft") {
+      paintKindHole(path);
+      return;
+    }
+    if (path === "/status") {
+      paintStatus();
+      return;
+    }
     if (path === "/scores") {
       askEl.hidden = false;
       viewEl.hidden = false;
@@ -534,7 +575,6 @@
     }
     var doc = HOLES[path];
     if (!doc) {
-      if (path === "/dig") return;
       viewEl.hidden = false;
       viewEl.innerHTML = "<h2>3 Error</h2><p class='info'>selector not found. press esc or 0 for the directory.</p>";
       return;
@@ -581,10 +621,13 @@
             if (bar) {
               pct = Math.max(0, Math.min(100, (g.hp / 3) * 100));
               bar.style.width = pct + "%";
+              bar.classList.toggle("low", g.hp < 1);
             }
           }
           var pwr = $("g-pwr");
           if (pwr) pwr.textContent = "pwr " + (g.power ? 1 : 0);
+          var needEl = $("g-need");
+          if (needEl) needEl.textContent = "pellets " + (g.needLeft != null ? g.needLeft : (g.pellets ? g.pellets.length : 0));
           if (g.leftMs != null) {
             tEl = $("g-time");
             if (tEl) tEl.textContent = String(Math.ceil(g.leftMs / 1000));
@@ -612,6 +655,70 @@
     }
     applySavedVol();
     game.draw();
+  }
+
+
+  function readKinds() {
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem(KIND_KEY) || "[]"); } catch (e) { list = []; }
+    return Array.isArray(list) ? list : [];
+  }
+  function pushKind(kind, q) {
+    var list = readKinds();
+    list.push({ kind: kind, q: String(q || ""), at: Date.now() });
+    if (list.length > 40) list = list.slice(-40);
+    try { localStorage.setItem(KIND_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  function paintKindHole(path) {
+    var kind = path.replace("/", "");
+    var rows = readKinds().filter(function (r) { return r && r.kind === kind; });
+    var lines = rows.map(function (r, i) {
+      var t = new Date(r.at || 0);
+      var hh = t.toISOString ? t.toISOString().slice(11, 16) : "";
+      return String(i + 1).padStart(2, " ") + "  " + hh + "  " + String(r.q || "");
+    });
+    viewEl.hidden = false;
+    askEl.hidden = false;
+    viewEl.innerHTML =
+      "<h2>0 " + esc(kind) + "/</h2>" +
+      "<p class='info'>queued on this device. not SMS. there is no number. waitlist is the phone door.</p>" +
+      "<pre class='gopher-doc'>" + esc(lines.length ? lines.join("\n") : "empty. type " + kind + " plus an order in the prompt.") + "</pre>";
+    viewEl.focus();
+  }
+  function paintStatus() {
+    viewEl.hidden = false;
+    askEl.hidden = false;
+    viewEl.innerHTML = "<h2>0 Status/</h2><p class='info'>honest liveness. no fake uptime graph.</p><pre class='gopher-doc' id='status-pre'>checking…</pre>";
+    var el = $("status-pre");
+    var base = "Pages hole: static files.\npython /health: ";
+    fetch("/health", { headers: { Accept: "application/json" } })
+      .then(function (res) { return res.ok ? res.text() : Promise.reject(); })
+      .then(function (t) {
+        if (el) el.textContent = base + "up (" + String(t).slice(0, 80) + ")\nthis is the local process, not a SLA.";
+      })
+      .catch(function () {
+        if (el) el.textContent = base + "no process (GitHub Pages or server down).\nIf this page loaded, the static hole is up.";
+      });
+  }
+  function bootDig() {
+    var canvas = $("dig-canvas");
+    if (!canvas || typeof DigGame !== "function") {
+      setStatus($("d-status"), "err", "DIG engine not on this hole yet.");
+      return;
+    }
+    if (!dig) {
+      dig = new DigGame(canvas, {
+        onHud: function (g) {
+          var a = $("d-score"), b = $("d-lvl"), c = $("d-lives");
+          if (a) a.textContent = "score " + (g.score || 0);
+          if (b) b.textContent = "lvl " + (g.lvl || 1);
+          if (c) c.textContent = "lives " + (g.lives || 0);
+          if (g.dead) setStatus($("d-status"), "err", "buried. START to dig again.");
+          else if (g.win) setStatus($("d-status"), "ok", "dug through.");
+        }
+      });
+    }
+    if (dig.draw) dig.draw();
   }
 
   function queueLocal(q) {
@@ -835,10 +942,8 @@
   function queueKindOrder(q) {
     var kind = kindOrder(q) || "order";
     queueLocal(q);
-    showType0(
-      "0 " + kind,
-      "queued on this device.\n\nnot SMS. there is no number.\n\nwaitlist is the phone door."
-    );
+    pushKind(kind, q);
+    paintKindHole("/" + kind);
   }
 
   function logClientErr(msg) {
@@ -906,6 +1011,22 @@
       e.preventDefault();
       tutDismiss();
       if (e.key === "Escape") return;
+    }
+    if (digEl && !digEl.hidden && dig && !inField) {
+      if (e.key === "p" || e.key === "P") {
+        e.preventDefault();
+        if (dig.pauseToggle) dig.pauseToggle();
+      }
+      if (e.key === " " && !dig.running) {
+        e.preventDefault();
+        dig.start();
+      }
+      if (dig.running) {
+        if (e.key === "ArrowUp" || e.key === "w") { e.preventDefault(); dig.input("up"); }
+        if (e.key === "ArrowDown" || e.key === "s") { e.preventDefault(); dig.input("down"); }
+        if (e.key === "ArrowLeft" || e.key === "a") { e.preventDefault(); dig.input("left"); }
+        if (e.key === "ArrowRight" || e.key === "d") { e.preventDefault(); dig.input("right"); }
+      }
     }
     if (!gameEl.hidden && game && !inField) {
       if (e.key === "p" || e.key === "P") {
@@ -1159,10 +1280,34 @@
     var btn = $("g-install");
     if (btn) { btn.hidden = false; btn.disabled = false; }
   });
-  document.querySelectorAll(".dpad button").forEach(function (b) {
+  document.querySelectorAll("#game .dpad button").forEach(function (b) {
     b.addEventListener("click", function () {
       if (game) game.input(b.getAttribute("data-dir"));
     });
+  });
+  document.querySelectorAll("#dig .dpad button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (dig) dig.input(b.getAttribute("data-dig"));
+    });
+  });
+  var dStart = $("d-start");
+  if (dStart) dStart.addEventListener("click", function () {
+    if (!dig) bootDig();
+    if (dig && dig.start) dig.start();
+    if (dig && dig.running) setStatus($("d-status"), "", "dig dirt. rocks fall.");
+  });
+  var dPause = $("d-pause");
+  if (dPause) dPause.addEventListener("click", function () {
+    if (!dig) bootDig();
+    if (dig && dig.pauseToggle) dig.pauseToggle();
+    dPause.textContent = (dig && dig.paused) ? "RESUME" : "PAUSE";
+  });
+  var dMute = $("d-mute");
+  if (dMute) dMute.addEventListener("click", function () {
+    if (!dig) bootDig();
+    if (!dig) return;
+    dig.mute = !dig.mute;
+    dMute.textContent = dig.mute ? "MUTE" : "SOUND";
   });
 
   var tutOk = $("tut-ok");
@@ -1248,6 +1393,7 @@
   }
 
   bootLang();
+  applyLang(document.documentElement.lang);
   bootHc();
   paintStaging();
   bindTrackBtn();

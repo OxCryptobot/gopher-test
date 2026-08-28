@@ -1,10 +1,11 @@
-const CACHE = "gopher-v3";
+const CACHE = "gopher-v4";
 const ASSETS = [
   "./",
   "index.html",
   "style.css",
   "app.js",
   "game.js",
+  "dig.js",
   "hole.json",
   "manifest.json",
   "icon-192.png",

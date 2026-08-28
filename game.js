@@ -113,8 +113,10 @@
     this.lastTs = 0;
     this.shoutText = "";
     this.shoutLife = 0;
+    this.invulnMs = 0;
     this.musicOn = false;
     this.musicT = 0;
+    this.musicI = 0;
     this.reset(1);
     this.bind();
     this.ensureLoop();
@@ -162,6 +164,7 @@
     this.leftMs = this.limitMs;
     this.foxMs = 520 / (1 + 0.01 * (this.lvl - 1));
     this.foxAcc = 0;
+    this.invulnMs = 0;
     var nFox = Math.min(8, 1 + Math.floor((this.lvl - 1) / 8));
     if (this.lvl >= 100) nFox = 8;
     var i, p;
@@ -170,12 +173,15 @@
       if (p) this.pellets.push(p);
     }
     this.need = this.pellets.length;
+    this.needLeft = this.pellets.length;
     for (i = 0; i < nFox; i++) {
-      p = this.empty();
-      if (p) this.foxes.push({ x: p.x, y: p.y, d: rnd(4) });
+      p = this.empty(true);
+      if (p && p.x === this.sx && p.y === this.sy) p = this.empty(true);
+      if (p && !(p.x === this.sx && p.y === this.sy)) this.foxes.push({ x: p.x, y: p.y, d: rnd(4) });
     }
     p = this.empty();
-    if (p) this.star = { x: p.x, y: p.y };
+    if (p && p.x === this.sx && p.y === this.sy) p = this.empty();
+    if (p && !(p.x === this.sx && p.y === this.sy)) this.star = { x: p.x, y: p.y };
   };
 
   FetchGame.prototype.wallAt = function (x, y) {
@@ -183,14 +189,23 @@
     return this.walls[y][x] === 1;
   };
 
-  FetchGame.prototype.empty = function () {
-    var x, y, n = 0;
+  FetchGame.prototype.empty = function (preferFar) {
+    var x, y, n = 0, best = null, bestD = -1, d, ok;
     do {
       x = 1 + rnd(COLS - 2);
       y = 1 + rnd(ROWS - 2);
       n++;
-    } while (n < 220 && this.occupied(x, y, true));
-    if (this.occupied(x, y, true)) return null;
+      ok = !(x === this.sx && y === this.sy) && !this.occupied(x, y, true);
+      if (!ok) continue;
+      if (!preferFar) return { x: x, y: y };
+      d = Math.abs(x - this.px) + Math.abs(y - this.py);
+      if (d > bestD) {
+        best = { x: x, y: y };
+        bestD = d;
+      }
+    } while (n < 220);
+    if (preferFar && best) return best;
+    if ((x === this.sx && y === this.sy) || this.occupied(x, y, true)) return null;
     return { x: x, y: y };
   };
 
@@ -320,12 +335,17 @@
   };
 
   FetchGame.prototype.musicTick = function (dt) {
-    if (!this.musicOn || this.mute) return;
+    if (this.mute || !this.running || this.paused || this.dead || this.champion) {
+      this.musicOn = false;
+      return;
+    }
+    this.musicOn = true;
     this.musicT += dt;
     if (this.musicT < 180) return;
-    this.musicT = 0;
-    var seq = [262, 330, 392, 330, 262, 196, 220, 262];
-    var n = seq[rnd(seq.length)];
+    this.musicT -= 180;
+    var seq = [262, 330, 392, 330, 262, 392, 440, 392];
+    var n = seq[this.musicI % seq.length];
+    this.musicI += 1;
     this.beep(n, 0.08);
   };
 
@@ -428,6 +448,12 @@
         this.afterMove();
         return;
       }
+      if (this.invulnMs > 0) {
+        this.px = nx;
+        this.py = ny;
+        this.afterMove();
+        return;
+      }
       this.ouch();
       return;
     }
@@ -514,33 +540,34 @@
         d = DIRS[DIRN[k]];
         nx = f.x + d[0];
         ny = f.y + d[1];
-        if (!this.wallAt(nx, ny)) opts.push([nx, ny, k]);
+        if (!this.wallAt(nx, ny) && this.foxAt(nx, ny) < 0) opts.push([nx, ny, k]);
       }
-      if (!opts.length) continue;
-      if (chase || this.lvl >= 100) {
-        best = opts[0];
-        dist = Math.abs(best[0] - this.px) + Math.abs(best[1] - this.py);
-        for (k = 1; k < opts.length; k++) {
-          nd = Math.abs(opts[k][0] - this.px) + Math.abs(opts[k][1] - this.py);
-          if (nd < dist || (nd === dist && rnd(2) === 0)) {
-            dist = nd;
-            best = opts[k];
+      if (opts.length) {
+        if (chase || this.lvl >= 100) {
+          best = opts[0];
+          dist = Math.abs(best[0] - this.px) + Math.abs(best[1] - this.py);
+          for (k = 1; k < opts.length; k++) {
+            nd = Math.abs(opts[k][0] - this.px) + Math.abs(opts[k][1] - this.py);
+            if (nd < dist || (nd === dist && rnd(2) === 0)) {
+              dist = nd;
+              best = opts[k];
+            }
           }
-        }
-        if (this.lvl < 100 && rnd(3) === 0) best = opts[rnd(opts.length)];
-        f.x = best[0];
-        f.y = best[1];
-        f.d = best[2];
-      } else {
-        if (rnd(2) === 0) f.d = rnd(4);
-        d = DIRS[DIRN[f.d]];
-        nx = f.x + d[0];
-        ny = f.y + d[1];
-        if (!this.wallAt(nx, ny)) {
-          f.x = nx;
-          f.y = ny;
+          if (this.lvl < 100 && rnd(3) === 0) best = opts[rnd(opts.length)];
+          f.x = best[0];
+          f.y = best[1];
+          f.d = best[2];
         } else {
-          f.d = rnd(4);
+          if (rnd(2) === 0) f.d = rnd(4);
+          d = DIRS[DIRN[f.d]];
+          nx = f.x + d[0];
+          ny = f.y + d[1];
+          if (!this.wallAt(nx, ny) && this.foxAt(nx, ny) < 0) {
+            f.x = nx;
+            f.y = ny;
+          } else {
+            f.d = rnd(4);
+          }
         }
       }
       if (f.x === this.px && f.y === this.py) {
@@ -549,6 +576,7 @@
           i--;
           continue;
         }
+        if (this.invulnMs > 0) continue;
         this.ouch();
         return;
       }
@@ -562,6 +590,7 @@
       this.paint();
       return;
     }
+    if (this.invulnMs > 0) return;
     this.shout("Ouchies!");
     this.hp = round1(this.hp - 1);
     this.lives = Math.ceil(this.hp);
@@ -572,6 +601,7 @@
       this.die();
       return;
     }
+    this.invulnMs = 900;
     this.px = this.sx;
     this.py = this.sy;
     this.emit();
@@ -597,6 +627,7 @@
 
   FetchGame.prototype.emit = function () {
     this.lives = Math.ceil(this.hp);
+    this.needLeft = this.pellets.length;
     if (this.hooks.onHud) this.hooks.onHud(this);
   };
 
@@ -637,25 +668,28 @@
       for (i = 0; i < this.pellets.length; i++) {
         c.fillRect(this.pellets[i].x * TILE + 2, this.pellets[i].y * TILE + 2, 4, 4);
       }
-    }
-    if (this.star) {
-      c.fillStyle = STAR;
-      x = this.star.x * TILE;
-      y = this.star.y * TILE;
-      c.fillRect(x + 3, y + 1, 2, 6);
-      c.fillRect(x + 1, y + 3, 6, 2);
+      if (this.star) {
+        c.fillStyle = STAR;
+        x = this.star.x * TILE;
+        y = this.star.y * TILE;
+        c.fillRect(x + 3, y + 1, 2, 6);
+        c.fillRect(x + 1, y + 3, 6, 2);
+      }
     }
     for (i = 0; i < this.foxes.length; i++) this.drawFox(this.foxes[i]);
     var gx = this.px * TILE, gy = this.py * TILE;
-    c.fillStyle = pal.player;
-    c.fillRect(gx + 1, gy + 2, 6, 5);
-    c.fillRect(gx + 2, gy + 1, 4, 2);
-    c.fillStyle = "#070908";
-    c.fillRect(gx + 2, gy + 3, 1, 1);
-    c.fillRect(gx + 5, gy + 3, 1, 1);
-    if (this.power) {
-      c.fillStyle = STAR;
-      c.fillRect(gx + 3, gy + 6, 2, 1);
+    var flashP = this.invulnMs > 0 && (((this.invulnMs / 90) | 0) % 2 === 0);
+    if (this.invulnMs <= 0 || flashP) {
+      c.fillStyle = this.invulnMs > 0 ? "#ffffff" : pal.player;
+      c.fillRect(gx + 1, gy + 2, 6, 5);
+      c.fillRect(gx + 2, gy + 1, 4, 2);
+      c.fillStyle = "#070908";
+      c.fillRect(gx + 2, gy + 3, 1, 1);
+      c.fillRect(gx + 5, gy + 3, 1, 1);
+      if (this.power) {
+        c.fillStyle = STAR;
+        c.fillRect(gx + 3, gy + 6, 2, 1);
+      }
     }
     for (i = 0; i < this.parts.length; i++) {
       p = this.parts[i];
@@ -712,9 +746,13 @@
     if (!this.looping) return;
     var dt = this.lastTs ? Math.min(48, ts - this.lastTs) : 16;
     this.lastTs = ts;
-    if (this.mute) this.musicOn = false;
-    else if (this.running && !this.paused && !this.dead && !this.champion) this.musicOn = true;
+    if (this.mute || !this.running || this.paused) this.musicOn = false;
+    else if (!this.dead && !this.champion) this.musicOn = true;
     if (this.running && !this.paused && !this.dead && !this.win && !this.champion) {
+      if (this.invulnMs > 0) {
+        this.invulnMs -= dt;
+        if (this.invulnMs < 0) this.invulnMs = 0;
+      }
       this.leftMs -= dt;
       if (this.leftMs <= 0) {
         this.leftMs = 0;

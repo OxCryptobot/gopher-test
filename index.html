@@ -166,6 +166,7 @@
           <span id="g-hp" class="hp">hp 3.0</span>
           <div class="hp-bar" aria-hidden="true"><i id="g-hp-bar"></i></div>
           <span id="g-pwr">pwr 0</span>
+          <span id="g-need">pellets 0</span>
           <span id="g-time">time 50</span>
           <span id="g-best">best 0</span>
         </div>
@@ -220,6 +221,33 @@
       </div>
     </section>
 
+
+    <section id="dig" class="menu-block game-block" hidden>
+      <h2><span class="itype">8</span> DIG/</h2>
+      <p class="info">Second burrow. One tap, one tile. Dig dirt. Rocks fall. 8 stages. FETCH stays the 100-stage maze.</p>
+      <div class="game-wrap">
+        <canvas id="dig-canvas" width="160" height="144" role="img" aria-label="DIG, an 8-bit gopher digger"></canvas>
+        <div class="game-hud">
+          <span id="d-score">score 0</span>
+          <span id="d-lvl">lvl 1</span>
+          <span id="d-lives">lives 3</span>
+        </div>
+        <div class="dpad" role="group" aria-label="DIG direction pad">
+          <button type="button" data-dig="up" aria-label="up">↑</button>
+          <div class="dpad-mid">
+            <button type="button" data-dig="left" aria-label="left">←</button>
+            <button type="button" data-dig="down" aria-label="down">↓</button>
+            <button type="button" data-dig="right" aria-label="right">→</button>
+          </div>
+        </div>
+        <div class="row">
+          <button type="button" id="d-start">START</button>
+          <button type="button" id="d-pause" class="ghost">PAUSE</button>
+          <button type="button" id="d-mute" class="ghost">MUTE</button>
+        </div>
+        <p class="status-line" id="d-status">press START. dig dirt. rocks fall.</p>
+      </div>
+    </section>
     <footer>
       <p>GOPHER AI</p>
       <p class="dim">menus · selectors · fetch</p>
@@ -233,6 +261,7 @@
   </div>
   <noscript><p class="info" style="padding:1rem">GOPHER AI needs JavaScript. Open this page with JS on, then press 5 for FETCH.</p></noscript>
   <script src="game.js"></script>
+  <script src="dig.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

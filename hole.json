@@ -162,7 +162,7 @@
           "type": "0",
           "name": "Changelog",
           "path": "/changelog",
-          "hint": "2026-08-27"
+          "hint": "2026-08-27/28"
         },
         {
           "n": "2",
@@ -255,10 +255,10 @@
         },
         {
           "n": "2",
-          "type": "0",
+          "type": "1",
           "name": "DIG/",
           "path": "/dig",
-          "hint": "queued, not playable"
+          "hint": "PLAY \u2014 8 stages, rocks fall"
         },
         {
           "n": "3",
@@ -296,9 +296,10 @@
       "title": "3 Capabilities/",
       "caps": [
         "Voice and SMS in. A reply out.",
-        "Orders, not chat.",
+        "Orders, not chat. watch / remind / draft queue on this device (not SMS).",
         "Numbered menus + a modern ask box.",
-        "FETCH, a 100-stage maze. One tap, one tile. You never auto-run.",
+        "FETCH, a 100-stage maze. One tap, one tile. You never auto-run. Wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS.",
+        "DIG, an 8-stage burrow. One tap, one tile. Dig dirt. Rocks fall. Type dig or Games/. FETCH stays the 100-stage maze.",
         "A log of what was asked and what came back."
       ],
       "note": "Not a general chatbot. Not a free public menu."
@@ -309,39 +310,45 @@
     },
     "/play": {
       "title": "How to play FETCH/",
-      "copy": "FETCH is a 100-stage maze on this site. Alternate pathways. One tap, one tile \u2014 you never auto-run. Free demo. Not the paid phone assistant.",
+      "copy": "FETCH is a 100-stage maze on this site. Alternate pathways. One tap, one tile \u2014 you never auto-run. Wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Free demo. Not the paid phone assistant. DIG is a separate 8-stage burrow (type dig or Games/). FETCH stays the 100-stage maze.",
       "steps": [
         "Press 5, type play, or open #/fetch.",
         "Hit START.",
         "Move one tile at a time \u2014 arrows, WASD, or the pad. You never auto-run.",
         "Eat energy pellets. They shout Huzaaa!",
-        "Walls bump: Clunk!!! You stay put.",
-        "Orange foxes hit: Ouchies! Health bar is 3 HP.",
+        "Walls bump: Clunk!!! costs 0.1 HP. Health bar starts at 3.0.",
+        "Orange foxes hit: Ouchies! costs 1 HP.",
+        "One star per stage. Pick it up, then ZAP a fox or BLOCK a hit.",
+        "KEY or K shows the in-game key.",
         "Clear a stage: VICTORY! Clock hits 0: TIME OVER!",
         "Foxes speed up 0.01 each stage. Time limit is reasonable. Stage 100 is nearly impossible.",
-        "Clear all 100: GOPHER CHAMPION!",
+        "Clear all 100: GOPHER CHAMPION!, a trophy, and your name on Eternal GOPHER CHAMPIONS.",
+        "Device best on this device. Global board and Eternal GOPHER CHAMPIONS are python /api/scores and /api/champions only \u2014 Pages has no python.",
         "Friendly chiptune + FX. MUTE defaults on (browser autoplay).",
         "Press 9 to login on this device."
       ],
-      "note": "Type howto in the prompt for this page. Press 5 to play."
+      "note": "Type howto in the prompt for this page. Press 5 to play. Type dig or Games/ for DIG."
     },
     "/howto": {
       "title": "How to play FETCH/",
-      "copy": "FETCH is a 100-stage maze on this site. Alternate pathways. One tap, one tile \u2014 you never auto-run. Free demo. Not the paid phone assistant.",
+      "copy": "FETCH is a 100-stage maze on this site. Alternate pathways. One tap, one tile \u2014 you never auto-run. Wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Free demo. Not the paid phone assistant. DIG is a separate 8-stage burrow (type dig or Games/). FETCH stays the 100-stage maze.",
       "steps": [
         "Press 5, type play, or open #/fetch.",
         "Hit START.",
         "Move one tile at a time \u2014 arrows, WASD, or the pad. You never auto-run.",
         "Eat energy pellets. They shout Huzaaa!",
-        "Walls bump: Clunk!!! You stay put.",
-        "Orange foxes hit: Ouchies! Health bar is 3 HP.",
+        "Walls bump: Clunk!!! costs 0.1 HP. Health bar starts at 3.0.",
+        "Orange foxes hit: Ouchies! costs 1 HP.",
+        "One star per stage. Pick it up, then ZAP a fox or BLOCK a hit.",
+        "KEY or K shows the in-game key.",
         "Clear a stage: VICTORY! Clock hits 0: TIME OVER!",
         "Foxes speed up 0.01 each stage. Time limit is reasonable. Stage 100 is nearly impossible.",
-        "Clear all 100: GOPHER CHAMPION!",
+        "Clear all 100: GOPHER CHAMPION!, a trophy, and your name on Eternal GOPHER CHAMPIONS.",
+        "Device best on this device. Global board and Eternal GOPHER CHAMPIONS are python /api/scores and /api/champions only \u2014 Pages has no python.",
         "Friendly chiptune + FX. MUTE defaults on (browser autoplay).",
         "Press 9 to login on this device."
       ],
-      "note": "Same hole as /play."
+      "note": "Same hole as /play. DIG is a separate 8-stage burrow \u2014 type dig or Games/."
     },
     "/pricing": {
       "title": "Pricing/",
@@ -355,11 +362,12 @@
     "/terms": {
       "title": "Terms/",
       "copy": [
-        "This site is a public hole for GOPHER AI: a directory, a waitlist, and FETCH.",
+        "This site is a public hole for GOPHER AI: a directory, a waitlist, FETCH, and DIG.",
         "Waitlist: you give an email. We keep it to tell you when the paid phone assistant is ready. No other contract yet.",
-        "No SLA. The GitHub Pages hole can go down. The local python server is for a machine you run yourself.",
-        "FETCH is a free demo in the browser. Device best stays on the device. The server-wide board is python /api/scores when you run the local server. GitHub Pages has no python process, so it cannot host a true global board.",
-        "Login on this page is a device hole, not a cloud account, not a paid seat."
+        "No SLA. The GitHub Pages hole can go down. The local python server is for a machine you run yourself. Pages is static; python /health is the process. No fake 99.9%.",
+        "FETCH is a free demo in the browser (100-stage maze). DIG is a free demo (8 stages). Device best stays on the device. The server-wide board is python /api/scores and Eternal GOPHER CHAMPIONS is python /api/champions when you run the local server. GitHub Pages has no python process, so it cannot host a true global board.",
+        "Login on this page is a device hole, not a cloud account, not a paid seat.",
+        "watch / remind / draft queue on this device. Not SMS. There is no number."
       ],
       "note": "Paid phone service terms will ship with billing. Not before."
     },
@@ -367,32 +375,37 @@
       "title": "FAQ/",
       "copy": [
         "What is GOPHER AI? A paid phone assistant named after the 1991 Gopher protocol. You send an order. It fetches. This site is the public hole, not the number yet.",
-        "How do I play FETCH? Press 5 or open #/fetch. START. One tap, one tile \u2014 you never auto-run. Eat energy pellets (Huzaaa!). Walls Clunk!!!. Orange foxes Ouchies! (3 HP). Stage clear: VICTORY! Clock hits 0: TIME OVER! Clear all 100: GOPHER CHAMPION! Foxes speed up 0.01 per stage. Stage 100 is nearly impossible. MUTE defaults on (browser autoplay).",
+        "How do I play FETCH? Press 5 or open #/fetch. START. One tap, one tile \u2014 you never auto-run. Eat energy pellets (Huzaaa!). Walls Clunk!!! (\u22120.1 HP). Orange foxes Ouchies! (\u22121 HP). One star per stage: ZAP a fox or BLOCK a hit. KEY or K for the in-game key. Stage clear: VICTORY! Clock hits 0: TIME OVER! Clear all 100: GOPHER CHAMPION!, a trophy, Eternal GOPHER CHAMPIONS. Foxes speed up 0.01 per stage. Stage 100 is nearly impossible. MUTE defaults on (browser autoplay). DIG is a separate 8-stage burrow \u2014 type dig or Games/. FETCH stays the 100-stage maze.",
         "Is login cloud? No. A name and passphrase hashed with PBKDF2 in localStorage on this device. Not a GOPHER AI account.",
         "Is FETCH live prices? No. FETCH is the 100-stage maze. Live tickers are a different fetch: type fetch btc (or ETH, SOL, XRP) in the prompt.",
-        "GitHub Pages vs local? Pages hosts the static hole (directory, FETCH, device login, client waitlist). python3 server.py on your machine adds /api/waitlist, /api/score, /api/scores, /api/ask. The live Pages hole has no python process, so it cannot host a true global score board. Device best still works.",
+        "GitHub Pages vs local? Pages is a static hole (directory, FETCH, DIG, device login, client waitlist). There is no python process on Pages, so no true global board or global champions list. python3 server.py on your machine adds /health (process liveness), /api/waitlist, /api/score, /api/scores, /api/champions, /api/ask. Device best and a local eternal list still work on Pages. No fake 99.9%.",
         "How do I waitlist? Selector 6, type waitlist, or use the email form on the site. On Pages it stores on this device if the API is missing. Local python keeps the server list."
       ]
     },
     "/changelog": {
       "title": "Changelog/",
       "copy": [
+        "2026-08-27/28 \u2014 DIG playable: 8 stages, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze.",
+        "2026-08-27/28 \u2014 FETCH extras: wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS. Device watch/remind/draft queues (not SMS).",
         "2026-08-27 \u2014 FETCH maze rewrite: 100 stages, alternate pathways, one tap one tile, energy pellets, orange foxes, clock.",
         "2026-08-27 \u2014 first public hole."
       ],
       "caps": [
         "FETCH maze: 100 stages, alternate pathways, never auto-runs",
-        "Energy pellets shout Huzaaa! Walls Clunk!!! Orange foxes Ouchies!",
-        "Stage clear VICTORY! Clock 0 TIME OVER! Clear 100 GOPHER CHAMPION!",
-        "Health bar 3 HP; reasonable time limit; foxes +0.01 speed per stage; stage 100 nearly impossible",
+        "Energy pellets shout Huzaaa! Walls Clunk!!! (\u22120.1 HP). Orange foxes Ouchies! (\u22121 HP)",
+        "Star ZAP a fox or BLOCK a hit. KEY or K for the in-game key",
+        "Stage clear VICTORY! Clock 0 TIME OVER! Clear 100 GOPHER CHAMPION! + trophy + Eternal GOPHER CHAMPIONS",
+        "Health bar 3.0 HP; reasonable time limit; foxes +0.01 speed per stage; stage 100 nearly impossible",
+        "DIG: 8 stages, one tap one tile, dig dirt, rocks fall. Type dig or Games/",
         "Friendly chiptune + FX; MUTE defaults on (browser autoplay)",
-        "Device best on every hole; server-wide board is python /api/scores when server.py is up \u2014 Pages cannot host a true global board",
+        "Device best on every hole; server-wide board is python /api/scores and champions /api/champions when server.py is up \u2014 Pages cannot host a true global board",
+        "watch / remind / draft queue on this device, not SMS",
         "hole.json data-driven directory + hash routes",
         "device login, selector 9, PBKDF2 in localStorage",
         "live fetch ticker in the prompt (fetch btc)",
         "PLAY CTA on home \u2014 5 PLAY FETCH"
       ],
-      "note": "Dated for this ship. No older public log."
+      "note": "Dated 2026-08-27/28. No older public log."
     },
     "/contact": {
       "title": "Contact/",
@@ -405,14 +418,19 @@
     "/status": {
       "title": "Status/",
       "caps": [
-        "Site live on GitHub Pages: oxcryptobot.github.io/gopher",
-        "FETCH playable in the browser: 100-stage maze, one tap one tile",
+        "GitHub Pages is a static hole: oxcryptobot.github.io/gopher (directory, FETCH, DIG, device login, client waitlist). No python process on Pages.",
+        "Staging exists: oxcryptobot.github.io/gopher-test. Production is frozen until promote.",
+        "Local python /health is the process liveness check (ok / JSON) when you run python3 server.py. That is not Pages.",
+        "No fake 99.9%. No uptime graph. If the Pages hole loads, it is up.",
+        "FETCH playable: 100-stage maze, one tap one tile, wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS",
+        "DIG playable: 8 stages, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze",
         "Waitlist: client-side on Pages; server list when you run local python",
         "Device login: localStorage only",
         "Ticker fetch: public spot, client-side",
-        "Score board: device best on every hole; GET /api/scores only when python3 server.py is up. GitHub Pages has no python process, so the live Pages hole cannot host a true global board"
+        "watch / remind / draft: device queues, not SMS",
+        "Score board: device best on every hole; GET /api/scores and GET /api/champions only when python3 server.py is up. GitHub Pages has no python process, so the live Pages hole cannot host a true global board or global champions list"
       ],
-      "note": "No uptime graph. If the Pages hole loads, it is up."
+      "note": "Pages is static. python /health is the process. No fake 99.9%."
     },
     "/legal": {
       "title": "6 Legal/",
@@ -446,8 +464,9 @@
       "copy": [
         "Login is PBKDF2 (SHA-256, 120000 iterations) in localStorage. Not cloud. The passphrase never leaves this device.",
         "No API keys in the page. No wallet keys. No phone number stored here.",
-        "FETCH scores post only to local /api/score when you run python3 server.py. That is the server-wide board (GET /api/scores). GitHub Pages has no python process and no score API. Device best still works.",
-        "Waitlist email goes to /api/waitlist locally, or stays in this browser on Pages."
+        "FETCH scores post only to local /api/score when you run python3 server.py. That is the server-wide board (GET /api/scores). Eternal GOPHER CHAMPIONS post to /api/champions on that same server. GitHub Pages has no python process and no score API. Device best still works.",
+        "Waitlist email goes to /api/waitlist locally, or stays in this browser on Pages.",
+        "watch / remind / draft stay on this device. Not SMS."
       ],
       "note": "This is a static hole plus an optional local server. Treat it that way."
     },
@@ -459,9 +478,11 @@
         "? \u2014 prompt + a short help line",
         "esc or 0 \u2014 home",
         "5 \u2014 play FETCH (from home)",
-        "arrows / WASD / pad \u2014 move in FETCH (one tile; you never auto-run)",
-        "START / MUTE \u2014 on the FETCH panel. MUTE defaults on (browser autoplay)",
-        "type an alias (play, faq, waitlist) or an order (fetch btc)"
+        "type dig or Games/ \u2014 play DIG (8 stages, rocks fall; FETCH stays the 100-stage maze)",
+        "arrows / WASD / pad \u2014 move in FETCH or DIG (one tile; you never auto-run)",
+        "START / MUTE \u2014 on the FETCH and DIG panels. MUTE defaults on (browser autoplay)",
+        "KEY / K \u2014 FETCH in-game key",
+        "type an alias (play, dig, faq, waitlist) or an order (fetch btc, watch, remind, draft)"
       ]
     },
     "/es": {
@@ -476,37 +497,38 @@
     "/ship": {
       "title": "Ship/",
       "copy": [
-        "Honest list as of 2026-08-27. LIVE is on production https://oxcryptobot.github.io/gopher/ now. NEXT is this staging wave or later \u2014 not pretend-shipped. Staging: https://oxcryptobot.github.io/gopher-test/",
+        "Honest list as of 2026-08-27/28. Staging https://oxcryptobot.github.io/gopher-test/ already exists. Production https://oxcryptobot.github.io/gopher/ is frozen until promote. LIVE below is in this tree (stage on test, then promote). NEXT is not pretend-shipped.",
         "Full 100-item phased list lives in SHIP.md. Type ship. Method: stage on test, then promote."
       ],
       "caps": [
         "LIVE 100-item SHIP.md on the hole (type ship)",
-        "LIVE staging hole oxcryptobot.github.io/gopher-test",
-        "LIVE production https://oxcryptobot.github.io/gopher/",
         "LIVE staging hole https://oxcryptobot.github.io/gopher-test/",
+        "LIVE production https://oxcryptobot.github.io/gopher/ \u2014 frozen until promote",
         "LIVE method: stage on test, then promote",
         "LIVE Phase 0 playable hole (1\u201325): FETCH selector 5 (100-stage maze), hole.json, hash routes, PBKDF2 login, waitlist, ticker fetch, PLAY CTA, tutorial, dpad, WASD, pause, swipe, haptics, particles, PWA shell, 404, robots, sitemap, security.txt, LICENSE, CSP on python, /health, /api/scores, nested docs, FAQ/pricing/terms",
-        "LIVE Phase 1 already on production: .nojekyll, apple-touch-icon, manifest icons, reduced motion, skip link, live title, scores, keys, changelog, contact, status, press, jobs, /es stub, humans.txt",
+        "LIVE FETCH extras: wall \u22120.1 HP, star ZAP/BLOCK, KEY, trophy, Eternal GOPHER CHAMPIONS (python /api/champions; Pages has no python)",
+        "LIVE DIG: playable 8-stage burrow, one tap one tile, rocks fall. Type dig or Games/. FETCH stays the 100-stage maze",
+        "LIVE watch / remind / draft as device queues (not SMS, no number)",
         "LIVE waitlist rate-limit on local python (8/hour/IP)",
-        "LIVE FETCH maze: 100 stages, alternate pathways, one tap one tile (never auto-runs), pellets Huzaaa!, walls Clunk!!!, orange foxes Ouchies!, VICTORY!, TIME OVER!, GOPHER CHAMPION!, 3 HP, foxes +0.01 speed/stage, mute defaults on; combo on consecutive pellets",
+        "LIVE FETCH maze: 100 stages, alternate pathways, one tap one tile (never auto-runs), pellets Huzaaa!, walls Clunk!!! (\u22120.1 HP), orange foxes Ouchies!, VICTORY!, TIME OVER!, GOPHER CHAMPION!, 3 HP, foxes +0.01 speed/stage, mute defaults on; combo on consecutive pellets",
         "LIVE Open Graph + Twitter share card (names FETCH)",
-        "LIVE python 304 via If-Modified-Since; nosniff, frame deny, Referrer-Policy, Permissions-Policy",
+        "LIVE python 304 via If-Modified-Since; nosniff, frame deny, Referrer-Policy, Permissions-Policy; /health is process liveness, not a fake 99.9%",
         "LIVE no tracking cookies \u2014 no cookie banner",
         "LIVE device login is not a cloud account",
         "LIVE FETCH is a free demo; device best on every hole; python /api/scores is the server-wide board; Pages has no python process so no true global board",
         "LIVE prices are not published; no fake table",
-        "NEXT this staging wave: TEST ribbon, CI, hole.json tests, static tests, a11y dpad labels, SHARE score, INSTALL PWA hook, ship list page, README methodology",
-        "NEXT Phase 2 depth: i18n toggle, FETCH themes, second game, offline ticker cache, tutorial focus trap, keyboard overlay, high contrast, print-safe skip, Pages leaderboard (gist or static \u2014 not built), haptic setting, volume, restart confirm, landscape hint, safe-area insets, manifest screenshots, maskable icon, canonical URL, JSON-LD, sitemap of all holes, ETag",
-        "NEXT Phase 3 product: custom domain, mail waitlist, SMS number, voice in, cloud accounts, billing, published prices, SLA, plugins, cloud order log, store listing, analytics opt-in, uptime page, error reporting, full i18n, legal counsel, refund policy, DPA, hiring, press kit, demo video, brand book, onboarding quest, watch/remind/draft live, Android/iPhone PWA notes, promote runbook",
-        "NEXT public FETCH leaderboard on Pages",
-        "NEXT PWA install prompt",
-        "NEXT hiring (not hiring)"
+        "LIVE Pages is static; python /health is the process; no fake uptime",
+        "NEXT custom domain, mail waitlist, SMS number, voice in, cloud accounts, billing, published prices, SLA, plugins, cloud order log, store listing",
+        "NEXT a real uptime hole (not a fake 99.9%)",
+        "NEXT full i18n (toggle + /es exist; still partial)",
+        "NEXT legal counsel, refund policy, DPA, hiring, demo video",
+        "NEXT phone SMS for watch / remind / draft (device queues are live; no number)"
       ]
     },
     "/press": {
       "title": "Press/",
       "copy": [
-        "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. You send an order. It files a selector, fetches, and replies in the same thread. The public hole is a numbered directory plus FETCH, a 100-stage maze you can play in the browser (one tap, one tile). Waitlist is open. Pricing is not public yet.",
+        "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. You send an order. It files a selector, fetches, and replies in the same thread. The public hole is a numbered directory plus FETCH, a 100-stage maze you can play in the browser (one tap, one tile), and DIG, an 8-stage burrow (type dig or Games/). Waitlist is open. Pricing is not public yet.",
         "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark)."
       ],
       "note": "No user counts. No ARR. No awards. If we do not have the number, we do not print it."
@@ -519,18 +541,25 @@
       "title": "Scores/",
       "copy": [
         "Your local best lives on this device (localStorage). That is the score FETCH shows as best. Device best works on GitHub Pages and on the local python hole.",
-        "The server-wide leaderboard is GET /api/scores when python3 server.py is serving the hole. GitHub Pages has no python process, so the live Pages hole cannot host a true global board. Posts to /api/score no-op there."
+        "The server-wide leaderboard is GET /api/scores when python3 server.py is serving the hole. Eternal GOPHER CHAMPIONS is GET /api/champions on that same server (append-only names who cleared all 100). GitHub Pages has no python process, so the live Pages hole cannot host a true global board or global champions list. Posts to /api/score and /api/champions no-op there. Device best and a local eternal list still work."
       ],
       "note": "Type scores, board, or leaderboard. Play FETCH with selector 5. Do not expect a global board on Pages."
     },
     "/dig": {
       "title": "DIG/",
       "copy": [
-        "DIG is not playable yet. It is queued.",
-        "FETCH is the live game. Home selector 5, path /fetch, or type play.",
-        "No screenshots. When DIG is a hole you can enter, this page will say so."
+        "DIG is playable. One tap, one tile. 8 stages. Dig dirt. Rocks fall. You never auto-run. Free demo. Not the paid phone assistant.",
+        "FETCH is still the 100-stage maze.",
+        "Type dig, or open Games/ then DIG/. Hit START."
       ],
-      "note": "Second game stub. Type dig. FETCH stays the only live burrow."
+      "steps": [
+        "Type dig, or open Games/ then DIG/.",
+        "Hit START.",
+        "Move one tile at a time \u2014 arrows, WASD, or the pad. You never auto-run.",
+        "Dig dirt. Rocks fall.",
+        "8 stages. FETCH stays the 100-stage maze."
+      ],
+      "note": "Type dig or Games/. FETCH is still the 100-stage maze."
     },
     "/install": {
       "title": "Install/",
@@ -570,29 +599,29 @@
     "/watch": {
       "title": "Watch/",
       "copy": [
-        "Watch is product intent, not a live phone selector.",
-        "GOPHER AI does not SMS a watch. There is no number that pings you yet.",
-        "Waitlist is the door \u2014 selector 6, or type waitlist."
+        "Type watch in the prompt. The hole queues that order on this device.",
+        "Not SMS. There is no number. GOPHER AI does not text a watch.",
+        "Waitlist is the phone door \u2014 selector 6, or type waitlist."
       ],
-      "note": "Do not pretend this sends texts."
+      "note": "Device queue, not a live phone selector."
     },
     "/remind": {
       "title": "Remind/",
       "copy": [
-        "Remind is product intent, not a live phone selector.",
-        "No reminder SMS. No alarm to a number.",
-        "Waitlist is the door \u2014 selector 6, or type waitlist."
+        "Type remind in the prompt. The hole queues that order on this device.",
+        "Not SMS. No reminder text. No alarm to a number.",
+        "Waitlist is the phone door \u2014 selector 6, or type waitlist."
       ],
-      "note": "Do not pretend this sends texts."
+      "note": "Device queue, not a live phone selector."
     },
     "/draft": {
       "title": "Draft/",
       "copy": [
-        "Draft is product intent, not a live phone selector.",
-        "There is no SMS draft thread yet.",
-        "Waitlist is the door \u2014 selector 6, or type waitlist."
+        "Type draft in the prompt. The hole queues that order on this device.",
+        "Not SMS. There is no SMS draft thread yet.",
+        "Waitlist is the phone door \u2014 selector 6, or type waitlist."
       ],
-      "note": "Do not pretend this sends texts."
+      "note": "Device queue, not a live phone selector."
     },
     "/quest": {
       "title": "Quest/",

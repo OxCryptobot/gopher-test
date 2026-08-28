@@ -678,3 +678,5 @@ button.tiny:hover {
 }
 #trophy-name { color: var(--fg-bright); letter-spacing: 0.08em; font-weight: 700; }
 #g-pwr { color: var(--fg-bright); }
+
+#g-hp-bar.low { background: var(--err); }

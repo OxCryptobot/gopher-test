@@ -31,12 +31,18 @@ class StaticTests(unittest.TestCase):
         self.assertTrue(icons, "manifest.json icons is empty")
 
     def test_sw_cache_name(self) -> None:
-        self.assertIn("gopher-v3", read("sw.js"))
+        self.assertIn("gopher-v4", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")
         self.assertIn("pauseToggle", src)
         self.assertIn("FetchGame", src)
+
+    def test_dig_js_exists_and_exports_diggame(self) -> None:
+        path = os.path.join(ROOT, "dig.js")
+        self.assertTrue(os.path.isfile(path), "dig.js should exist")
+        src = read("dig.js")
+        self.assertIn("DigGame", src)
 
     def test_game_maze_rewrite_strings(self) -> None:
         """Asserts the FETCH maze rewrite. Passes after game.js lands; ok to fail until then."""

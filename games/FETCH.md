@@ -2,6 +2,8 @@
 
 FETCH is a 100-stage maze on this site. Alternate pathways. One tap, one tile — you never auto-run. Free demo. Not the paid phone assistant.
 
+DIG is a separate 8-stage burrow (type `dig` or Games/). FETCH stays the 100-stage maze.
+
 Open it: press 5, type `play`, or go to `#/fetch`. Hit START.
 
 ## Move
@@ -31,4 +33,4 @@ Friendly chiptune + FX. MUTE still defaults on (browser autoplay).
 
 Device best lives in localStorage on this device. That works on GitHub Pages and on a local python hole.
 
-The hole board is `GET /api/scores` when `python3 server.py` is serving. Eternal GOPHER CHAMPIONS is `GET /api/champions` on that same server (append-only names who cleared 100). GitHub Pages has no python process, so the live Pages hole cannot host a true global board — device best and a local eternal list still work.
+The hole board is `GET /api/scores` when `python3 server.py` is serving. Eternal GOPHER CHAMPIONS is `GET /api/champions` on that same server (append-only names who cleared 100). GitHub Pages has no python process, so the live Pages hole cannot host a true global board or global champions list — device best and a local eternal list still work.
