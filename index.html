@@ -66,6 +66,22 @@
     </div>
   </div>
 
+  <div id="quest" class="quest-overlay" hidden>
+    <div class="quest-card" role="dialog" aria-modal="true" aria-labelledby="quest-title">
+      <h2 id="quest-title">first orders</h2>
+      <ol id="quest-list">
+        <li>press 5 / play FETCH</li>
+        <li>type fetch btc</li>
+        <li>join waitlist</li>
+      </ol>
+      <p id="quest-status"></p>
+      <div class="row">
+        <button type="button" id="quest-skip">SKIP</button>
+        <button type="button" id="quest-next">NEXT</button>
+      </div>
+    </div>
+  </div>
+
   <div class="shell">
     <header class="status">
       <span class="host" id="host">gopher://gopher.ai:70/1</span>
@@ -174,6 +190,8 @@
       <p class="tiny-row">
         <button type="button" id="lang" class="tiny">EN/ES</button>
         <button type="button" id="contrast" class="tiny">HI</button>
+        <button type="button" class="ghost tiny" id="opt-in">TRACK?</button>
+        <button type="button" class="ghost tiny" id="log-link">LOG</button>
       </p>
     </footer>
   </div>

@@ -467,6 +467,41 @@ pre.gopher-doc {
 .tutorial-card kbd { margin-right: 0.45rem; }
 .tutorial-card button { width: 100%; }
 
+.quest-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(7, 9, 8, 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.quest-overlay[hidden] { display: none !important; }
+.quest-card {
+  border: 1px solid var(--fg-mid);
+  background: var(--bg-2);
+  box-shadow: var(--glow), inset 0 0 24px rgba(57, 255, 20, 0.05);
+  padding: 1.15rem 1.2rem 1.25rem;
+  max-width: 36ch;
+  width: min(36ch, 100%);
+}
+.quest-card h2 {
+  letter-spacing: 0.18em;
+  text-shadow: var(--glow);
+}
+.quest-card p { margin: 0 0 0.55rem; color: var(--fg-bright); }
+.quest-card ol {
+  list-style: decimal;
+  padding: 0 0 0 1.4rem;
+  margin: 0.5rem 0 1.1rem;
+}
+.quest-card li { margin: 0.4rem 0; }
+.quest-card kbd { margin-right: 0.45rem; }
+.quest-card .row { margin-top: 0.9rem; }
+.quest-card .row button { flex: 1 1 auto; }
+
+
 .play-row {
   display: flex;
   flex-wrap: wrap;

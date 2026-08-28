@@ -1,0 +1,34 @@
+# GOPHER AI press pack
+
+Assets for journalists and partners. Credit **GOPHER AI**. Do not invent metrics.
+
+## URLs
+
+- Production: https://oxcryptobot.github.io/gopher/
+- Staging: https://oxcryptobot.github.io/gopher-test/ — test hole only. Do not screenshot it as the product.
+
+## Files
+
+| File | What |
+| --- | --- |
+| `home.png` | Production hole home (directory, prompt, wordmark). |
+| `fetch.png` | FETCH, the original 8-bit burrow (selector 5). |
+| `icon.png` | App icon, 512×512 phosphor on near-black. |
+
+These are copies of live shots already on disk. Nothing generated for this pack.
+
+## Credit
+
+Name the product **GOPHER AI**. Both words. Caps.
+
+Suggested one-liner:
+
+> GOPHER AI is a paid phone assistant. Menus, selectors, fetch.
+
+Logo is the ASCII gopher plus the word GOPHER AI. See `../BRAND.md`. Do not redraw it.
+
+Link production, not staging. Do not print download counts, user counts, ARR, or awards. We do not have those numbers.
+
+## Contact
+
+Waitlist on the production hole. GitHub: OxCryptobot. No press phone. No support number.

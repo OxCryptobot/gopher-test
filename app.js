@@ -10,6 +10,9 @@
   var HC_KEY = "gopher_hc_v1";
   var SPOT_KEY = "gopher_last_spot_v1";
   var VOL_KEY = "gopher_vol_v1";
+  var QUEST_KEY = "gopher_quest_v1";
+  var LOG_KEY = "gopher_log_v1";
+  var TRACK_KEY = "gopher_track_v1";
 
   /* Scalable Gopher directory. Add an item in hole.json; this is the fallback. */
   var HOLES = {
@@ -70,6 +73,7 @@
   var game = null;
   var scoreSent = false;
   var deferredInstall = null;
+  var questBound = false;
 
   function esc(s) {
     return String(s)
@@ -470,6 +474,7 @@
       var canvas = $("fetch");
       if (canvas) canvas.setAttribute("aria-live", "polite");
       bootGame();
+      questMark("play");
       return;
     }
     if (path === "/scores") {
@@ -528,6 +533,10 @@
   }
 
   function askServer(q) {
+    if (kindOrder(q)) {
+      queueKindOrder(q);
+      return;
+    }
     setStatus($("ask-status"), "", "fetching…");
     fetch("/api/ask", {
       method: "POST",
@@ -545,6 +554,7 @@
         if (body.kind === "doc") {
           showType0(body.title || "0 Document", body.text || "");
           setStatus($("ask-status"), body.ok ? "ok" : "err", body.ok ? "fetched." : (body.text || "fetch failed."));
+          if (body.ok !== false) questMark("fetch");
           return;
         }
         if (body.kind === "queued") {
@@ -582,6 +592,7 @@
         } catch (err) {}
         showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + amt + "\n\nsource    public spot");
         setStatus($("ask-status"), "ok", "fetched.");
+        questMark("fetch");
       })
       .catch(function () {
         var stash = null;
@@ -589,6 +600,7 @@
         if (stash && stash.id === id && stash.amt != null && stash.amt !== "") {
           showType0("0 " + id + "-USD", id + "-USD\n\nlast      " + stash.amt + "\n\nsource    cached");
           setStatus($("ask-status"), "ok", "cached");
+          questMark("fetch");
           return;
         }
         queueLocal(q);
@@ -602,12 +614,183 @@
     try { localStorage.setItem(TUT_KEY, "1"); } catch (e) {}
     var el = $("tutorial");
     if (el) el.hidden = true;
+    questPaint();
   }
   function tutShow() {
     if (tutSeen()) return;
     var el = $("tutorial");
     if (el) el.hidden = false;
   }
+
+  function questRead() {
+    var o;
+    try { o = JSON.parse(localStorage.getItem(QUEST_KEY) || "null"); } catch (e) { o = null; }
+    if (!o || typeof o !== "object") o = {};
+    return {
+      play: !!o.play,
+      fetch: !!o.fetch,
+      wait: !!o.wait,
+      done: !!o.done
+    };
+  }
+  function questWrite(st) {
+    try { localStorage.setItem(QUEST_KEY, JSON.stringify(st)); } catch (e) {}
+  }
+  function questMark(key) {
+    var st = questRead();
+    if (st.done) return;
+    if (key === "play" || key === "fetch" || key === "wait") st[key] = true;
+    if (st.play && st.fetch && st.wait) st.done = true;
+    questWrite(st);
+    questPaint();
+  }
+  function questNextKey(st) {
+    if (!st.play) return "play";
+    if (!st.fetch) return "fetch";
+    if (!st.wait) return "wait";
+    return "";
+  }
+  function ensureQuestDom() {
+    var el = $("quest");
+    if (el) return el;
+    el = document.createElement("div");
+    el.id = "quest";
+    el.hidden = true;
+    el.setAttribute("role", "region");
+    el.setAttribute("aria-label", "onboarding quest");
+    el.style.cssText = "position:fixed;right:0.75rem;bottom:0.75rem;z-index:30;max-width:28ch;border:1px solid var(--fg-mid,#39ff14);background:var(--bg-2,#070908);padding:0.75rem 0.85rem;box-shadow:var(--glow);";
+    el.innerHTML =
+      "<p id='quest-status' class='info'>first orders</p>" +
+      "<ul id='quest-list'></ul>" +
+      "<div class='row'>" +
+      "<button type='button' id='quest-next'>NEXT</button>" +
+      "<button type='button' id='quest-skip' class='ghost'>SKIP</button>" +
+      "</div>";
+    document.body.appendChild(el);
+    return el;
+  }
+  function bindQuestBtns() {
+    var skip, next;
+    if (questBound) return;
+    skip = $("quest-skip");
+    next = $("quest-next");
+    if (skip) {
+      skip.addEventListener("click", function () {
+        var st = questRead();
+        st.done = true;
+        questWrite(st);
+        questPaint();
+      });
+    }
+    if (next) {
+      next.addEventListener("click", function () { questJump(); });
+    }
+    if (skip || next) questBound = true;
+  }
+  function questPaint() {
+    var el = $("quest");
+    var tut = $("tutorial");
+    var tutOpen = !!(tut && !tut.hidden);
+    var st = questRead();
+    var list, status, steps, i, n, html, nextK, labels;
+    if (tutOpen || !tutSeen() || st.done) {
+      if (el) el.hidden = true;
+      return;
+    }
+    if (!el) el = ensureQuestDom();
+    bindQuestBtns();
+    el.hidden = false;
+    labels = { play: "play FETCH", fetch: "fetch a ticker", wait: "join waitlist" };
+    steps = ["play", "fetch", "wait"];
+    n = 0;
+    html = "";
+    for (i = 0; i < steps.length; i++) {
+      if (st[steps[i]]) n++;
+      html += "<li>" + (st[steps[i]] ? "[x]" : "[ ]") + " " + labels[steps[i]] + "</li>";
+    }
+    list = $("quest-list");
+    status = $("quest-status");
+    if (list) list.innerHTML = html;
+    nextK = questNextKey(st);
+    if (status) {
+      if (!nextK) status.textContent = "quest done.";
+      else status.textContent = n + "/3 · next: " + labels[nextK];
+    }
+  }
+  function questJump() {
+    var st = questRead();
+    var key = questNextKey(st);
+    var cmd, em;
+    if (!key) return;
+    if (key === "play") {
+      go("/fetch");
+      return;
+    }
+    if (key === "fetch") {
+      if (askEl && askEl.hidden) go("/");
+      cmd = $("command");
+      if (cmd) {
+        cmd.placeholder = "fetch btc";
+        cmd.focus();
+      }
+      return;
+    }
+    if (askEl && askEl.hidden) go("/");
+    em = $("email");
+    if (em) em.focus();
+  }
+
+  function kindOrder(q) {
+    var m = /^(watch|remind|draft)\b/i.exec(q || "");
+    return m ? m[1].toLowerCase() : "";
+  }
+  function queueKindOrder(q) {
+    var kind = kindOrder(q) || "order";
+    queueLocal(q);
+    showType0(
+      "0 " + kind,
+      "queued on this device.\n\nnot SMS. there is no number.\n\nwaitlist is the phone door."
+    );
+  }
+
+  function logClientErr(msg) {
+    var list = [], n;
+    try { list = JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch (e) { list = []; }
+    if (!Array.isArray(list)) list = [];
+    list.push({ at: Date.now(), msg: String(msg == null ? "" : msg) });
+    n = list.length - 20;
+    if (n > 0) list = list.slice(n);
+    try { localStorage.setItem(LOG_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  function readTrack() {
+    try { return localStorage.getItem(TRACK_KEY) === "true"; } catch (e) { return false; }
+  }
+  function writeTrack(on) {
+    try { localStorage.setItem(TRACK_KEY, on ? "true" : "false"); } catch (e) {}
+  }
+  function paintTrackBtn() {
+    var el = $("opt-in");
+    if (!el) return;
+    el.textContent = readTrack() ? "TRACK ON" : "TRACK?";
+  }
+  function bindTrackBtn() {
+    var el = $("opt-in");
+    if (!el) return;
+    paintTrackBtn();
+    el.addEventListener("click", function () {
+      var on = !readTrack();
+      writeTrack(on);
+      paintTrackBtn();
+      if (on) setStatus($("ask-status"), "ok", "tracking on this device only. no beacon.");
+    });
+  }
+  window.onerror = function (msg) {
+    logClientErr(msg);
+  };
+  window.addEventListener("unhandledrejection", function (e) {
+    var r = e && e.reason;
+    logClientErr(r && r.message ? r.message : r);
+  });
 
   function tickClock() {
     var clock = $("clock");

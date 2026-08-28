@@ -116,18 +116,18 @@ Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door
 84. [ ] Plugins — connected tools that actually fetch
 85. [ ] Cloud order log — what was asked and what came back, off-device
 86. [ ] Phone app store listing — a store page if/when there is an app
-87. [ ] Analytics opt-in — no silent trackers
+87. [x] Analytics opt-in — TRACK? on the hole; default off; still sends nowhere
 88. [ ] Status page uptime — a real uptime hole, not only `/status` copy
-89. [ ] Error reporting — crash/signal pipeline
+89. [x] Error reporting — on-device log only (`gopher_log_v1`), no cloud
 90. [ ] i18n full — directory and FETCH strings, not a stub
 91. [ ] Legal counsel pass — paid-service terms before money moves
 92. [ ] Refund policy — with billing, not before
 93. [ ] DPA — when there is a processor relationship
 94. [x] Cookie banner — not required; this hole has no tracking cookies
 95. [ ] Hiring — not hiring; no fake openings
-96. [ ] Press kit images — pack beyond the live `/press` paragraph
+96. [x] Press kit images — `press/home.png`, `press/fetch.png`, `press/icon.png`
 97. [ ] Demo video — FETCH + the directory, no stock sludge
-98. [ ] Brand book — phosphor, type, voice
-99. [ ] Onboarding quest — more than the first-hole card
+98. [x] Brand book — working `BRAND.md` (not a 40-page PDF)
+99. [x] Onboarding quest — play FETCH, fetch btc, waitlist
 100. [ ] Watch / remind / draft live (not phone yet). [x] Promote runbook in PROMOTE.md. PWA install hole still landing.
 

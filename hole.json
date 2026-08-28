@@ -40,7 +40,10 @@
     "watch": "/watch",
     "remind": "/remind",
     "draft": "/draft",
-    "pwa": "/install"
+    "pwa": "/install",
+    "quest": "/quest",
+    "log": "/log",
+    "track": "/log"
   },
   "holes": {
     "/": {
@@ -140,7 +143,7 @@
           "type": "1",
           "name": "Site/",
           "path": "/docs/site",
-          "hint": "changelog, ship, install"
+          "hint": "changelog, ship, install, quest, log"
         },
         {
           "n": "9",
@@ -187,7 +190,7 @@
           "type": "0",
           "name": "Press",
           "path": "/press",
-          "hint": "one paragraph"
+          "hint": "blurb + shots"
         },
         {
           "n": "6",
@@ -222,7 +225,21 @@
           "type": "0",
           "name": "Brand",
           "path": "/brand",
-          "hint": "phosphor, not a book"
+          "hint": "BRAND.md"
+        },
+        {
+          "n": "11",
+          "type": "0",
+          "name": "Quest",
+          "path": "/quest",
+          "hint": "three local orders"
+        },
+        {
+          "n": "12",
+          "type": "0",
+          "name": "Log",
+          "path": "/log",
+          "hint": "errors stay here"
         }
       ]
     },
@@ -437,7 +454,8 @@
       "title": "ES/",
       "copy": [
         "GOPHER AI es un asistente de tel\u00e9fono de pago, llamado as\u00ed por el protocolo Gopher de 1991. Hablas a un n\u00famero. Convierte el pedido, busca, y responde en el mismo hilo.",
-        "C\u00f3mo jugar FETCH: pulsa 5 o abre #/fetch. START. Un toque, un tile. Flechas, WASD o el pad. Recoge los paquetes que parpadean. Los muros golpean. El lodo naranja quita una vida. MUTE. 9 para entrar en este aparato."
+        "C\u00f3mo jugar FETCH: pulsa 5 o abre #/fetch. START. Un toque, un tile. Flechas, WASD o el pad. Recoge los paquetes que parpadean. Los muros golpean. El lodo naranja quita una vida. MUTE. 9 para entrar en este aparato.",
+        "Instalar: en el tel\u00e9fono, A\u00f1adir a pantalla de inicio. iPhone (Safari): Compartir, luego A\u00f1adir a pantalla de inicio. Android Chrome: Instalar app, o el men\u00fa y A\u00f1adir a pantalla de inicio. Es un marcador con icono, no el asistente de pago."
       ],
       "note": "Stub i18n. Un solo hueco. El resto del directorio sigue en ingl\u00e9s."
     },
@@ -473,7 +491,10 @@
     },
     "/press": {
       "title": "Press/",
-      "copy": "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. You send an order. It files a selector, fetches, and replies in the same thread. The public hole is a numbered directory plus FETCH, an original 8-bit burrow you can play in the browser. Waitlist is open. Pricing is not public yet.",
+      "copy": [
+        "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. You send an order. It files a selector, fetches, and replies in the same thread. The public hole is a numbered directory plus FETCH, an original 8-bit burrow you can play in the browser. Waitlist is open. Pricing is not public yet.",
+        "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark)."
+      ],
       "note": "No user counts. No ARR. No awards. If we do not have the number, we do not print it."
     },
     "/jobs": {
@@ -527,9 +548,10 @@
       "title": "Brand/",
       "copy": [
         "Phosphor #39ff14 on #070908. Monospace.",
-        "Short voice: orders not chat, selectors not sludge."
+        "Short voice: orders not chat, selectors not sludge.",
+        "The working book is BRAND.md in this tree. Phosphor, type, voice, do and don't."
       ],
-      "note": "Not a full brand book."
+      "note": "Not a 40-page PDF. Type brand."
     },
     "/watch": {
       "title": "Watch/",
@@ -557,6 +579,26 @@
         "Waitlist is the door \u2014 selector 6, or type waitlist."
       ],
       "note": "Do not pretend this sends texts."
+    },
+    "/quest": {
+      "title": "Quest/",
+      "copy": [
+        "Onboarding is three orders. Local only. Nothing leaves this device."
+      ],
+      "steps": [
+        "Type play, or press 5, and run FETCH.",
+        "Type fetch btc in the prompt.",
+        "Type waitlist, or selector 6, and leave an email."
+      ],
+      "note": "No cloud quest. No points off this device. Type quest."
+    },
+    "/log": {
+      "title": "Log/",
+      "copy": [
+        "Errors stay on this device. There is no cloud crash pipe. The hole does not POST faults anywhere.",
+        "TRACK? is opt-in. Even on, it still sends nowhere. No analytics endpoint. No beacon. No cookie."
+      ],
+      "note": "Type log or track. Error reporting and analytics are not shipped."
     }
   }
 }
