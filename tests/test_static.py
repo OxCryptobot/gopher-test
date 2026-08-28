@@ -43,7 +43,7 @@ class StaticTests(unittest.TestCase):
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v13", src)
+        self.assertIn("gopher-v14", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
@@ -55,7 +55,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn('id="thread"', html)
         self.assertIn("gopher_fav_v1", js)
         self.assertIn("gopher_use_v1", js)
-        self.assertIn("gopher-v13", read("sw.js"))
+        self.assertIn("gopher-v14", read("sw.js"))
         self.assertTrue(
             "SUG_MAX = 3" in js or "SUG_IDLE = 3" in js,
             "app.js should cap visible answers at 3",
@@ -101,7 +101,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
         self.assertIn("#chrome", css)
-        self.assertIn("gopher-v13", read("sw.js"))
+        self.assertIn("gopher-v14", read("sw.js"))
         self.assertIn('class="mascot"', html)
         self.assertIn("<pre", html)
         self.assertTrue(
@@ -131,7 +131,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn('q: "waitlist"', js)
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
-        self.assertIn("gopher-v13", read("sw.js"))
+        self.assertIn("gopher-v14", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")
@@ -185,6 +185,21 @@ class StaticTests(unittest.TestCase):
         self.assertIn("tap a skill", js)
         self.assertIn("hosted model parked", html)
         self.assertNotIn("gopher-v11", read("sw.js"))
+
+    def test_brain_url_pages(self) -> None:
+        hole = json.loads(read("hole.json"))
+        self.assertEqual(hole.get("brain"), "")
+        js = read("app.js")
+        self.assertIn("brain URL fetch", js)
+        self.assertIn("loadBrainUrl", js)
+        self.assertIn("setBrainUrl", js)
+        self.assertIn("brainUrl", js)
+        self.assertIn("apiUrl", js)
+        self.assertIn("/api/ask", js)
+        self.assertIn("/api/order", js)
+        self.assertIn("/api/orders", js)
+        self.assertNotIn("GOPHER_LLM_KEY", js)
+        self.assertIn("gopher-v14", read("sw.js"))
 
     def test_no_banned_vendor_copy(self) -> None:
         banned = ("grok", "spacexai")

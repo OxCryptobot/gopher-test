@@ -68,7 +68,7 @@ class LiveTests(unittest.TestCase):
             "SENDGRID_API_KEY",
             "GOPHER_TWILIO_SKIP_SIG",
         ):
-            env.pop(key, None)
+            env[key] = ""
         log_path = "/tmp/gopher-live-test.log"
         proc = None
         logf = open(log_path, "w", encoding="utf-8")
@@ -109,6 +109,30 @@ class LiveTests(unittest.TestCase):
             self.assertEqual(code, 200)
             self.assertIsInstance(status, dict)
             print("LIVE_STATUS_JSON " + json.dumps(status, sort_keys=True))
+
+            req = urllib.request.Request(
+                base + "/api/status",
+                method="OPTIONS",
+                headers={"Origin": "https://oxcryptobot.github.io", "Accept": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+                self.assertIn(resp.status, (200, 204))
+                self.assertEqual(resp.headers.get("Access-Control-Allow-Origin"), "https://oxcryptobot.github.io")
+
+            req = urllib.request.Request(
+                base + "/api/status",
+                headers={"Origin": "https://oxcryptobot.github.io", "Accept": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+                self.assertEqual(resp.status, 200)
+                self.assertEqual(resp.headers.get("Access-Control-Allow-Origin"), "https://oxcryptobot.github.io")
+
+            for hidden in ("/.env", "/.env.local"):
+                try:
+                    urllib.request.urlopen(urllib.request.Request(base + hidden), timeout=TIMEOUT)
+                    self.fail(hidden + " should not be served")
+                except urllib.error.HTTPError as exc:
+                    self.assertEqual(exc.code, 404)
             self.assertIs(status.get("sla"), False)
             plugins = status.get("plugins") or {}
             self.assertIs(plugins.get("ticker"), True)

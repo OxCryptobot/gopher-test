@@ -90,6 +90,7 @@
   var holeLive = false;
   var holeProbed = false;
   var replyOpen = false;
+  var brainUrl = "";
   var DEFAULT_PH = "ask gopher   or   tasks   or   waitlist";
   var SUG_MAX = 3;
   var SUG_IDLE = 3;
@@ -635,6 +636,26 @@
     if (data.alias) ALIAS = data.alias;
     if (!ALIAS.es) ALIAS.es = "/es";
     materializeChildren(HOLES);
+    loadBrainUrl(data);
+  }
+
+  /* brain URL fetch from hole.json; https python hole; empty = Pages matcher-only */
+  function loadBrainUrl(data) {
+    var raw = data && data.brain;
+    setBrainUrl(typeof raw === "string" ? raw : "");
+  }
+
+  function setBrainUrl(raw) {
+    var u = String(raw || "").trim();
+    if (/^https:\/\//i.test(u)) brainUrl = u.replace(/\/+$/, "");
+    else brainUrl = "";
+  }
+
+  function apiUrl(path) {
+    var p = String(path || "");
+    if (p.charAt(0) !== "/") p = "/" + p;
+    if (brainUrl) return brainUrl + p;
+    return p.replace(/^\//, "");
   }
 
   function parentPath(path) {
@@ -2120,7 +2141,7 @@
       }
       again();
     }
-    fetch("api/order?id=" + encodeURIComponent(oid || ""), { headers: { Accept: "application/json" } })
+    fetch(apiUrl("/api/order") + "?id=" + encodeURIComponent(oid || ""), { headers: { Accept: "application/json" } })
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (one) {
         var out;
@@ -2132,7 +2153,7 @@
             return;
           }
         }
-        return fetch("api/orders", { headers: { Accept: "application/json" } })
+        return fetch(apiUrl("/api/orders"), { headers: { Accept: "application/json" } })
           .then(function (res) { return res.ok ? res.json() : []; })
           .then(check);
       })
@@ -2155,7 +2176,7 @@
       clientFetch(q);
       return;
     }
-    pages = onPages() || (holeProbed && !holeLive);
+    pages = !brainUrl && (onPages() || (holeProbed && !holeLive));
     if (pages) {
       clientBrain(q);
       return;
@@ -2163,7 +2184,7 @@
     resetPrompt();
     lineId = threadAppend("gopher", "GOPHER is fetching\u2026");
     setBrain("think", "fetching\u2026");
-    fetch("api/ask", {
+    fetch(apiUrl("/api/ask"), {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({ q: q })

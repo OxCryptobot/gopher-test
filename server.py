@@ -23,6 +23,44 @@ WAITLIST_PATH = os.path.join(ROOT, "waitlist.json")
 ORDERS_PATH = os.path.join(ROOT, "orders.json")
 SCORES_PATH = os.path.join(ROOT, "scores.json")
 CHAMPIONS_PATH = os.path.join(ROOT, "champions.json")
+
+
+def load_env_file(path: str) -> None:
+    """Parse KEY=VALUE lines. Skip comments/blank. Do not override os.environ. Never log values."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            lines = f.readlines()
+    except OSError:
+        return
+    for line in lines:
+        raw = line.strip()
+        if not raw or raw.startswith("#"):
+            continue
+        if raw.startswith("export "):
+            raw = raw[7:].strip()
+        if "=" not in raw:
+            continue
+        key, val = raw.split("=", 1)
+        key = key.strip()
+        if not key:
+            continue
+        if key in os.environ:
+            continue
+        val = val.strip()
+        if len(val) >= 2 and val[0] == val[-1] and val[0] in ("'", '"'):
+            val = val[1:-1]
+        os.environ[key] = val
+
+
+def load_dotenv() -> None:
+    for name in (".env", ".env.local"):
+        path = os.path.join(ROOT, name)
+        if os.path.isfile(path):
+            load_env_file(path)
+
+
+load_dotenv()
+
 HOST = os.environ.get("GOPHER_HOST", "0.0.0.0")
 PORT = int(os.environ.get("GOPHER_PORT", "7070"))
 EMAIL_RE = re.compile(r"^[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}$", re.I)
@@ -37,6 +75,8 @@ HIDDEN = {
     "server.py",
     "README.md",
     ".gitignore",
+    ".env",
+    ".env.local",
 }
 # SHA-1 ETag for these GET static files (and other .html/.css/.js).
 ETAG_FILES = {
@@ -126,6 +166,24 @@ def load_waitlist() -> list:
 
 def save_waitlist(entries: list) -> None:
     save_list(WAITLIST_PATH, entries)
+
+
+def cors_origin_ok(origin: str) -> bool:
+    origin = (origin or "").strip()
+    if not origin:
+        return False
+    try:
+        parsed = urlparse(origin)
+    except ValueError:
+        return False
+    if parsed.scheme not in ("http", "https"):
+        return False
+    host = (parsed.hostname or "").lower()
+    if host in ("localhost", "127.0.0.1"):
+        return True
+    if host == "oxcryptobot.github.io":
+        return True
+    return False
 
 
 def wants_json(handler: SimpleHTTPRequestHandler) -> bool:
@@ -647,7 +705,20 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Cache-Control", self._cache_control())
+        self._cors_headers()
         super().end_headers()
+
+    def _cors_headers(self) -> None:
+        path = urlparse(self.path).path
+        if not path.startswith("/api"):
+            return
+        origin = (self.headers.get("Origin") or "").strip()
+        if not cors_origin_ok(origin):
+            return
+        self.send_header("Access-Control-Allow-Origin", origin)
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization")
+        self.send_header("Vary", "Origin")
 
     def send_head(self):
         path = self.translate_path(self.path)
@@ -763,6 +834,16 @@ class Handler(SimpleHTTPRequestHandler):
             self._brain_reply()
             return
         self.send_error(404, "Not found")
+
+    def do_OPTIONS(self) -> None:
+        parsed = urlparse(self.path)
+        path = parsed.path.rstrip("/") or "/"
+        if not path.startswith("/api"):
+            self.send_error(404, "Not found")
+            return
+        self.send_response(204)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def _status(self) -> None:
         up = max(0, int(time.time() - STARTED_AT))

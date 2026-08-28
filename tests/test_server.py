@@ -12,6 +12,7 @@ import json
 import os
 import socket
 import sys
+import tempfile
 import threading
 import time
 import unittest
@@ -148,6 +149,20 @@ class ServerTests(unittest.TestCase):
         for token in ("grok", "spacexai"):
             self.assertNotIn(token, lower)
         self.assertNotIn("cursor", lower)
+
+    def test_env_hidden_and_loader(self) -> None:
+        self.assertIn('".env"', self.src)
+        self.assertIn('".env.local"', self.src)
+        self.assertIn("load_env_file", self.src)
+        self.assertIn("load_dotenv", self.src)
+        self.assertIn("Never log values", self.src)
+
+    def test_cors_options(self) -> None:
+        self.assertIn("do_OPTIONS", self.src)
+        self.assertIn("Access-Control-Allow-Origin", self.src)
+        self.assertIn("Access-Control-Allow-Methods", self.src)
+        self.assertIn("Content-Type, Accept, Authorization", self.src)
+        self.assertIn("cors_origin_ok", self.src)
 
 
 class CaptureHandler(BaseHTTPRequestHandler):
@@ -429,6 +444,107 @@ class OrderPollTests(unittest.TestCase):
             httpd.server_close()
 
 
+class EnvLoaderTests(unittest.TestCase):
+    def test_load_env_file_skips_existing_and_comments(self) -> None:
+        mod = load_server()
+        os.environ["GOPHER_ENV_TEST_X"] = "keep"
+        os.environ.pop("GOPHER_ENV_TEST_Y", None)
+        fd, path = tempfile.mkstemp(prefix="gopher-env-", suffix=".env")
+        try:
+            os.write(
+                fd,
+                b"# comment\n\nGOPHER_ENV_TEST_X=new\nGOPHER_ENV_TEST_Y=fromfile\nexport GOPHER_ENV_TEST_Z=quoted\n",
+            )
+            os.close(fd)
+            fd = None
+            mod.load_env_file(path)
+            self.assertEqual(os.environ.get("GOPHER_ENV_TEST_X"), "keep")
+            self.assertEqual(os.environ.get("GOPHER_ENV_TEST_Y"), "fromfile")
+            self.assertEqual(os.environ.get("GOPHER_ENV_TEST_Z"), "quoted")
+        finally:
+            if fd is not None:
+                os.close(fd)
+            os.environ.pop("GOPHER_ENV_TEST_X", None)
+            os.environ.pop("GOPHER_ENV_TEST_Y", None)
+            os.environ.pop("GOPHER_ENV_TEST_Z", None)
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
+
+
+class CorsLiveTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.mod = load_server()
+        cls.mod.Handler.log_message = lambda self, fmt, *args: None
+        cls.port = free_port()
+        cls.httpd = ThreadingHTTPServer(("127.0.0.1", cls.port), cls.mod.Handler)
+        cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = "http://127.0.0.1:%s" % cls.port
+        deadline = time.time() + 8
+        last = "not started"
+        while time.time() < deadline:
+            try:
+                code, raw, _ = http("GET", cls.base + "/health")
+                if code == 200:
+                    return
+                last = "health %s %r" % (code, raw)
+            except Exception as exc:
+                last = str(exc)
+                time.sleep(0.05)
+        raise RuntimeError("hole did not start: " + last)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+
+    def _hdrs(self, method: str, path: str, headers: dict | None = None):
+        hdrs = {"Accept": "application/json"}
+        if headers:
+            hdrs.update(headers)
+        req = urllib.request.Request(self.base + path, headers=hdrs, method=method)
+        try:
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                return resp.status, {k.lower(): v for k, v in resp.headers.items()}
+        except urllib.error.HTTPError as exc:
+            return exc.code, {k.lower(): v for k, v in exc.headers.items()}
+
+    def test_options_api_status_cors(self) -> None:
+        code, hdrs = self._hdrs(
+            "OPTIONS",
+            "/api/status",
+            {"Origin": "https://oxcryptobot.github.io"},
+        )
+        self.assertIn(code, (200, 204))
+        self.assertEqual(hdrs.get("access-control-allow-origin"), "https://oxcryptobot.github.io")
+        allow = (hdrs.get("access-control-allow-methods") or "").upper()
+        self.assertIn("GET", allow)
+        self.assertIn("POST", allow)
+        self.assertIn("OPTIONS", allow)
+        ah = hdrs.get("access-control-allow-headers") or ""
+        self.assertIn("Content-Type", ah)
+        self.assertIn("Accept", ah)
+        self.assertIn("Authorization", ah)
+
+    def test_get_api_status_cors(self) -> None:
+        code, hdrs = self._hdrs(
+            "GET",
+            "/api/status",
+            {"Origin": "https://oxcryptobot.github.io"},
+        )
+        self.assertEqual(code, 200)
+        self.assertEqual(hdrs.get("access-control-allow-origin"), "https://oxcryptobot.github.io")
+
+    def test_env_not_served(self) -> None:
+        code, hdrs = self._hdrs("GET", "/.env")
+        self.assertEqual(code, 404)
+        code, hdrs = self._hdrs("GET", "/.env.local")
+        self.assertEqual(code, 404)
+
+
 def main() -> int:
     try:
         loader = unittest.defaultTestLoader
@@ -437,6 +553,8 @@ def main() -> int:
         suite.addTests(loader.loadTestsFromTestCase(PostLlmHookTests))
         suite.addTests(loader.loadTestsFromTestCase(BrainReplyTests))
         suite.addTests(loader.loadTestsFromTestCase(OrderPollTests))
+        suite.addTests(loader.loadTestsFromTestCase(EnvLoaderTests))
+        suite.addTests(loader.loadTestsFromTestCase(CorsLiveTests))
         result = unittest.TextTestRunner(verbosity=2).run(suite)
         return 0 if result.wasSuccessful() else 1
     except AssertionError as exc:

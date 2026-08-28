@@ -32,6 +32,8 @@ python3 server.py
 
 http://127.0.0.1:7070/
 
+Copy `.env.example` to `.env` for webhook env (gitignored). GitHub Pages reads optional public `brain` from `hole.json` (empty = matcher only; never put secrets in the client).
+
 ## Promote
 
 See [PROMOTE.md](PROMOTE.md). Short version: test on staging, run `python3 tests/test_*.py`, push `gopher-test`, then the same commit to production `gopher`.

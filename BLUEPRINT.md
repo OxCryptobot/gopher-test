@@ -30,11 +30,11 @@ Live autoprompt on the hole: type in Prompt <search>, ranked selectors appear. C
 
 ## Prompt UX
 
-The GOPHER prompt is always on (the star). One quiet nav row: GOPHER · search · tasks · waitlist · play. Directory is the page. Three answers under the prompt. MAZE and BURROW live under play. GOPHER is an on-device order router over 100 tasks. GitHub Pages uses a client ticker brain (never POST `/api/ask` on github.io). python `/api/ask` runs when `server.py` is up. When `GOPHER_LLM_HOOK` is set, python fires the live bot webhook (`GOPHER_LLM_KEY` is sent when present). GitHub Pages cannot hold the key, so Pages stays the skill matcher. SMS and voice stay parked (no number). No fake model name. No chat transcript.
+The GOPHER prompt is always on (the star). One quiet nav row: GOPHER · search · tasks · waitlist · play. Directory is the page. Three answers under the prompt. MAZE and BURROW live under play. GOPHER is an on-device order router over 100 tasks. GitHub Pages uses a client ticker brain (never POST `/api/ask` on github.io to itself). Optional public `brain` URL in `hole.json`: if it is a non-empty https URL, Ask GOPHER POSTs that python hole (`/api/ask`, poll `/api/order` and `/api/orders`). Empty `brain` keeps Pages matcher-only. python `/api/ask` runs when `server.py` is up. When `GOPHER_LLM_HOOK` is set, python fires the live bot webhook (`GOPHER_LLM_KEY` is sent when present). The key stays on the python hole, never in the client. SMS and voice stay parked (no number). No fake model name. No chat transcript.
 
 ## Live bot webhook
 
-Python `GOPHER_LLM_HOOK` + `GOPHER_LLM_KEY` fire the live bot webhook from this process. Optional `GOPHER_REPLY_URL` (or `GOPHER_PUBLIC_URL` + `/api/brain/reply`) is where answers POST back. GitHub Pages cannot hold the key so Pages stays the skill matcher. SMS/voice still parked (no number). `GET /api/status` llm is ready only when the hook env is set — wiring, not a live public brain until then.
+Python `GOPHER_LLM_HOOK` + `GOPHER_LLM_KEY` fire the live bot webhook from this process. Optional `GOPHER_REPLY_URL` (or `GOPHER_PUBLIC_URL` + `/api/brain/reply`) is where answers POST back. Copy `.env.example` to `.env` (gitignored; never served). GitHub Pages cannot hold the key; point `hole.json` `brain` at a public python hole if Ask GOPHER should leave the matcher. SMS/voice still parked (no number). `GET /api/status` llm is ready only when the hook env is set — wiring, not a live public brain until then.
 
 ## Open items (18)
 

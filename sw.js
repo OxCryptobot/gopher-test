@@ -1,4 +1,4 @@
-const CACHE = "gopher-v13";
+const CACHE = "gopher-v14";
 const ASSETS = [
   "./",
   "index.html",

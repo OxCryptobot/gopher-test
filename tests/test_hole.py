@@ -94,6 +94,10 @@ class HoleTests(unittest.TestCase):
         self.assertIsInstance(self.holes, dict)
         self.assertIsInstance(self.alias, dict)
 
+    def test_brain_empty_default(self) -> None:
+        self.assertIn("brain", self.data)
+        self.assertEqual(self.data.get("brain"), "")
+
     def test_home_selector_5_is_play(self) -> None:
         home = self.holes.get("/")
         self.assertIsInstance(home, dict, "holes['/'] missing")
