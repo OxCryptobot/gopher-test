@@ -31,4 +31,4 @@ python3 -m py_compile server.py
 
 ## Blocked on a human
 
-Custom domain, outbound mail, billing SKU, phone number, cloud accounts.
+Custom domain, outbound mail (Resend key), billing checkout (Stripe), phone number (not required; prefer Telegram/email), cloud accounts.

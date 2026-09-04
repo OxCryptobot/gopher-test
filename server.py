@@ -306,7 +306,15 @@ def format_fng(row: dict) -> str:
 
 
 def mail_ready() -> bool:
-    return bool(os.environ.get("GOPHER_MAIL_HOOK") or os.environ.get("SENDGRID_API_KEY"))
+    return bool(
+        os.environ.get("GOPHER_MAIL_HOOK")
+        or os.environ.get("RESEND_API_KEY")
+        or os.environ.get("SENDGRID_API_KEY")
+    )
+
+
+def mail_from() -> str:
+    return (os.environ.get("GOPHER_MAIL_FROM") or os.environ.get("RESEND_FROM") or "").strip()
 
 
 def llm_ready() -> bool:
@@ -458,6 +466,63 @@ def apply_brain_reply(order_id: str, q: str, text: str) -> None:
 
 def twilio_ready() -> bool:
     return bool(os.environ.get("TWILIO_NUMBER") and os.environ.get("TWILIO_AUTH_TOKEN"))
+
+
+def telegram_token() -> str:
+    return (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+
+
+def telegram_ready() -> bool:
+    return bool(telegram_token())
+
+
+def telegram_api_base() -> str:
+    return (os.environ.get("GOPHER_TELEGRAM_API") or "https://api.telegram.org").rstrip("/")
+
+
+def telegram_webhook_secret() -> str:
+    return (os.environ.get("TELEGRAM_WEBHOOK_SECRET") or "").strip()
+
+
+def telegram_send(chat_id, text: str) -> bool:
+    token = telegram_token()
+    if not token or chat_id is None:
+        return False
+    msg = re.sub(r"\s+", " ", (text or "")).strip()[:4000] or "queued in the hole."
+    url = telegram_api_base() + "/bot" + token + "/sendMessage"
+    payload = json.dumps({"chat_id": chat_id, "text": msg}).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "GOPHER/0.1",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            resp.read()
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return False
+    return True
+
+
+def telegram_update_text(data: dict):
+    """Return (chat_id, text) from a Telegram Update. Do not invent a bot username."""
+    if not isinstance(data, dict):
+        return None, ""
+    msg = data.get("message") or data.get("edited_message")
+    if not isinstance(msg, dict):
+        return None, ""
+    chat = msg.get("chat") if isinstance(msg.get("chat"), dict) else {}
+    chat_id = chat.get("id")
+    text = msg.get("text")
+    if not isinstance(text, str):
+        cap = msg.get("caption")
+        text = cap if isinstance(cap, str) else ""
+    return chat_id, text.strip() if isinstance(text, str) else ""
 
 
 def mask_sms_number() -> str | None:
@@ -615,6 +680,39 @@ def post_mail_hook(email: str, status: str) -> None:
         url,
         data=payload,
         headers={
+            "Content-Type": "application/json",
+            "User-Agent": "GOPHER/0.1",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            resp.read()
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return
+
+
+
+def post_resend_mail(email: str, status: str) -> None:
+    """Send waitlist join mail via Resend. No-op without key + from. Never log the key."""
+    key = (os.environ.get("RESEND_API_KEY") or "").strip()
+    frm = mail_from()
+    if not key or not frm or status != "joined":
+        return
+    payload = json.dumps(
+        {
+            "from": frm,
+            "to": [email],
+            "subject": "GOPHER AI waitlist",
+            "text": "You're on the waitlist. GOPHER AI is $19/month. Checkout is not live yet. Waitlist is the door.",
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=payload,
+        headers={
+            "Authorization": "Bearer " + key,
             "Content-Type": "application/json",
             "User-Agent": "GOPHER/0.1",
             "Accept": "application/json",
@@ -787,7 +885,7 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/waitlist":
             self._json(405, {"ok": False, "error": "POST an email to join."})
             return
-        if path in ("/api/ask", "/api/score", "/api/champions", "/api/brain/reply"):
+        if path in ("/api/ask", "/api/score", "/api/champions", "/api/brain/reply", "/api/telegram/webhook"):
             self._json(405, {"ok": False, "error": "POST only."})
             return
         return super().do_GET()
@@ -833,6 +931,9 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/brain/reply":
             self._brain_reply()
             return
+        if path == "/api/telegram/webhook":
+            self._telegram_webhook()
+            return
         self.send_error(404, "Not found")
 
     def do_OPTIONS(self) -> None:
@@ -858,7 +959,9 @@ class Handler(SimpleHTTPRequestHandler):
                 "started": datetime.fromtimestamp(STARTED_AT, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "requests": REQS,
                 "sla": False,
-                "progress": {"done": 82, "total": 100},
+                "progress": {"done": 83, "total": 100},
+                "price": "$19/month",
+                "checkout": "parked",
                 "plugins": {
                     "ticker": True,
                     "fng": True,
@@ -866,10 +969,12 @@ class Handler(SimpleHTTPRequestHandler):
                     "mail": mail,
                     "sms": sms,
                     "voice": sms,
+                    "telegram": telegram_ready(),
                     "billing": False,
                 },
                 "twilio": "ready" if sms else "parked",
                 "sms_number": mask_sms_number(),
+                "telegram": "ready" if telegram_ready() else "parked",
                 "mail": "ready" if mail else "parked",
                 "llm": "ready" if llm_ready() else "parked",
             },
@@ -1035,6 +1140,7 @@ class Handler(SimpleHTTPRequestHandler):
         body = {"ok": True, "status": status, "email": email}
         if status == "joined":
             post_mail_hook(email, status)
+            post_resend_mail(email, status)
         if wants_json(self):
             self._json(200, body)
         else:
@@ -1257,6 +1363,41 @@ class Handler(SimpleHTTPRequestHandler):
             "<Response><Say>" + _esc(msg) + "</Say></Response>"
         )
         self._twiml(xml)
+
+    def _telegram_webhook(self) -> None:
+        data, err = self._read_json()
+        if not telegram_ready():
+            self._json(503, {"ok": False, "error": "telegram parked", "telegram": False})
+            return
+        secret = telegram_webhook_secret()
+        if secret:
+            got = (self.headers.get("X-Telegram-Bot-Api-Secret-Token") or "").strip()
+            try:
+                match = hmac.compare_digest(got, secret)
+            except (TypeError, ValueError):
+                match = False
+            if not match:
+                self._json(403, {"ok": False, "error": "bad signature"})
+                return
+        if err == "payload too large":
+            self._json(413, {"ok": False, "error": err})
+            return
+        body = data if isinstance(data, dict) else {}
+        chat_id, text = telegram_update_text(body)
+        if chat_id is None or not text:
+            self._json(200, {"ok": True, "ignored": True})
+            return
+        result = fulfill_order(text)
+        q = result["q"] or text[:280]
+        log_order(
+            q,
+            "telegram",
+            result.get("out") or result.get("short") or "",
+            order_id=result.get("id") or "",
+        )
+        msg = (result.get("short") or "queued in the hole.")[:4000]
+        sent = telegram_send(chat_id, msg)
+        self._json(200, {"ok": True, "sent": sent})
 
     def _brain_reply(self) -> None:
         data, err = self._read_json()

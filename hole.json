@@ -59,7 +59,11 @@
     "usage": "/usage",
     "stats": "/usage",
     "favorites": "/tasks",
-    "fav": "/tasks"
+    "fav": "/tasks",
+    "prices": "/pricing",
+    "price": "/pricing",
+    "telegram": "/plugins",
+    "resend": "/plugins"
   },
   "holes": {
     "/": {
@@ -150,8 +154,8 @@
           "name": "Pricing",
           "name_es": "Precios",
           "path": "/pricing",
-          "hint": "waitlist, no fake prices",
-          "hint_es": "lista de espera, sin precios inventados"
+          "hint": "$19/month, waitlist is the door",
+          "hint_es": "$19 al mes, la waitlist es la puerta"
         },
         {
           "n": "6",
@@ -168,8 +172,8 @@
           "name": "FAQ",
           "name_es": "FAQ",
           "path": "/faq",
-          "hint": "six short answers",
-          "hint_es": "seis respuestas cortas"
+          "hint": "seven short answers",
+          "hint_es": "siete respuestas cortas"
         },
         {
           "n": "8",
@@ -369,12 +373,12 @@
       "title": "1 About/",
       "title_es": "1 Acerca/",
       "copy": [
-        "GOPHER AI is a paid phone assistant. FETCH is search (ticker, fear/greed, ask GOPHER). DIG is do a task from the 100 (watch, remind, draft, nav). Waitlist is the door. No invented prices.",
+        "GOPHER AI is a paid phone assistant. $19/month. FETCH is search (ticker, fear/greed, ask GOPHER). DIG is do a task from the 100 (watch, remind, draft, nav). Waitlist is the door. Checkout parked.",
         "The name is the point. Old Gopher was a menu, a selector, a fetch. No infinite scroll. No chat sludge. A modern prompt sits on that contract.",
         "MAZE and BURROW are a side quest — kill time between searches. They are not the product."
       ],
       "copy_es": [
-        "GOPHER AI es un asistente de teléfono de pago. FETCH es search (ticker, fear/greed, pregunta a GOPHER). DIG es hacer una tarea de las 100 (watch, remind, draft, nav). La waitlist es la puerta. Sin precios inventados.",
+        "GOPHER AI es un asistente de teléfono de pago. $19 al mes. FETCH es search (ticker, fear/greed, pregunta a GOPHER). DIG es hacer una tarea de las 100 (watch, remind, draft, nav). La waitlist es la puerta. Checkout aparcado.",
         "El nombre es el punto. El Gopher viejo era un menú, un selector, un fetch. Sin scroll infinito. Sin lodo de chat. Un prompt moderno se sienta sobre ese contrato.",
         "MAZE y BURROW son un side quest — mata el tiempo entre búsquedas. No son el producto."
       ]
@@ -383,16 +387,16 @@
       "title": "2 How it works/",
       "title_es": "2 Cómo funciona/",
       "steps": [
-        "You send an order in the prompt — or later, voice or SMS.",
+        "You send an order in the prompt. Later: Telegram, email, or in-app Ask. SMS/voice stay parked.",
         "FETCH is search: ticker, fear/greed, ask GOPHER.",
         "DIG is a task from the 100: watch, remind, draft, nav. Parked products stay parked.",
-        "The result comes back to the same conversation. Waitlist is the paid SaaS door."
+        "The result comes back to the same conversation. Waitlist is the paid SaaS door. $19/month. Checkout parked."
       ],
       "steps_es": [
-        "Envías un pedido en el prompt — o luego, voz o SMS.",
+        "Envías un pedido en el prompt. Luego: Telegram, correo, o Ask en la app. SMS/voz siguen aparcados.",
         "FETCH es search: ticker, fear/greed, pregunta a GOPHER.",
         "DIG es una tarea de las 100: watch, remind, draft, nav. Lo aparcado sigue aparcado.",
-        "El resultado vuelve a la misma conversación. La waitlist es la puerta del SaaS de pago."
+        "El resultado vuelve a la misma conversación. La waitlist es la puerta del SaaS de pago. $19 al mes. Checkout aparcado."
       ]
     },
     "/caps": {
@@ -404,7 +408,7 @@
         "Numbered menus + a modern ask box. Three answers under the prompt.",
         "MAZE, a 100-stage side quest. One tap, one tile. Kill time between searches.",
         "BURROW, an 30-stage side quest. Dig dirt. Rocks fall.",
-        "A log of what was asked and what came back. Paid SaaS. Waitlist is the door. No invented prices."
+        "A log of what was asked and what came back. Paid SaaS. $19/month. Waitlist is the door. Checkout parked."
       ],
       "caps_es": [
         "FETCH = search. Ticker, fear/greed, pregunta a GOPHER.",
@@ -412,7 +416,7 @@
         "Menús numerados + una caja de pregunta moderna. Tres respuestas bajo el prompt.",
         "MAZE, un side quest de 100 etapas. Un toque, un tile. Mata el tiempo entre búsquedas.",
         "BURROW, un side quest de 30 etapas. Cava tierra. Caen rocas.",
-        "Un log de lo que se pidió y lo que volvió. SaaS de pago. La waitlist es la puerta. Sin precios inventados."
+        "Un log de lo que se pidió y lo que volvió. SaaS de pago. $19 al mes. La waitlist es la puerta. Checkout aparcado."
       ],
       "note": "Not a general chatbot. Not a free public menu.",
       "note_es": "No es un chatbot general. No es un menú público gratis."
@@ -507,17 +511,17 @@
       "title": "Pricing/",
       "title_es": "Precios/",
       "copy": [
-        "GOPHER AI is a paid phone assistant. You will talk to a number. You will pay for that number and the fetches it does.",
-        "Prices are not public yet. There is no fake table, no invented monthly fee, no “from $x”.",
-        "Join the waitlist now. When billing exists, people on the list hear first."
+        "GOPHER AI is a paid phone assistant. $19/month.",
+        "Waitlist is the door. Checkout and billing are parked — no Stripe checkout yet.",
+        "Join the waitlist now. When checkout exists, people on the list hear first."
       ],
       "copy_es": [
-        "GOPHER AI es un asistente de teléfono de pago. Hablarás a un número. Pagarás por ese número y los fetches que haga.",
-        "Los precios aún no son públicos. No hay tabla falsa, ni cuota mensual inventada, ni “desde $x”.",
-        "Entra a la lista de espera ahora. Cuando exista facturación, la lista se entera primero."
+        "GOPHER AI es un asistente de teléfono de pago. $19 al mes.",
+        "La waitlist es la puerta. Cobro y checkout están aparcados — aún no hay checkout Stripe.",
+        "Entra a la lista de espera ahora. Cuando exista checkout, la lista se entera primero."
       ],
-      "note": "Selector waitlist, or type waitlist. No invented prices. MAZE on this site stays a free side quest.",
-      "note_es": "Selector waitlist, o escribe waitlist. Sin precios inventados. MAZE en este sitio sigue siendo un side quest gratis."
+      "note": "Type waitlist. $19/month. Checkout parked. MAZE on this site stays a free side quest.",
+      "note_es": "Escribe waitlist. $19 al mes. Checkout aparcado. MAZE en este sitio sigue siendo un side quest gratis."
     },
     "/terms": {
       "title": "Terms/",
@@ -550,7 +554,8 @@
         "Is login cloud? No. A name and passphrase hashed with PBKDF2 in localStorage on this device. Not a GOPHER AI account.",
         "Is FETCH live prices? FETCH is search. Type fetch btc (or ETH, SOL, XRP, fear greed) in the prompt. No invented prices. The maze is MAZE, a side quest.",
         "GitHub Pages vs local? Pages is a static hole (directory, FETCH, DIG, device login, client waitlist). There is no python process on Pages, so no true global board or global champions list. python3 server.py on your machine adds /health (process liveness), /api/waitlist, /api/score, /api/scores, /api/champions, /api/ask. Device best and a local eternal list still work on Pages. No fake 99.9%.",
-        "How do I waitlist? Waitlist in the top bar, type waitlist, or use the email form on #/waitlist. On Pages it stores on this device if the API is missing. Local python keeps the server list."
+        "How do I waitlist? Waitlist in the top bar, type waitlist, or use the email form on #/waitlist. On Pages it stores on this device if the API is missing. Local python keeps the server list.",
+        "What does it cost? $19/month. Waitlist is the door. Checkout is not live yet. MAZE stays free."
       ],
       "copy_es": [
         "¿Qué es GOPHER AI? Un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. Este sitio es el hueco público, aún no el número. La waitlist es la puerta.",
@@ -558,13 +563,15 @@
         "¿El login es nube? No. Un nombre y una frase secreta hasheados con PBKDF2 en localStorage en este dispositivo. No es una cuenta GOPHER AI.",
         "¿FETCH es precios en vivo? FETCH es search. Escribe fetch btc (o ETH, SOL, XRP, fear greed) en el prompt. Sin precios inventados. El laberinto es MAZE, un side quest.",
         "¿GitHub Pages vs local? Pages es un hueco estático (directorio, FETCH, DIG, login del dispositivo, lista de espera del cliente). No hay proceso python en Pages, así que no hay tabla global de verdad ni lista global de campeones. python3 server.py en tu máquina añade /health (vida del proceso), /api/waitlist, /api/score, /api/scores, /api/champions, /api/ask. El mejor del dispositivo y una lista eterna local sí funcionan en Pages. Sin 99.9% inventado.",
-        "¿Cómo entro a la lista de espera? Waitlist en la barra, escribe waitlist, o usa el formulario de email en #/waitlist. En Pages se guarda en este dispositivo si falta la API. El python local guarda la lista del servidor."
+        "¿Cómo entro a la lista de espera? Waitlist en la barra, escribe waitlist, o usa el formulario de email en #/waitlist. En Pages se guarda en este dispositivo si falta la API. El python local guarda la lista del servidor.",
+        "¿Cuánto cuesta? $19 al mes. La waitlist es la puerta. El checkout aún no está vivo. MAZE sigue gratis."
       ]
     },
     "/changelog": {
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-09-04 — Public price $19/month on /pricing. Waitlist is the door. Checkout parked. Telegram/Resend wired parked. 83/100.",
         "2026-08-28 — Tasks/ is a tap catalog. BURROW 30 stages, gems, CSS scale. Mascot always on. 82/100.",
         "2026-08-28 — ask GOPHER wired on Pages, answers static, no spin. 82/100.",
         "2026-08-28 — FETCH is search, DIG is tasks, MAZE/BURROW side quest, 3 answers. 82/100.",
@@ -580,6 +587,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-09-04 — Precio público $19 al mes en /pricing. La waitlist es la puerta. Checkout aparcado. Telegram/Resend cableados aparcados. 83/100.",
         "2026-08-28 — Tasks/ es un catálogo tappable. BURROW 30 etapas, gemas, escala CSS. Mascot siempre on. 82/100.",
         "2026-08-28 — ask GOPHER cableado en Pages, respuestas fijas, sin giro. 82/100.",
         "2026-08-28 — FETCH es search, DIG es tareas, MAZE/BURROW side quest, 3 respuestas. 82/100.",
@@ -655,7 +663,9 @@
         "Device login: localStorage only",
         "Ticker fetch: public spot, client-side",
         "watch / remind / draft: device queues, not SMS",
-        "Score board: device best on every hole; GET /api/scores and GET /api/champions only when python3 server.py is up. GitHub Pages has no python process, so the live Pages hole cannot host a true global board or global champions list"
+        "Score board: device best on every hole; GET /api/scores and GET /api/champions only when python3 server.py is up. GitHub Pages has no python process, so the live Pages hole cannot host a true global board or global champions list",
+        "Public price: $19/month on /pricing. Waitlist is the door. Checkout/billing parked.",
+        "Telegram parked until TELEGRAM_BOT_TOKEN. Mail parked until Resend/hook. SMS/voice parked. No number invented."
       ],
       "caps_es": [
         "GitHub Pages es un hueco estático: oxcryptobot.github.io/gopher (directorio, search, tareas, side quest MAZE/BURROW, login del dispositivo, lista de espera del cliente). No hay proceso python en Pages.",
@@ -668,7 +678,9 @@
         "Login del dispositivo: solo localStorage",
         "Ticker fetch: spot público, del cliente",
         "watch / remind / draft: colas del dispositivo, no SMS",
-        "Tabla de puntajes: mejor del dispositivo en cada hueco; GET /api/scores y GET /api/champions solo cuando python3 server.py está arriba. GitHub Pages no tiene proceso python, así que el hueco Pages en vivo no puede hospedar una tabla global de verdad ni una lista global de campeones"
+        "Tabla de puntajes: mejor del dispositivo en cada hueco; GET /api/scores y GET /api/champions solo cuando python3 server.py está arriba. GitHub Pages no tiene proceso python, así que el hueco Pages en vivo no puede hospedar una tabla global de verdad ni una lista global de campeones",
+        "Precio público: $19 al mes en /pricing. La waitlist es la puerta. Checkout/cobro aparcados.",
+        "Telegram aparcado hasta TELEGRAM_BOT_TOKEN. Correo aparcado hasta Resend/hook. SMS/voz aparcados. Sin número inventado."
       ],
       "note": "Pages is static. python /health is the process. No fake 99.9%.",
       "note_es": "Pages es estático. python /health es el proceso. Sin 99.9% inventado."
@@ -776,12 +788,12 @@
       "title": "Ship/",
       "title_es": "Ship/",
       "copy": [
-        "Honest list as of 2026-08-27/28. Staging https://oxcryptobot.github.io/gopher-test/ already exists. Production https://oxcryptobot.github.io/gopher/ is frozen until promote. LIVE below is in this tree (stage on test, then promote). NEXT is not pretend-shipped.",
-        "Full 100-item phased list lives in SHIP.md. Type ship. Method: stage on test, then promote."
+        "Honest list as of 2026-09-04. Staging https://oxcryptobot.github.io/gopher-test/ already exists. Production https://oxcryptobot.github.io/gopher/ is frozen until promote. LIVE below is in this tree (stage on test, then promote). NEXT is not pretend-shipped.",
+        "Full 100-item phased list lives in SHIP.md. Type ship. Method: stage on test, then promote. Progress 83/100."
       ],
       "copy_es": [
-        "Lista honesta al 2026-08-27/28. Staging https://oxcryptobot.github.io/gopher-test/ ya existe. Producción https://oxcryptobot.github.io/gopher/ está congelada hasta promote. LIVE abajo está en este árbol (stage en test, luego promote). NEXT no está fingido como shipped.",
-        "La lista completa de 100 ítems por fases vive en SHIP.md. Escribe ship. Método: stage en test, luego promote."
+        "Lista honesta al 2026-09-04. Staging https://oxcryptobot.github.io/gopher-test/ ya existe. Producción https://oxcryptobot.github.io/gopher/ está congelada hasta promote. LIVE abajo está en este árbol (stage en test, luego promote). NEXT no está fingido como shipped.",
+        "La lista completa de 100 ítems por fases vive en SHIP.md. Escribe ship. Método: stage en test, luego promote. Progreso 83/100."
       ],
       "caps": [
         "LIVE 100-item SHIP.md on the hole (type ship)",
@@ -799,9 +811,9 @@
         "LIVE no tracking cookies — no cookie banner",
         "LIVE device login is not a cloud account",
         "LIVE FETCH is a free demo; device best on every hole; python /api/scores is the server-wide board; Pages has no python process so no true global board",
-        "LIVE prices are not published; no fake table",
+        "LIVE public price $19/month on /pricing; waitlist is the door; checkout/billing parked",
         "LIVE Pages is static; python /health is the process; no fake uptime",
-        "NEXT custom domain, mail waitlist, SMS number, voice in, cloud accounts, billing, published prices, SLA, plugins, cloud order log, store listing",
+        "NEXT custom domain, mail waitlist, SMS number, voice in, cloud accounts, billing, SLA, plugins, cloud order log, store listing",
         "NEXT a real uptime hole (not a fake 99.9%)",
         "LIVE i18n EN/ES (toggle, directory, FETCH/DIG shell, 29 doc bodies). Buttons stay EN",
         "NEXT legal counsel, refund policy, DPA, hiring, demo video",
@@ -823,9 +835,9 @@
         "LIVE sin cookies de tracking — sin banner de cookies",
         "LIVE el login del dispositivo no es una cuenta en la nube",
         "LIVE FETCH es una demo gratis; mejor del dispositivo en cada hueco; python /api/scores es la tabla del servidor; Pages no tiene proceso python así que no hay tabla global de verdad",
-        "LIVE los precios no se publican; no hay tabla falsa",
+        "LIVE precio público $19 al mes en /pricing; la waitlist es la puerta; checkout/cobro aparcados",
         "LIVE Pages es estático; python /health es el proceso; sin uptime inventado",
-        "NEXT dominio propio, lista de espera por mail, número SMS, voz de entrada, cuentas en la nube, facturación, precios publicados, SLA, plugins, log de pedidos en la nube, ficha de tienda",
+        "NEXT dominio propio, lista de espera por mail, número SMS, voz de entrada, cuentas en la nube, facturación, SLA, plugins, log de pedidos en la nube, ficha de tienda",
         "NEXT un hueco de uptime de verdad (no un 99.9% inventado)",
         "LIVE i18n EN/ES (toggle, directorio, FETCH/DIG, 29 textos). Botones en EN",
         "NEXT consejo legal, política de reembolso, DPA, contratación, video demo",
@@ -1048,27 +1060,27 @@
       "title": "Blueprint/",
       "title_es": "Plano/",
       "copy": [
-        "82 of 100. Playable hole 74/75. Paid phone 8/25. Remaining work is the hard product, not 18% of effort.",
-        "Open: 28 CI, 76 domain, 77 mail, 78 SMS, 79 voice, 80 cloud accounts, 81 billing, 82 prices, 83 SLA, 84 more plugins, 85 cloud order log, 86 store listing, 88 uptime product, 91 legal, 92 refunds, 93 DPA, 95 hiring, 97 demo video.",
-        "Wire order: CI PAT workflow, domain, mail, billing (you name a real price), SMS/voice number, cloud accounts, uptime product, then legal/hiring/store/demo video.",
-        "This wave: python live plugin flags, fng fetch, Twilio webhooks that 503 until env is set, waitlist mail hook if GOPHER_MAIL_HOOK is set.",
-        "Pages cannot run server.py. Do not invent prices, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, plugins, orders, or status.",
+        "83 of 100. Playable hole 74/75. Paid phone 9/25. Remaining work is the hard product, not 17% of effort.",
+        "Open: 28 CI, 76 domain, 77 mail, 78 SMS, 79 voice, 80 cloud accounts, 81 billing, 83 SLA, 84 more plugins, 85 cloud order log, 86 store listing, 88 uptime product, 91 legal, 92 refunds, 93 DPA, 95 hiring, 97 demo video.",
+        "Free path: Pages now, Vercel static later (free tier). Python brain on a free host. Telegram + Resend email before Twilio.",
+        "Published price $19/month on /pricing. Waitlist is the door. Checkout/billing parked. No Stripe yet.",
+        "This wave: python Telegram webhook 503 until TELEGRAM_BOT_TOKEN, Resend join mail if RESEND_API_KEY or GOPHER_MAIL_HOOK, public $19/month.",
+        "Pages cannot run server.py. Do not invent bot usernames, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, plugins, orders, or status.",
         "Type tasks in the prompt, or open /tasks. Autoprompt ranks live selectors. Parked products stay parked.",
         "The GOPHER prompt is always on. Suggestions always listed. Hosted model parked until GOPHER_LLM_HOOK is set.",
         "FETCH is search. DIG is a task from the 100. MAZE and BURROW are a side quest under Play/. Three answers under the prompt."
       ],
       "copy_es": [
-        "82 de 100. Hueco jugable 74/75. Telefono de pago 8/25. Lo que falta es el producto duro, no el 18% del esfuerzo.",
-        "Abierto: CI, dominio, correo, SMS, voz, cuentas, cobro, precios, SLA, mas plugins, log, tienda, uptime, legal, reembolsos, DPA, contratacion, video demo.",
-        "Orden: CI, dominio, correo, cobro, SMS/voz, cuentas, uptime, luego legal/tienda/video.",
-        "Esta ola: flags de plugins en python, fetch fng, webhooks Twilio en 503 hasta que haya env, hook de mail si GOPHER_MAIL_HOOK esta puesto.",
-        "Pages no corre server.py. No inventar precios, SMS ni un SLA.",
+        "83 de 100. Hueco jugable 74/75. Teléfono de pago 9/25. Lo que falta es el producto duro, no el 17% del esfuerzo.",
+        "Abierto: CI, dominio, correo, SMS, voz, cuentas, cobro, SLA, más plugins, log, tienda, uptime, legal, reembolsos, DPA, contratación, video demo.",
+        "Camino gratis: Pages ahora, Vercel estático después. Cerebro python en un host gratis. Telegram + Resend antes de Twilio.",
+        "Precio público $19 al mes en /pricing. La waitlist es la puerta. Checkout/cobro aparcados.",
+        "Esta ola: webhook Telegram en 503 hasta TELEGRAM_BOT_TOKEN, mail Resend si hay clave, $19 al mes público.",
+        "Pages no corre server.py. No inventar bots, SMS ni un SLA.",
         "Escribe tasks en el prompt, o abre /tasks. El autoprompt ordena selectores vivos. Lo aparcado sigue aparcado.",
         "El prompt GOPHER está siempre on. Sugerencias siempre listadas. Modelo hospedado aparcado hasta GOPHER_LLM_HOOK.",
         "FETCH es search. DIG es una tarea de las 100. MAZE y BURROW son un side quest bajo Play/. Tres respuestas bajo el prompt."
-      ],
-      "note": "Not hiring. No fake openings. No fake SLA.",
-      "note_es": "No contratamos. Sin SLA inventado."
+      ]
     },
     "/plugins": {
       "title": "Plugins/",
@@ -1076,21 +1088,25 @@
       "caps": [
         "ticker — live. type fetch btc (ETH SOL XRP DOGE ADA). Coinbase then OKX.",
         "fng — live on python. type fetch fg / fear greed / fng. Pages has no python.",
-        "SMS / voice — parked. Twilio skills installed, no number.",
-        "mail waitlist — parked. GOPHER_MAIL_HOOK or SendGrid not set. no outbound mail today.",
-        "billing — parked. needs Stripe and a real price you name.",
-        "identity — parked. device PBKDF2 only."
+        "telegram — parked until TELEGRAM_BOT_TOKEN. no bot username invented.",
+        "mail waitlist — parked until RESEND_API_KEY or GOPHER_MAIL_HOOK. Resend free tier.",
+        "SMS / voice — parked. Twilio is not required. no number invented.",
+        "billing — parked. no Stripe checkout. public price $19/month on /pricing.",
+        "identity — parked. device PBKDF2 only.",
+        "host — GitHub Pages now. Vercel static later (free tier). not this batch."
       ],
       "caps_es": [
         "ticker — vivo. escribe fetch btc (ETH SOL XRP DOGE ADA).",
         "fng — vivo en python. escribe fetch fg / fear greed / fng. Pages no tiene python.",
-        "SMS / voz — aparcado. Skills de Twilio instalados, no hay numero.",
-        "correo — aparcado. GOPHER_MAIL_HOOK o SendGrid no estan puestos.",
-        "cobro — aparcado. falta Stripe y un precio real.",
-        "identidad — aparcado. solo PBKDF2 en el dispositivo."
+        "telegram — aparcado hasta TELEGRAM_BOT_TOKEN. sin nombre de bot inventado.",
+        "correo — aparcado hasta RESEND_API_KEY o GOPHER_MAIL_HOOK. Resend en plan gratis.",
+        "SMS / voz — aparcado. Twilio no es obligatorio. no hay número inventado.",
+        "cobro — aparcado. no hay checkout Stripe. precio público $19 al mes en /pricing.",
+        "identidad — aparcado. solo PBKDF2 en el dispositivo.",
+        "host — GitHub Pages ahora. Vercel estático después (plan gratis). no esta ola."
       ],
-      "note": "Type plugins. Ticker and python fng are live. SMS/voice/mail/billing parked.",
-      "note_es": "Escribe plugins. Ticker y fng en python estan vivos. SMS/voz/correo/cobro aparcados."
+      "note": "Type plugins. Ticker and python fng are live. Telegram/mail parked until env. SMS/voice/billing parked. Pages now, Vercel later.",
+      "note_es": "Escribe plugins. Ticker y fng en python están vivos. Telegram/correo aparcados hasta env. SMS/voz/cobro aparcados. Pages ahora, Vercel después."
     },
     "/orders": {
       "title": "Orders/",
@@ -1098,11 +1114,11 @@
       "copy": [
         "Ask queue. On the python hole, GET /api/orders returns the last 20 (q + time, no emails).",
         "On GitHub Pages there is no python process, so this page shows the device queue only.",
-        "Not SMS. There is no number."
+        "Not SMS. There is no number. Telegram and mail are parked until env is set. Waitlist is the door. Checkout parked."
       ],
       "copy_es": [
-        "Cola de ordenes. En python, GET /api/orders. En Pages, solo la cola del dispositivo.",
-        "No es SMS. No hay numero."
+        "Cola de órdenes. En python, GET /api/orders. En Pages, solo la cola del dispositivo.",
+        "No es SMS. No hay número. Telegram y correo están aparcados hasta que haya env. La waitlist es la puerta. Checkout aparcado."
       ],
       "note": "Type orders.",
       "note_es": "Escribe orders."

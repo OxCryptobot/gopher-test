@@ -213,12 +213,16 @@
       "q": "pricing",
       "title": "Pricing",
       "title_es": "Precios",
-      "hint": "no fake table",
-      "hint_es": "sin tabla falsa",
+      "hint": "$19/month",
+      "hint_es": "$19 al mes",
       "kind": "nav",
       "run": "nav",
       "live": true,
-      "path": "/pricing"
+      "path": "/pricing",
+      "aliases": [
+        "prices",
+        "price"
+      ]
     },
     {
       "id": "terms",
@@ -333,8 +337,8 @@
       "q": "ship",
       "title": "Ship",
       "title_es": "Ship",
-      "hint": "82/100 list",
-      "hint_es": "lista 82/100",
+      "hint": "83/100 list",
+      "hint_es": "lista 83/100",
       "kind": "nav",
       "run": "nav",
       "live": true,
@@ -1250,8 +1254,8 @@
       "q": "billing",
       "title": "billing",
       "title_es": "cobro",
-      "hint": "parked. no SKU",
-      "hint_es": "aparcado. sin SKU",
+      "hint": "parked. no checkout",
+      "hint_es": "aparcado. sin checkout",
       "kind": "parked",
       "run": "parked",
       "live": false,
@@ -1261,16 +1265,19 @@
       ]
     },
     {
-      "id": "prices",
-      "q": "prices",
-      "title": "prices",
-      "title_es": "precios",
-      "hint": "parked. none public",
-      "hint_es": "aparcado. ninguno público",
+      "id": "telegram",
+      "q": "telegram",
+      "title": "telegram",
+      "title_es": "telegram",
+      "hint": "parked. no bot token",
+      "hint_es": "aparcado. sin token de bot",
       "kind": "parked",
       "run": "parked",
       "live": false,
-      "path": "/blueprint"
+      "path": "/plugins",
+      "aliases": [
+        "tg"
+      ]
     },
     {
       "id": "domain",

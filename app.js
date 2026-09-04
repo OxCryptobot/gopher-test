@@ -1241,6 +1241,9 @@
           "voice    " + (p.voice ? "ready" : "parked"),
           "mail     " + ((d && d.mail) || "parked"),
           "llm      " + ((d && d.llm) || "parked"),
+          "telegram " + ((d && d.telegram) || "parked"),
+          "price    $19/month",
+          "checkout parked",
           "billing  parked"
         ];
         if (el) el.textContent = lines.join("\n");
@@ -1260,6 +1263,7 @@
           + " voice=" + (p.voice ? "ready" : "parked")
           + " mail=" + ((d && d.mail) || "parked")
           + " llm=" + ((d && d.llm) || "parked")
+          + " telegram=" + ((d && d.telegram) || "parked")
           + " billing=" + (p.billing ? "ready" : "parked")
           + " twilio=" + ((d && d.twilio) || "parked")
           + " sla=" + (d && d.sla === true ? "true" : "false");
@@ -1273,7 +1277,7 @@
   function paintOrders() {
     viewEl.hidden = false;
     askEl.hidden = false;
-    viewEl.innerHTML = "<h2>0 Orders/</h2><p class='info'>last asks. no emails. not SMS.</p><pre class='gopher-doc' id='orders-pre'>loading…</pre>";
+    viewEl.innerHTML = "<h2>0 Orders/</h2><p class='info'>last asks. no emails. not SMS. waitlist is the door. checkout parked.</p><pre class='gopher-doc' id='orders-pre'>loading…</pre>";
     var el = $("orders-pre");
     var local = readKinds().map(function (r, i) {
       return String(i + 1).padStart(2, " ") + "  device  " + String((r && r.kind) || "order") + "  " + String((r && r.q) || "");
@@ -1591,8 +1595,9 @@
     if (id === "sms") return "parked. no SMS number. see plugins";
     if (id === "voice") return "parked. no voice number. see plugins";
     if (id === "mail") return "parked. no outbound mail. see plugins";
-    if (id === "billing") return "parked. no billing. see blueprint";
-    if (id === "prices") return "parked. no published prices. see blueprint";
+    if (id === "billing") return "parked. no Stripe checkout. $19/month is public. see pricing";
+    if (id === "telegram") return "parked. no Telegram bot token. see plugins";
+    if (id === "prices") return "$19/month. waitlist is the door. see pricing";
     if (id === "domain") return "parked. no custom domain. see blueprint";
     if (id === "cloud-accounts") return "parked. device login only. see plugins";
     if (id === "sla") return "parked. no SLA. see blueprint";

@@ -143,7 +143,12 @@ class LiveTests(unittest.TestCase):
             self.assertEqual(status.get("mail"), "parked")
             if "llm" in status:
                 self.assertEqual(status.get("llm"), "parked")
-            self.assertEqual((status.get("progress") or {}).get("done"), 82)
+            self.assertEqual((status.get("progress") or {}).get("done"), 83)
+            self.assertEqual(status.get("price"), "$19/month")
+            self.assertEqual(status.get("checkout"), "parked")
+            self.assertEqual(status.get("telegram"), "parked")
+            self.assertIs(plugins.get("telegram"), False)
+            self.assertIs(plugins.get("billing"), False)
 
             code, raw, tasks = http("GET", base + "/api/tasks")
             self.assertEqual(code, 200)
@@ -157,6 +162,19 @@ class LiveTests(unittest.TestCase):
             self.assertIsInstance(body, dict)
             self.assertEqual(body.get("error"), "twilio parked")
             self.assertIs(body.get("sms"), False)
+            self.assertIs(body.get("ok"), False)
+
+            payload = b"{}"
+            code, raw, body = http(
+                "POST",
+                base + "/api/telegram/webhook",
+                data=payload,
+                headers={"Content-Type": "application/json", "Accept": "application/json"},
+            )
+            self.assertEqual(code, 503)
+            self.assertIsInstance(body, dict)
+            self.assertEqual(body.get("error"), "telegram parked")
+            self.assertIs(body.get("telegram"), False)
             self.assertIs(body.get("ok"), False)
 
             email = "live-%s@example.com" % uuid.uuid4().hex

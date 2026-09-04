@@ -29,6 +29,11 @@ ENV_KEYS = (
     "GOPHER_LLM_KEY",
     "GOPHER_PUBLIC_URL",
     "GOPHER_REPLY_URL",
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_WEBHOOK_SECRET",
+    "GOPHER_TELEGRAM_API",
+    "RESEND_API_KEY",
+    "GOPHER_MAIL_FROM",
 )
 
 
@@ -136,6 +141,16 @@ class ServerTests(unittest.TestCase):
 
     def test_twilio_parked_string(self) -> None:
         self.assertIn("twilio parked", self.src)
+
+    def test_telegram_parked_route(self) -> None:
+        self.assertIn("/api/telegram/webhook", self.src)
+        self.assertIn("telegram parked", self.src)
+        self.assertIn("TELEGRAM_BOT_TOKEN", self.src)
+        self.assertIn("sendMessage", self.src)
+        self.assertIn("RESEND_API_KEY", self.src)
+        self.assertIn("api.resend.com", self.src)
+        self.assertIn('"done": 83', self.src)
+        self.assertIn("$19/month", self.src)
 
     def test_brain_reply_route(self) -> None:
         self.assertIn("/api/brain/reply", self.src)
@@ -545,6 +560,83 @@ class CorsLiveTests(unittest.TestCase):
         self.assertEqual(code, 404)
 
 
+class TelegramWebhookTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.mod = load_server()
+        cls.mod.Handler.log_message = lambda self, fmt, *args: None
+        cls.port = free_port()
+        cls.httpd = ThreadingHTTPServer(("127.0.0.1", cls.port), cls.mod.Handler)
+        cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = "http://127.0.0.1:%s" % cls.port
+        deadline = time.time() + 8
+        last = "not started"
+        while time.time() < deadline:
+            try:
+                code, raw, _ = http("GET", cls.base + "/health")
+                if code == 200:
+                    return
+                last = "health %s %r" % (code, raw)
+            except Exception as exc:
+                last = str(exc)
+                time.sleep(0.05)
+        raise RuntimeError("hole did not start: " + last)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+
+    def setUp(self) -> None:
+        self.guard = _EnvGuard()
+        for key in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_WEBHOOK_SECRET", "GOPHER_TELEGRAM_API", "GOPHER_LLM_HOOK"):
+            os.environ.pop(key, None)
+
+    def tearDown(self) -> None:
+        self.guard.restore()
+
+    def test_parked_503(self) -> None:
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/telegram/webhook",
+            data=b"{}",
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+        )
+        self.assertEqual(code, 503)
+        self.assertEqual(body.get("error"), "telegram parked")
+        self.assertIs(body.get("telegram"), False)
+
+    def test_update_maps_to_fulfill_and_send(self) -> None:
+        cap_port = free_port()
+        httpd = ThreadingHTTPServer(("127.0.0.1", cap_port), CaptureHandler)
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        CaptureHandler.last_headers = {}
+        CaptureHandler.last_body = {}
+        CaptureHandler.last_path = ""
+        try:
+            os.environ["TELEGRAM_BOT_TOKEN"] = "test-token"
+            os.environ["GOPHER_TELEGRAM_API"] = "http://127.0.0.1:%s" % cap_port
+            payload = json.dumps({"message": {"chat": {"id": 42}, "text": "hello gopher"}}).encode("utf-8")
+            code, raw, body = http(
+                "POST",
+                self.base + "/api/telegram/webhook",
+                data=payload,
+                headers={"Content-Type": "application/json", "Accept": "application/json"},
+            )
+            self.assertEqual(code, 200, raw)
+            self.assertIs(body.get("ok"), True)
+            self.assertIs(body.get("sent"), True)
+            self.assertEqual(CaptureHandler.last_path, "/bottest-token/sendMessage")
+            self.assertEqual(CaptureHandler.last_body.get("chat_id"), 42)
+            self.assertTrue(str(CaptureHandler.last_body.get("text") or ""))
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
+
+
 def main() -> int:
     try:
         loader = unittest.defaultTestLoader
@@ -555,6 +647,7 @@ def main() -> int:
         suite.addTests(loader.loadTestsFromTestCase(OrderPollTests))
         suite.addTests(loader.loadTestsFromTestCase(EnvLoaderTests))
         suite.addTests(loader.loadTestsFromTestCase(CorsLiveTests))
+        suite.addTests(loader.loadTestsFromTestCase(TelegramWebhookTests))
         result = unittest.TextTestRunner(verbosity=2).run(suite)
         return 0 if result.wasSuccessful() else 1
     except AssertionError as exc:

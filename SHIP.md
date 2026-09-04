@@ -4,11 +4,11 @@ Production: https://oxcryptobot.github.io/gopher/
 Staging: https://oxcryptobot.github.io/gopher-test/  
 Method: stage on test, then promote to production. Do not ship to production first. Production is frozen until promote.
 
-Status marks are honest as of 2026-08-28.
+Status marks are honest as of 2026-09-04.
 
-Progress: 82/100. Phase 0 25/25, phase 1 24/25 (28 CI blocked on workflow PAT), phase 2 25/25, phase 3 8/25.
+Progress: 83/100. Phase 0 25/25, phase 1 24/25 (28 CI blocked on workflow PAT), phase 2 25/25, phase 3 9/25.
 
-Open: 28, 76–86, 88, 91–93, 95, 97.
+Open: 28, 76–81, 83–86, 88, 91–93, 95, 97.
 
 - `[x]` done on production
 - `[ ]` this staging wave, or next
@@ -67,7 +67,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 41. [x] Live title — `document.title` follows the current hole
 42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
-44. [x] Changelog — `#/changelog`, dated 2026-08-27/28 (2026-08-28: ask GOPHER wired on Pages, answers static, no spin, 82/100)
+44. [x] Changelog — `#/changelog`, dated 2026-08-27/28/09-04 (2026-09-04: $19/month public, waitlist door, checkout parked, 83/100)
 45. [x] Contact — GitHub + waitlist, no support number
 46. [x] Status hole — Pages is static; python `/health` is the process; no fake 99.9%, no fake uptime graph
 47. [x] Press hole — one paragraph, no invented metrics
@@ -107,17 +107,17 @@ Playable is not deep. Combo and waitlist rate-limit are already in. DIG is playa
 
 ## Phase 3 — Product (76–100)
 
-Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door.
+Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door. Public price is $19/month. Checkout still parked.
 
 76. [ ] Custom domain — gopher.ai (or successor) on the hole, not only github.io
 77. [ ] Mail waitlist — real outbound mail, not only a JSON file / device stash
 78. [ ] SMS number — a number people can text. Twilio skills installed; python `/api/twilio/sms` returns 503 until TWILIO_NUMBER + TWILIO_AUTH_TOKEN exist. No number invented.
 79. [ ] Voice in — talk to the number, order in the same thread. Python `/api/twilio/voice` is parked the same way. No number invented.
 80. [ ] Cloud accounts — not device-only PBKDF2
-81. [ ] Billing — a paid SKU, not a mock table
-82. [ ] Published prices — public numbers only when they are real
+81. [ ] Billing — a paid SKU, not a mock table. Checkout parked. No Stripe yet.
+82. [x] Published prices — $19/month on /pricing. Waitlist is the door. Checkout/billing parked (81).
 83. [ ] SLA — none today; do not invent one
-84. [ ] Plugins — connected tools that actually fetch. Ticker and python fng are live; SMS/voice/mail/billing still parked.
+84. [ ] Plugins — connected tools that actually fetch. Ticker and python fng are live; Telegram webhook 503 until TELEGRAM_BOT_TOKEN; Resend mail until key; SMS/voice/billing still parked. Twilio is not required.
 85. [ ] Cloud order log — what was asked and what came back, off-device. Python `/api/orders` exists; GitHub Pages has no python process, so Pages is not a cloud log.
 86. [ ] Phone app store listing — a store page if/when there is an app
 87. [x] Analytics opt-in — TRACK? on the hole; default off; still sends nowhere

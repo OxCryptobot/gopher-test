@@ -58,7 +58,7 @@ You send an order. It fetches. Same hole, either way.
 - Phosphor `#39ff14` on `#070908`.
 - Monospace. CRT scan if the surface is the hole.
 - Credit **GOPHER AI**. Link the production hole.
-- Print only numbers you have. Waitlist is the door. Prices are not public yet.
+- Print only numbers you have. Waitlist is the door. Public price is $19/month. Do not invent other prices.
 - Stage on test, then promote. Never ship a half-built hole to production first.
 
 ## Don't
@@ -67,7 +67,7 @@ You send an order. It fetches. Same hole, either way.
 - Fake metrics, download counts, ARR, awards, invented SLA, invented prices.
 - Sans-serif splash pages, stock photos, extra colors.
 - Substitute a cartoon for the ASCII gopher.
-- Pretend cloud accounts, billing, or a phone number exist. They do not yet.
+- Pretend cloud accounts, billing checkout, or a phone number exist. They do not yet. Price is named; checkout is not live. Telegram/Resend are parked until env.
 
 ## Surfaces
 

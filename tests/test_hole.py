@@ -180,6 +180,44 @@ class HoleTests(unittest.TestCase):
         )
         self.assertNotIn("dig is do a task", blob)
 
+    def test_public_price_nineteen(self) -> None:
+        hole = self.holes.get("/pricing") or {}
+        blob = " ".join(flatten_text(hole))
+        low = blob.lower()
+        self.assertIn("$19", blob)
+        self.assertIn("month", low)
+        self.assertIn("waitlist", low)
+        self.assertTrue("parked" in low or "checkout" in low, blob[:240])
+        for bad in ("$29", "$49", "$99/", "from $"):
+            self.assertNotIn(bad, blob)
+        self.assertNotIn("prices are not public yet", low)
+
+    def test_prices_skill_is_public(self) -> None:
+        path = os.path.join(ROOT, "tasks.json")
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        tasks = {t["id"]: t for t in data["tasks"]}
+        pricing = tasks["pricing"]
+        self.assertTrue(pricing.get("live"))
+        self.assertIn("$19", pricing.get("hint") or "")
+        self.assertEqual(pricing.get("path"), "/pricing")
+        self.assertNotIn("prices", tasks)
+        telegram = tasks["telegram"]
+        self.assertIs(telegram.get("live"), False)
+        self.assertEqual(telegram.get("kind"), "parked")
+
+    def test_ship_marks_price_not_billing(self) -> None:
+        text = open(os.path.join(ROOT, "SHIP.md"), encoding="utf-8").read()
+        self.assertIn("Progress: 83/100", text)
+        self.assertIn("phase 3 9/25", text)
+        self.assertIn("82. [x] Published prices", text)
+        self.assertIn("81. [ ] Billing", text)
+        self.assertIn("78. [ ] SMS", text)
+        self.assertIn("79. [ ] Voice", text)
+        self.assertNotIn("78. [x]", text)
+        self.assertNotIn("79. [x]", text)
+        self.assertNotIn("81. [x]", text)
+
 
 
 def main() -> int:
