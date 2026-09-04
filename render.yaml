@@ -1,0 +1,27 @@
+# GOPHER AI — free-tier python hole on Render.
+# Dashboard: New → Blueprint → this file, or Web Service from repo.
+services:
+  - type: web
+    name: gopher-hole
+    runtime: python
+    plan: free
+    buildCommand: "true"
+    startCommand: "python3 server.py"
+    healthCheckPath: /health
+    envVars:
+      - key: GOPHER_HOST
+        value: "0.0.0.0"
+      - key: GOPHER_PUBLIC_URL
+        sync: false
+      - key: GOPHER_LLM_HOOK
+        sync: false
+      - key: GOPHER_LLM_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: GOPHER_MAIL_FROM
+        sync: false

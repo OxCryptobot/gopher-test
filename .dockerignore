@@ -1,0 +1,12 @@
+.git
+.github
+.env
+.env.local
+__pycache__
+*.pyc
+*.pyo
+.DS_Store
+tests
+shots
+press
+.dockerignore

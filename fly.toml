@@ -1,0 +1,33 @@
+# GOPHER AI — Fly.io free-ish python hole.
+# fly launch --no-deploy  then  fly deploy
+# Set secrets with: fly secrets set KEY=value
+
+app = "gopher-hole"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  GOPHER_HOST = "0.0.0.0"
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
