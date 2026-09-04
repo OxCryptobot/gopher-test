@@ -63,7 +63,13 @@
     "prices": "/pricing",
     "price": "/pricing",
     "telegram": "/plugins",
-    "resend": "/plugins"
+    "resend": "/plugins",
+    "checkout": "/pricing",
+    "refund": "/refund",
+    "refunds": "/refund",
+    "dpa": "/dpa",
+    "deploy": "/deploy",
+    "mail": "/plugins"
   },
   "holes": {
     "/": {
@@ -163,8 +169,8 @@
           "name": "Legal/",
           "name_es": "Legal/",
           "path": "/legal",
-          "hint": "privacy, terms, security",
-          "hint_es": "privacidad, términos, seguridad"
+          "hint": "privacy, terms, security, refund, DPA",
+          "hint_es": "privacidad, términos, seguridad, reembolso, DPA"
         },
         {
           "n": "7",
@@ -205,8 +211,8 @@
           "name": "Changelog",
           "name_es": "Cambios",
           "path": "/changelog",
-          "hint": "2026-08-28",
-          "hint_es": "2026-08-28"
+          "hint": "2026-09-04",
+          "hint_es": "2026-09-04"
         },
         {
           "n": "2",
@@ -324,6 +330,15 @@
           "path": "/tasks",
           "hint": "100 orders",
           "hint_es": "100 órdenes"
+        },
+        {
+          "n": "15",
+          "type": "0",
+          "name": "Deploy",
+          "name_es": "Deploy",
+          "path": "/deploy",
+          "hint": "DEPLOY.md · free path",
+          "hint_es": "DEPLOY.md · camino gratis"
         }
       ]
     },
@@ -571,6 +586,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-09-04 — Python harden: Telegram /start help, Resend HTML join mail, orders.jsonl, market+trending plugins. Still needs env/host. $19/month. 83/100.",
         "2026-09-04 — Public price $19/month on /pricing. Waitlist is the door. Checkout parked. Telegram/Resend wired parked. 83/100.",
         "2026-08-28 — Tasks/ is a tap catalog. BURROW 30 stages, gems, CSS scale. Mascot always on. 82/100.",
         "2026-08-28 — ask GOPHER wired on Pages, answers static, no spin. 82/100.",
@@ -587,6 +603,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-09-04 — Python endurecido: Telegram /start, mail Resend HTML, orders.jsonl, plugins market+trending. Aún necesita env/host. $19/mes. 83/100.",
         "2026-09-04 — Precio público $19 al mes en /pricing. La waitlist es la puerta. Checkout aparcado. Telegram/Resend cableados aparcados. 83/100.",
         "2026-08-28 — Tasks/ es un catálogo tappable. BURROW 30 etapas, gemas, escala CSS. Mascot siempre on. 82/100.",
         "2026-08-28 — ask GOPHER cableado en Pages, respuestas fijas, sin giro. 82/100.",
@@ -640,12 +657,12 @@
       "title_es": "Contacto/",
       "copy": [
         "Code: github.com/OxCryptobot/gopher",
-        "Waitlist: use the email form on this site (selector 6). That is the inbox we read.",
+        "Waitlist: use the email form on this site (waitlist in the top bar). That is the inbox we read.",
         "There is no support number yet. There is no SLA mailbox yet."
       ],
       "copy_es": [
         "Código: github.com/OxCryptobot/gopher",
-        "Lista de espera: usa el formulario de email en este sitio (selector 6). Esa es la bandeja que leemos.",
+        "Lista de espera: usa el formulario de email en este sitio (waitlist en la barra). Esa es la bandeja que leemos.",
         "Aún no hay número de soporte. Aún no hay buzón SLA."
       ]
     },
@@ -688,8 +705,8 @@
     "/legal": {
       "title": "6 Legal/",
       "title_es": "6 Legal/",
-      "copy": "Short legal hole. Privacy, terms, how login is stored. No paid-service contract yet.",
-      "copy_es": "Hueco legal corto. Privacidad, términos, cómo se guarda el login. Aún no hay contrato de servicio de pago.",
+      "copy": "Short legal hole. Privacy, terms, security. Refund and DPA are parked until billing/processor — no invented lawyer text.",
+      "copy_es": "Hueco legal corto. Privacidad, términos, seguridad. Reembolso y DPA aparcados hasta cobro/procesador — sin texto legal inventado.",
       "items": [
         {
           "n": "1",
@@ -717,6 +734,24 @@
           "path": "/security",
           "hint": "device login, no keys",
           "hint_es": "login del dispositivo, sin claves"
+        },
+        {
+          "n": "4",
+          "type": "0",
+          "name": "Refund",
+          "name_es": "Reembolso",
+          "path": "/refund",
+          "hint": "parked until billing",
+          "hint_es": "aparcado hasta cobro"
+        },
+        {
+          "n": "5",
+          "type": "0",
+          "name": "DPA",
+          "name_es": "DPA",
+          "path": "/dpa",
+          "hint": "parked until processor",
+          "hint_es": "aparcado hasta procesador"
         }
       ]
     },
@@ -813,6 +848,7 @@
         "LIVE FETCH is a free demo; device best on every hole; python /api/scores is the server-wide board; Pages has no python process so no true global board",
         "LIVE public price $19/month on /pricing; waitlist is the door; checkout/billing parked",
         "LIVE Pages is static; python /health is the process; no fake uptime",
+        "LIVE Deploy/ hole + DEPLOY.md — free path Pages → python host → optional Telegram/Resend (type deploy)",
         "NEXT custom domain, mail waitlist, SMS number, voice in, cloud accounts, billing, SLA, plugins, cloud order log, store listing",
         "NEXT a real uptime hole (not a fake 99.9%)",
         "LIVE i18n EN/ES (toggle, directory, FETCH/DIG shell, 29 doc bodies). Buttons stay EN",
@@ -837,6 +873,7 @@
         "LIVE FETCH es una demo gratis; mejor del dispositivo en cada hueco; python /api/scores es la tabla del servidor; Pages no tiene proceso python así que no hay tabla global de verdad",
         "LIVE precio público $19 al mes en /pricing; la waitlist es la puerta; checkout/cobro aparcados",
         "LIVE Pages es estático; python /health es el proceso; sin uptime inventado",
+        "LIVE hueco Deploy/ + DEPLOY.md — camino gratis Pages → host python → Telegram/Resend opcional (escribe deploy)",
         "NEXT dominio propio, lista de espera por mail, número SMS, voz de entrada, cuentas en la nube, facturación, SLA, plugins, log de pedidos en la nube, ficha de tienda",
         "NEXT un hueco de uptime de verdad (no un 99.9% inventado)",
         "LIVE i18n EN/ES (toggle, directorio, FETCH/DIG, 29 textos). Botones en EN",
@@ -848,11 +885,11 @@
       "title": "Press/",
       "title_es": "Prensa/",
       "copy": [
-        "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. FETCH is search. DIG is do a task from the 100. The public hole is a numbered directory plus a prompt with three answers. MAZE and BURROW are a side quest (kill time between searches). Waitlist is open. Pricing is not public yet.",
+        "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. FETCH is search. DIG is do a task from the 100. The public hole is a numbered directory plus a prompt with three answers. MAZE and BURROW are a side quest (kill time between searches). Waitlist is open. Public price $19/month on /pricing. Checkout parked.",
         "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark)."
       ],
       "copy_es": [
-        "GOPHER AI es un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. El hueco público es un directorio numerado más un prompt con tres respuestas. MAZE y BURROW son un side quest (mata el tiempo entre búsquedas). Lista de espera abierta. Los precios aún no son públicos.",
+        "GOPHER AI es un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. El hueco público es un directorio numerado más un prompt con tres respuestas. MAZE y BURROW son un side quest (mata el tiempo entre búsquedas). Lista de espera abierta. Precio público $19 al mes en /pricing. Checkout aparcado.",
         "Capturas en este sitio, rutas relativas: press/home.png (directorio), press/fetch.png (FETCH), press/icon.png (marca)."
       ],
       "note": "No user counts. No ARR. No awards. If we do not have the number, we do not print it.",
@@ -861,8 +898,8 @@
     "/jobs": {
       "title": "Jobs/",
       "title_es": "Empleo/",
-      "copy": "Not hiring. There is no openings page and no fake roles. Join the waitlist instead — selector 6, or type waitlist.",
-      "copy_es": "No contratamos. No hay página de vacantes ni roles inventados. Entra a la lista de espera — selector 6, o escribe waitlist."
+      "copy": "Not hiring. There is no openings page and no fake roles. Join the waitlist instead — waitlist in the top bar, or type waitlist.",
+      "copy_es": "No contratamos. No hay página de vacantes ni roles inventados. Entra a la lista de espera — waitlist en la barra, o escribe waitlist."
     },
     "/scores": {
       "title": "Scores/",
@@ -978,12 +1015,12 @@
       "copy": [
         "Type watch in the prompt. The hole queues that order on this device.",
         "Not SMS. There is no number. GOPHER AI does not text a watch.",
-        "Waitlist is the phone door — selector 6, or type waitlist."
+        "Waitlist is the phone door — waitlist in the top bar, or type waitlist."
       ],
       "copy_es": [
         "Escribe watch en el prompt. El hueco encola ese pedido en este dispositivo.",
         "No SMS. No hay número. GOPHER AI no manda un watch por texto.",
-        "La lista de espera es la puerta del teléfono — selector 6, o escribe waitlist."
+        "La lista de espera es la puerta del teléfono — waitlist in the top bar, o escribe waitlist."
       ],
       "note": "Device queue, not a live phone selector.",
       "note_es": "Cola del dispositivo, no un selector de teléfono en vivo."
@@ -994,12 +1031,12 @@
       "copy": [
         "Type remind in the prompt. The hole queues that order on this device.",
         "Not SMS. No reminder text. No alarm to a number.",
-        "Waitlist is the phone door — selector 6, or type waitlist."
+        "Waitlist is the phone door — waitlist in the top bar, or type waitlist."
       ],
       "copy_es": [
         "Escribe remind en el prompt. El hueco encola ese pedido en este dispositivo.",
         "No SMS. No hay texto de recordatorio. No hay alarma a un número.",
-        "La lista de espera es la puerta del teléfono — selector 6, o escribe waitlist."
+        "La lista de espera es la puerta del teléfono — waitlist in the top bar, o escribe waitlist."
       ],
       "note": "Device queue, not a live phone selector.",
       "note_es": "Cola del dispositivo, no un selector de teléfono en vivo."
@@ -1010,12 +1047,12 @@
       "copy": [
         "Type draft in the prompt. The hole queues that order on this device.",
         "Not SMS. There is no SMS draft thread yet.",
-        "Waitlist is the phone door — selector 6, or type waitlist."
+        "Waitlist is the phone door — waitlist in the top bar, or type waitlist."
       ],
       "copy_es": [
         "Escribe draft en el prompt. El hueco encola ese pedido en este dispositivo.",
         "No SMS. Aún no hay hilo de draft por SMS.",
-        "La lista de espera es la puerta del teléfono — selector 6, o escribe waitlist."
+        "La lista de espera es la puerta del teléfono — waitlist in the top bar, o escribe waitlist."
       ],
       "note": "Device queue, not a live phone selector.",
       "note_es": "Cola del dispositivo, no un selector de teléfono en vivo."
@@ -1061,11 +1098,12 @@
       "title_es": "Plano/",
       "copy": [
         "83 of 100. Playable hole 74/75. Paid phone 9/25. Remaining work is the hard product, not 17% of effort.",
-        "Open: 28 CI, 76 domain, 77 mail, 78 SMS, 79 voice, 80 cloud accounts, 81 billing, 83 SLA, 84 more plugins, 85 cloud order log, 86 store listing, 88 uptime product, 91 legal, 92 refunds, 93 DPA, 95 hiring, 97 demo video.",
+        "Open: 28 CI, 76 domain, 77 mail, 78 SMS, 79 voice, 80 cloud accounts, 81 billing, 83 SLA, 84 more plugins (code ready on python), 85 cloud order log (code ready, needs public python), 86 store listing, 88 uptime product, 91 legal, 92 refunds, 93 DPA, 95 hiring, 97 demo video.",
         "Free path: Pages now, Vercel static later (free tier). Python brain on a free host. Telegram + Resend email before Twilio.",
+        "Deploy runbook: DEPLOY.md (type deploy). Free path Pages → python on Render/Railway/Fly → point brain → optional Telegram/Resend.",
         "Published price $19/month on /pricing. Waitlist is the door. Checkout/billing parked. No Stripe yet.",
-        "This wave: python Telegram webhook 503 until TELEGRAM_BOT_TOKEN, Resend join mail if RESEND_API_KEY or GOPHER_MAIL_HOOK, public $19/month.",
-        "Pages cannot run server.py. Do not invent bot usernames, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, plugins, orders, or status.",
+        "This wave: Telegram /start+fulfill (503 until TELEGRAM_BOT_TOKEN), Resend HTML join mail if key+from, durable orders.jsonl, market+trending plugins, public $19/month.",
+        "Pages cannot run server.py. Do not invent bot usernames, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, deploy, plugins, orders, or status.",
         "Type tasks in the prompt, or open /tasks. Autoprompt ranks live selectors. Parked products stay parked.",
         "The GOPHER prompt is always on. Suggestions always listed. Hosted model parked until GOPHER_LLM_HOOK is set.",
         "FETCH is search. DIG is a task from the 100. MAZE and BURROW are a side quest under Play/. Three answers under the prompt."
@@ -1074,6 +1112,7 @@
         "83 de 100. Hueco jugable 74/75. Teléfono de pago 9/25. Lo que falta es el producto duro, no el 17% del esfuerzo.",
         "Abierto: CI, dominio, correo, SMS, voz, cuentas, cobro, SLA, más plugins, log, tienda, uptime, legal, reembolsos, DPA, contratación, video demo.",
         "Camino gratis: Pages ahora, Vercel estático después. Cerebro python en un host gratis. Telegram + Resend antes de Twilio.",
+        "Runbook de deploy: DEPLOY.md (escribe deploy). Camino gratis Pages → python en Render/Railway/Fly → apunta brain → Telegram/Resend opcional.",
         "Precio público $19 al mes en /pricing. La waitlist es la puerta. Checkout/cobro aparcados.",
         "Esta ola: webhook Telegram en 503 hasta TELEGRAM_BOT_TOKEN, mail Resend si hay clave, $19 al mes público.",
         "Pages no corre server.py. No inventar bots, SMS ni un SLA.",
@@ -1086,38 +1125,43 @@
       "title": "Plugins/",
       "title_es": "Plugins/",
       "caps": [
-        "ticker — live. type fetch btc (ETH SOL XRP DOGE ADA). Coinbase then OKX.",
+        "ticker — live. type fetch btc (ETH SOL XRP DOGE ADA…). OKX then Coinbase soft-fail.",
         "fng — live on python. type fetch fg / fear greed / fng. Pages has no python.",
-        "telegram — parked until TELEGRAM_BOT_TOKEN. no bot username invented.",
-        "mail waitlist — parked until RESEND_API_KEY or GOPHER_MAIL_HOOK. Resend free tier.",
+        "market — live on python. type market / crypto summary. Soft-fail.",
+        "trending — live on python. type trending / hot. CoinGecko soft-fail.",
+        "telegram — parked until TELEGRAM_BOT_TOKEN. /start help, no bot username invented.",
+        "mail waitlist — parked until RESEND_API_KEY + from (or GOPHER_MAIL_HOOK). Resend HTML+text.",
         "SMS / voice — parked. Twilio is not required. no number invented.",
         "billing — parked. no Stripe checkout. public price $19/month on /pricing.",
         "identity — parked. device PBKDF2 only.",
         "host — GitHub Pages now. Vercel static later (free tier). not this batch."
       ],
       "caps_es": [
-        "ticker — vivo. escribe fetch btc (ETH SOL XRP DOGE ADA).",
+        "ticker — vivo. escribe fetch btc (ETH SOL XRP DOGE ADA…). OKX luego Coinbase soft-fail.",
         "fng — vivo en python. escribe fetch fg / fear greed / fng. Pages no tiene python.",
-        "telegram — aparcado hasta TELEGRAM_BOT_TOKEN. sin nombre de bot inventado.",
-        "correo — aparcado hasta RESEND_API_KEY o GOPHER_MAIL_HOOK. Resend en plan gratis.",
+        "market — vivo en python. escribe market / crypto summary. Soft-fail.",
+        "trending — vivo en python. escribe trending / hot. CoinGecko soft-fail.",
+        "telegram — aparcado hasta TELEGRAM_BOT_TOKEN. /start help, sin nombre de bot inventado.",
+        "correo — aparcado hasta RESEND_API_KEY + from (o GOPHER_MAIL_HOOK). Resend HTML+texto.",
         "SMS / voz — aparcado. Twilio no es obligatorio. no hay número inventado.",
         "cobro — aparcado. no hay checkout Stripe. precio público $19 al mes en /pricing.",
         "identidad — aparcado. solo PBKDF2 en el dispositivo.",
         "host — GitHub Pages ahora. Vercel estático después (plan gratis). no esta ola."
       ],
-      "note": "Type plugins. Ticker and python fng are live. Telegram/mail parked until env. SMS/voice/billing parked. Pages now, Vercel later.",
-      "note_es": "Escribe plugins. Ticker y fng en python están vivos. Telegram/correo aparcados hasta env. SMS/voz/cobro aparcados. Pages ahora, Vercel después."
+      "note": "Type plugins. Ticker/fng/market/trending live on python. Telegram/mail parked until env. SMS/voice/billing parked. Pages now, Vercel later.",
+      "note_es": "Escribe plugins. Ticker/fng/market/trending vivos en python. Telegram/correo aparcados hasta env. SMS/voz/cobro aparcados. Pages ahora, Vercel después."
     },
     "/orders": {
       "title": "Orders/",
       "title_es": "Ordenes/",
       "copy": [
-        "Ask queue. On the python hole, GET /api/orders returns the last 20 (q + time, no emails).",
-        "On GitHub Pages there is no python process, so this page shows the device queue only.",
+        "Ask queue. On the python hole, GET /api/orders returns the last N from durable orders.jsonl (q + time, no emails).",
+        "GitHub Pages has no python process — this page shows the device queue only. A public python host is required for a true cloud order log.",
         "Not SMS. There is no number. Telegram and mail are parked until env is set. Waitlist is the door. Checkout parked."
       ],
       "copy_es": [
-        "Cola de órdenes. En python, GET /api/orders. En Pages, solo la cola del dispositivo.",
+        "Cola de órdenes. En python, GET /api/orders desde orders.jsonl. En Pages, solo la cola del dispositivo.",
+        "Pages no tiene proceso python — hace falta un host python público para un log en la nube de verdad.",
         "No es SMS. No hay número. Telegram y correo están aparcados hasta que haya env. La waitlist es la puerta. Checkout aparcado."
       ],
       "note": "Type orders.",
@@ -1166,6 +1210,56 @@
       ],
       "note": "Device only. No cloud analytics.",
       "note_es": "Solo dispositivo. Sin analítica en la nube."
+    },
+    "/refund": {
+      "title": "Refund/",
+      "title_es": "Reembolso/",
+      "copy": [
+        "Refund policy is parked until billing and a payment processor exist.",
+        "There is no checkout yet. There is no charge to refund. No lawyer text invented here.",
+        "Public price is $19/month on /pricing. Waitlist is the door."
+      ],
+      "copy_es": [
+        "La política de reembolso está aparcada hasta que existan cobro y un procesador de pagos.",
+        "Aún no hay checkout. No hay cargo que reembolsar. Aquí no se inventa texto legal.",
+        "El precio público es $19 al mes en /pricing. La waitlist es la puerta."
+      ],
+      "note": "Type refund. Ships with billing — not before. See pricing, legal, blueprint.",
+      "note_es": "Escribe refund. Sale con la facturación — no antes. Ver pricing, legal, blueprint."
+    },
+    "/dpa": {
+      "title": "DPA/",
+      "title_es": "DPA/",
+      "copy": [
+        "Data Processing Agreement is parked until there is a processor relationship.",
+        "No DPA PDF. No invented counsel language. Waitlist email is kept to tell you when the paid phone assistant is ready — see privacy.",
+        "Billing and a processor come first. Then a real DPA."
+      ],
+      "copy_es": [
+        "El Acuerdo de Tratamiento de Datos (DPA) está aparcado hasta que haya relación con un procesador.",
+        "No hay PDF de DPA. No se inventa lenguaje de abogado. El email de waitlist se guarda para avisarte cuando el asistente de teléfono de pago esté listo — ver privacy.",
+        "Primero cobro y procesador. Después un DPA de verdad."
+      ],
+      "note": "Type dpa. Parked until processor. See privacy, legal, blueprint.",
+      "note_es": "Escribe dpa. Aparcado hasta procesador. Ver privacy, legal, blueprint."
+    },
+    "/deploy": {
+      "title": "Deploy/",
+      "title_es": "Deploy/",
+      "copy": [
+        "Free deploy path. Full runbook: DEPLOY.md in the repo.",
+        "1) GitHub Pages now (static hole). 2) Python brain on a free host (Render / Railway / Fly) running server.py. 3) Point hole.json brain at that https origin. 4) Optional Telegram / Resend env — empty stays parked. 5) Vercel static later (vercel.json ready).",
+        "Twilio is never required. Do not invent a phone number or a bot username. Public price $19/month. Waitlist is the door. Checkout parked.",
+        "Type deploy, ship, or blueprint. Smoke: python3 scripts/smoke_env.py and GET /health on the python host."
+      ],
+      "copy_es": [
+        "Camino de deploy gratis. Runbook completo: DEPLOY.md en el repo.",
+        "1) GitHub Pages ahora (hueco estático). 2) Cerebro python en un host gratis (Render / Railway / Fly) con server.py. 3) Apunta brain en hole.json a ese origen https. 4) Telegram / Resend opcionales — vacío = aparcado. 5) Vercel estático después (vercel.json listo).",
+        "Twilio nunca es obligatorio. No inventes número ni nombre de bot. Precio público $19 al mes. La waitlist es la puerta. Checkout aparcado.",
+        "Escribe deploy, ship, o blueprint. Smoke: python3 scripts/smoke_env.py y GET /health en el host python."
+      ],
+      "note": "Type deploy. See DEPLOY.md, ship, blueprint. No secrets in client assets.",
+      "note_es": "Escribe deploy. Ver DEPLOY.md, ship, blueprint. Sin secretos en assets del cliente."
     }
   }
 }

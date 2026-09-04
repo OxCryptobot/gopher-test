@@ -17,10 +17,11 @@ Type `blueprint` on the hole. Do not mark an item done until the real product ex
 - Device login (PBKDF2 localStorage)
 - Ticker `fetch btc` (ETH SOL XRP DOGE ADA LINK UNI AVAX MATIC DOT ATOM NEAR APT SUI TON)
 - Python fear/greed fetch (`fetch fg` / `fear greed` / `fng`)
+- Python market summary (`market`) and trending (`trending`) soft-fail fetches
 - Scores + Eternal GOPHER CHAMPIONS on python `/api/scores` and `/api/champions`
 - Watch / remind / draft as **device queues**, not SMS
 - EN/ES directory, shell, and 29 doc bodies
-- Python `/api/status` product flags and `/api/orders` last 20 (no emails)
+- Python `/api/status` product flags and durable `/api/orders` JSONL export (no emails)
 - Twilio webhook endpoints on python: HTTP 503 until env is set. Twilio is not required.
 - Telegram webhook `POST /api/telegram/webhook`: HTTP 503 until `TELEGRAM_BOT_TOKEN`. No bot username invented.
 - Waitlist join mail via Resend if `RESEND_API_KEY` + from, or `GOPHER_MAIL_HOOK`. Parked otherwise.
@@ -45,19 +46,19 @@ Python `GOPHER_LLM_HOOK` + `GOPHER_LLM_KEY` fire the live bot webhook from this 
 | --- | --- | --- | --- | --- |
 | 28 | CI | YAML local | Actions green on GitHub | PAT `workflow` scope |
 | 76 | Custom domain | parked | DNS + TLS on the hole, not only github.io | domain registrar; Vercel later |
-| 77 | Mail waitlist | parked | real outbound mail on join | `RESEND_API_KEY` + from (wired, parked) |
+| 77 | Mail waitlist | code ready, needs env | real outbound mail on join | `RESEND_API_KEY` + from (or `GOPHER_MAIL_HOOK`) |
 | 78 | SMS number | parked | a number people can text | not required; Telegram first |
 | 79 | Voice in | parked | talk to the number, same thread | not required; Telegram first |
 | 80 | Cloud accounts | parked | not device-only PBKDF2 | identity (Clerk or similar) |
 | 81 | Billing | parked | a paid SKU that charges | Stripe checkout. Price is named ($19/month) |
 | 83 | SLA | parked | a written SLA | legal + ops |
-| 84 | Plugins | ticker + fng live on python | more connected tools that fetch | Telegram/Resend parked until env |
-| 85 | Cloud order log | python file | off-device log of ask → answer on a public host | Pages has no python |
+| 84 | Plugins | ticker + fng + market + trending on python | connected tools that fetch on a public host | Telegram/Resend parked until env |
+| 85 | Cloud order log | code ready (`orders.jsonl`) | off-device log of ask → answer on a public host | Pages has no python |
 | 86 | App store listing | parked | a store page | an app |
 | 88 | Status uptime | process only | a real uptime product | monitor host |
 | 91 | Legal counsel | parked | paid-service terms | a lawyer |
-| 92 | Refund policy | parked | with billing, not before | billing |
-| 93 | DPA | parked | when there is a processor | billing + host |
+| 92 | Refund policy | parked | with billing, not before | `#/refund` honest parked hole; billing |
+| 93 | DPA | parked | when there is a processor | `#/dpa` honest parked hole; billing + host |
 | 95 | Hiring | not hiring | real openings only | you |
 | 97 | Demo video | stills only | FETCH + directory, no stock | a capture |
 
@@ -66,6 +67,8 @@ Shipped this wave: **82 published prices** — $19/month on `/pricing`. Waitlist
 ## Wire order (do not skip)
 
 Free path = Pages/Vercel static + python brain on a free host + Telegram/email before Twilio.
+
+Deploy runbook: `DEPLOY.md` and `#/deploy` (Pages → Render/Railway/Fly → point `brain` → optional Telegram/Resend).
 
 1. **CI (28)** — add `workflow` to the GitHub PAT, push `.github/workflows/ci.yml`.
 2. **Free host** — GitHub Pages now. Vercel static (free tier) later; not this batch. Python brain on a free host.
@@ -89,18 +92,20 @@ Free test channel. `POST /api/telegram/webhook` returns HTTP 503 `{"ok":false,"e
 
 ## Resend
 
-Waitlist join mail. If `RESEND_API_KEY` and `GOPHER_MAIL_FROM` (or `RESEND_FROM`) are set, python POSTs `https://api.resend.com/emails` on join. `GOPHER_MAIL_HOOK` still works. File-only if neither is set. Item 77 stays open until a real join mail is sent.
+Waitlist join mail. Prefer Resend HTML+text when `RESEND_API_KEY` and `GOPHER_MAIL_FROM` (or `RESEND_FROM`) are set; else `GOPHER_MAIL_HOOK`; else file-only. `GET /api/mail` returns 503 `mail parked` until ready. Item 77 stays open until a real join mail is sent.
 
 ## What this wave wires (honest)
 
 - Public price $19/month on `/pricing`. Waitlist is the door. Checkout/billing parked (81).
-- Python hole live plugin flags on `GET /api/status` (ticker live, fng live, telegram/sms/voice/mail/billing parked unless env is set)
+- Python hole live plugin flags on `GET /api/status` (ticker, fng, market, trending live; telegram/sms/voice/mail/billing parked unless env is set)
 - Fear/greed fetch on python (`fetch fg` / `fear greed` / `fng`)
-- Telegram webhook that 503s until `TELEGRAM_BOT_TOKEN`
+- Market summary (`market`) and CoinGecko trending (`trending`) soft-fail on python
+- Telegram webhook: `/start` help (no fake username), fulfill → sendMessage, optional `TELEGRAM_WEBHOOK_SECRET`; 503 until `TELEGRAM_BOT_TOKEN`
 - Twilio webhook endpoints that 503 until env is set (not required)
-- Waitlist Resend + `GOPHER_MAIL_HOOK` if set (file-only if unset). Mail is still parked.
+- Waitlist mail: prefer Resend HTML+text (`RESEND_API_KEY` + from), then `GOPHER_MAIL_HOOK`, else file-only. `GET /api/mail` is 503 until ready. Item 77 stays open until a real join mail is sent.
+- Durable order log `orders.jsonl` (last N) + `GET /api/orders?limit=` export. Item 85 needs a public python host (Pages is not enough).
 - `#/blueprint` — this guide on the hole. Free path: Pages now, Vercel later, Telegram + Resend before Twilio.
-- `#/plugins` — ticker live, fng live on python, Telegram/mail parked until env, SMS/voice parked (no number), billing parked
+- `#/plugins` — ticker/fng/market/trending live on python, Telegram/mail parked until env, SMS/voice parked (no number), billing parked
 - `#/orders` — last orders from python `GET /api/orders` (no emails). Pages: device queue only
 - `#/status` — `GET /api/status` when python is up. Not a 99.9% SLA
 

@@ -213,15 +213,16 @@
       "q": "pricing",
       "title": "Pricing",
       "title_es": "Precios",
-      "hint": "$19/month",
-      "hint_es": "$19 al mes",
+      "hint": "$19/month. waitlist is the door",
+      "hint_es": "$19 al mes. la waitlist es la puerta",
       "kind": "nav",
       "run": "nav",
       "live": true,
       "path": "/pricing",
       "aliases": [
-        "prices",
-        "price"
+        "checkout",
+        "price",
+        "prices"
       ]
     },
     {
@@ -1239,14 +1240,15 @@
       "q": "mail",
       "title": "mail",
       "title_es": "correo",
-      "hint": "parked. no outbound mail",
-      "hint_es": "aparcado. sin correo de salida",
+      "hint": "parked until RESEND_API_KEY or GOPHER_MAIL_HOOK",
+      "hint_es": "aparcado hasta RESEND_API_KEY o GOPHER_MAIL_HOOK",
       "kind": "parked",
       "run": "parked",
       "live": false,
       "path": "/plugins",
       "aliases": [
-        "email-out"
+        "email-out",
+        "resend"
       ]
     },
     {
@@ -1254,12 +1256,12 @@
       "q": "billing",
       "title": "billing",
       "title_es": "cobro",
-      "hint": "parked. no checkout",
-      "hint_es": "aparcado. sin checkout",
+      "hint": "parked. no Stripe checkout. $19/month public",
+      "hint_es": "aparcado. sin checkout Stripe. $19 al mes público",
       "kind": "parked",
       "run": "parked",
       "live": false,
-      "path": "/blueprint",
+      "path": "/pricing",
       "aliases": [
         "stripe"
       ]
@@ -1269,8 +1271,8 @@
       "q": "telegram",
       "title": "telegram",
       "title_es": "telegram",
-      "hint": "parked. no bot token",
-      "hint_es": "aparcado. sin token de bot",
+      "hint": "parked until TELEGRAM_BOT_TOKEN. no bot username",
+      "hint_es": "aparcado hasta TELEGRAM_BOT_TOKEN. sin nombre de bot",
       "kind": "parked",
       "run": "parked",
       "live": false,
@@ -1329,7 +1331,7 @@
       "kind": "parked",
       "run": "parked",
       "live": false,
-      "path": "/blueprint"
+      "path": "/jobs"
     }
   ]
 }

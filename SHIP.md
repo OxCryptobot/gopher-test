@@ -67,7 +67,7 @@ Staging exists. Quality docs and a11y basics that already landed on production a
 41. [x] Live title — `document.title` follows the current hole
 42. [x] Scores hole — `#/scores`, device best; python `/api/scores` when the server is up. Pages cannot host a true global board
 43. [x] Keys doc — `#/keys`, 1–9 / ? esc, FETCH moves
-44. [x] Changelog — `#/changelog`, dated 2026-08-27/28/09-04 (2026-09-04: $19/month public, waitlist door, checkout parked, 83/100)
+44. [x] Changelog — `#/changelog`, dated 2026-08-27/28/09-04 (2026-09-04: $19/month public, waitlist door, checkout parked, Telegram/Resend/order-log/plugins hardened on python — still needs env/host, 83/100)
 45. [x] Contact — GitHub + waitlist, no support number
 46. [x] Status hole — Pages is static; python `/health` is the process; no fake 99.9%, no fake uptime graph
 47. [x] Press hole — one paragraph, no invented metrics
@@ -110,23 +110,25 @@ Playable is not deep. Combo and waitlist rate-limit are already in. DIG is playa
 Paid phone assistant. None of this is pretend-shipped. Waitlist is the only door. Public price is $19/month. Checkout still parked.
 
 76. [ ] Custom domain — gopher.ai (or successor) on the hole, not only github.io
-77. [ ] Mail waitlist — real outbound mail, not only a JSON file / device stash
+77. [ ] Mail waitlist — code ready on python (Resend HTML+text join mail when `RESEND_API_KEY` + `GOPHER_MAIL_FROM`/`RESEND_FROM`, else `GOPHER_MAIL_HOOK`, else file-only). `GET /api/mail` is 503 until env. Needs env + real send to close.
 78. [ ] SMS number — a number people can text. Twilio skills installed; python `/api/twilio/sms` returns 503 until TWILIO_NUMBER + TWILIO_AUTH_TOKEN exist. No number invented.
 79. [ ] Voice in — talk to the number, order in the same thread. Python `/api/twilio/voice` is parked the same way. No number invented.
 80. [ ] Cloud accounts — not device-only PBKDF2
 81. [ ] Billing — a paid SKU, not a mock table. Checkout parked. No Stripe yet.
 82. [x] Published prices — $19/month on /pricing. Waitlist is the door. Checkout/billing parked (81).
 83. [ ] SLA — none today; do not invent one
-84. [ ] Plugins — connected tools that actually fetch. Ticker and python fng are live; Telegram webhook 503 until TELEGRAM_BOT_TOKEN; Resend mail until key; SMS/voice/billing still parked. Twilio is not required.
-85. [ ] Cloud order log — what was asked and what came back, off-device. Python `/api/orders` exists; GitHub Pages has no python process, so Pages is not a cloud log.
+84. [ ] Plugins — ticker + fng + market summary + trending live on python (soft-fail). Telegram webhook code ready (`/start` help, fulfill, sendMessage, optional secret) but 503 until `TELEGRAM_BOT_TOKEN`. Resend/SMS/voice/billing parked until env. Needs host + env to call fully done.
+85. [ ] Cloud order log — durable `orders.jsonl` (last N) + export `GET /api/orders` on python. Code ready; GitHub Pages has no python process, so Pages still needs a public python host for a true cloud log.
 86. [ ] Phone app store listing — a store page if/when there is an app
 87. [x] Analytics opt-in — TRACK? on the hole; default off; still sends nowhere
 88. [ ] Status page uptime — a real uptime hole, not only `/status` copy. Do not fake 99.9%
 89. [x] Error reporting — on-device log only (`gopher_log_v1`), no cloud
 90. [x] i18n full — EN/ES toggle, directory names, FETCH/DIG shell, and 29 doc bodies (`copy_es`). Buttons stay EN. Not every language, EN/ES is the pair
 91. [ ] Legal counsel pass — paid-service terms before money moves
-92. [ ] Refund policy — with billing, not before
-93. [ ] DPA — when there is a processor relationship
+Deploy runbook (not a SHIP counter bump): DEPLOY.md and #/deploy — Pages → free python host → optional Telegram/Resend. Twilio never required.
+
+92. [ ] Refund policy — with billing, not before. Honest parked hole at #/refund (no lawyer text)
+93. [ ] DPA — when there is a processor relationship. Honest parked hole at #/dpa (no invented counsel text)
 94. [x] Cookie banner — not required; this hole has no tracking cookies
 95. [ ] Hiring — not hiring; no fake openings
 96. [x] Press kit images — `press/home.png`, `press/fetch.png`, `press/icon.png`

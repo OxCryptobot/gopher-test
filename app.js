@@ -1594,9 +1594,9 @@
     var id = (row && row.id) || "";
     if (id === "sms") return "parked. no SMS number. see plugins";
     if (id === "voice") return "parked. no voice number. see plugins";
-    if (id === "mail") return "parked. no outbound mail. see plugins";
+    if (id === "mail") return "parked until RESEND_API_KEY or GOPHER_MAIL_HOOK. see plugins";
     if (id === "billing") return "parked. no Stripe checkout. $19/month is public. see pricing";
-    if (id === "telegram") return "parked. no Telegram bot token. see plugins";
+    if (id === "telegram") return "parked until TELEGRAM_BOT_TOKEN. no bot username. see plugins";
     if (id === "prices") return "$19/month. waitlist is the door. see pricing";
     if (id === "domain") return "parked. no custom domain. see blueprint";
     if (id === "cloud-accounts") return "parked. device login only. see plugins";
