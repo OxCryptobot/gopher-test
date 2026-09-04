@@ -2,7 +2,7 @@
 
 Honest plan from **83/100** to a real ship. Public face: **GOPHER AI** only. Public price: **$19/month**. Waitlist is the door. Twilio is not required. Prefer Telegram + Resend. Stage on **gopher-test**; production stays frozen until promote.
 
-Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DEPLOY.md` (free host path), `PROMOTE.md` (staging→prod), `MARKETING.md` / `LAUNCH.md` (Phase C).
+Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DEPLOY.md` (free host path), `PROMOTE.md` (staging→prod), `MARKETING.md` / `LAUNCH.md` / `NURTURE.md` / `CREATORS.md` (Phase C).
 
 ## Status now
 
@@ -66,12 +66,12 @@ Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DE
 | **C1** | Positioning one-liner + 3 bullets (protocol nostalgia, FETCH/DIG, $19 waitlist) |
 | **C2** | Landing funnel: home → pricing → waitlist; press kit; OG/social meta; share cards from `BRAND.md` phosphor |
 | **C3** | Content: 4 launch posts (X/Twitter, Reddit, HN Show HN, Product Hunt later) — see `LAUNCH.md` |
-| **C4** | Waitlist nurture: Resend welcome + weekly “hole notes” template (no spam) |
-| **C5** | Influencer/creator list criteria (crypto twitter, retro web, indie hackers) — no fake metrics |
+| **C4** | Waitlist nurture: Resend welcome + weekly “hole notes” — `NURTURE.md` (no spam) |
+| **C5** | Influencer/creator list criteria — `CREATORS.md` (crypto twitter, retro web, indie hackers; no fake metrics) |
 | **C6** | SEO: sitemap, humans.txt, press hole, unique titles — finish keywords |
 | **C7** | Demo stills → short demo reel (97) |
 
-**Assets checklist:** OG meta · press blurb · 4 posts · nurture email · share card · demo stills · `MARKETING.md`
+**Assets checklist:** OG meta · press blurb · 4 posts · nurture email (`NURTURE.md`) · creators criteria (`CREATORS.md`) · share card · demo stills · `MARKETING.md`
 
 ### Phase D — Distribution (days 5–21)
 

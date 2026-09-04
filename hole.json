@@ -120,7 +120,9 @@
           "hint": "enter your hole",
           "hint_es": "entra a tu hueco"
         }
-      ]
+      ],
+      "note": "$19/month on /pricing. Waitlist is the door. Type pricing, then waitlist.",
+      "note_es": "$19 al mes en /pricing. La waitlist es la puerta. Escribe pricing, luego waitlist."
     },
     "/docs": {
       "title": "1 Docs/",
@@ -552,8 +554,8 @@
         "La waitlist es la puerta. Cobro y checkout están aparcados — aún no hay checkout Stripe.",
         "Entra a la lista de espera ahora. Cuando exista checkout, la lista se entera primero."
       ],
-      "note": "Type waitlist. $19/month. Checkout parked. MAZE on this site stays a free side quest.",
-      "note_es": "Escribe waitlist. $19 al mes. Checkout aparcado. MAZE en este sitio sigue siendo un side quest gratis."
+      "note": "Funnel: pricing → waitlist. Type waitlist. $19/month. Checkout parked. MAZE stays a free side quest.",
+      "note_es": "Embudo: pricing → waitlist. Escribe waitlist. $19 al mes. Checkout aparcado. MAZE sigue gratis."
     },
     "/terms": {
       "title": "Terms/",
@@ -603,6 +605,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-09-04 — Phase C marketing assets: NURTURE.md, CREATORS.md, SEO titles + sitemap waitlist/press/ship-az/launch/deploy. Cache gopher-v19. Still 83/100.",
         "2026-09-04 — SHIP A→Z blueprint (product + marketing + distribution). Hole /ship-az. Launch drafts. Cache gopher-v18. Still 83/100.",
         "2026-09-04 — Python harden: Telegram /start help, Resend HTML join mail, orders.jsonl, market+trending plugins. Still needs env/host. $19/month. 83/100.",
         "2026-09-04 — Public price $19/month on /pricing. Waitlist is the door. Checkout parked. Telegram/Resend wired parked. 83/100.",
@@ -621,6 +624,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-09-04 — Assets Phase C: NURTURE.md, CREATORS.md, títulos SEO + sitemap waitlist/press/ship-az/launch/deploy. Caché gopher-v19. Sigue 83/100.",
         "2026-09-04 — Plano SHIP A→Z (producto + marketing + distribución). Hueco /ship-az. Borradores launch. Caché gopher-v18. Sigue 83/100.",
         "2026-09-04 — Python endurecido: Telegram /start, mail Resend HTML, orders.jsonl, plugins market+trending. Aún necesita env/host. $19/mes. 83/100.",
         "2026-09-04 — Precio público $19 al mes en /pricing. La waitlist es la puerta. Checkout aparcado. Telegram/Resend cableados aparcados. 83/100.",
@@ -910,12 +914,14 @@
       "copy": [
         "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. FETCH is search. DIG is do a task from the 100. The public hole is a numbered directory plus a prompt with three answers. MAZE and BURROW are a side quest (kill time between searches). Waitlist is open. Public price $19/month on /pricing. Checkout parked.",
         "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark).",
-        "Launch drafts (4 posts + nurture): LAUNCH.md — type launch. Ship A→Z: type ship-az."
+        "Launch drafts (4 posts + nurture): LAUNCH.md — type launch. Ship A→Z: type ship-az.",
+        "Nurture drafts: NURTURE.md. Creator criteria (after beta): CREATORS.md. Checklist: MARKETING.md."
       ],
       "copy_es": [
         "GOPHER AI es un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. El hueco público es un directorio numerado más un prompt con tres respuestas. MAZE y BURROW son un side quest (mata el tiempo entre búsquedas). Lista de espera abierta. Precio público $19 al mes en /pricing. Checkout aparcado.",
         "Capturas en este sitio, rutas relativas: press/home.png (directorio), press/fetch.png (FETCH), press/icon.png (marca).",
-        "Borradores de launch (4 posts + nurture): LAUNCH.md — escribe launch. Ship A→Z: escribe ship-az."
+        "Borradores de launch (4 posts + nurture): LAUNCH.md — escribe launch. Ship A→Z: escribe ship-az.",
+        "Borradores nurture: NURTURE.md. Criterios creators (después del beta): CREATORS.md. Checklist: MARKETING.md."
       ],
       "note": "No user counts. No ARR. No awards. If we do not have the number, we do not print it.",
       "note_es": "Sin conteo de usuarios. Sin ARR. Sin premios. Si no tenemos el número, no lo imprimimos."
@@ -1302,7 +1308,8 @@
         "Phase E: soft launch testers → promote same commit → announce waitlist→Telegram→X→HN→PH → support via issues+mail → rollback if checkout/mail fails.",
         "Phase F (week 2–8): waitlist→paid, SLA only if real, more plugins, optional Twilio later, hiring only if real roles.",
         "Money path: waitlist → email proof → Stripe $19/mo → cloud accounts → refund/DPA. Do not invent numbers, bot usernames, SLA%, or other prices.",
-        "Type ship-az, ship, blueprint, deploy, or launch. Progress stays 83/100 until something truly ships."
+        "Type ship-az, ship, blueprint, deploy, or launch. Progress stays 83/100 until something truly ships.",
+        "Phase C assets: MARKETING.md · LAUNCH.md · NURTURE.md · CREATORS.md. Type launch or press."
       ],
       "copy_es": [
         "83/100. Jugable 74/75. Teléfono de pago 9/25. Staging en gopher-test. Producción congelada hasta promote. Plan completo: SHIP_AZ.md en el repo.",
@@ -1313,7 +1320,8 @@
         "Fase E: soft launch → promote mismo commit → anuncio waitlist→Telegram→X→HN→PH → soporte issues+mail → rollback si falla checkout/mail.",
         "Fase F (semanas 2–8): waitlist→pago, SLA solo si es real, más plugins, Twilio opcional después, contratación solo con roles reales.",
         "Dinero: waitlist → prueba email → Stripe $19/mes → cuentas → reembolso/DPA. No inventar números, bots, SLA% ni otros precios.",
-        "Escribe ship-az, ship, blueprint, deploy, o launch. El progreso sigue 83/100 hasta que algo shippee de verdad."
+        "Escribe ship-az, ship, blueprint, deploy, o launch. El progreso sigue 83/100 hasta que algo shippee de verdad.",
+        "Assets Phase C: MARKETING.md · LAUNCH.md · NURTURE.md · CREATORS.md. Escribe launch o press."
       ],
       "note": "Type ship-az / shipaz / az / gtm / roadmap. See SHIP_AZ.md, MARKETING.md, LAUNCH.md.",
       "note_es": "Escribe ship-az / shipaz / az / gtm / roadmap. Ver SHIP_AZ.md, MARKETING.md, LAUNCH.md."
@@ -1329,7 +1337,8 @@
         "Show HN draft: selectors + prompt, what works on Pages vs python env, no fake SLA. See LAUNCH.md Post 3.",
         "Product Hunt later (after A+B + promote): tagline 1991 protocol · 2026 phone assistant · $19/mo waitlist. See LAUNCH.md Post 4.",
         "Nurture: Resend welcome + weekly hole notes template in LAUNCH.md. Needs RESEND_API_KEY — no spam.",
-        "No user counts. No ARR. No awards. Type launch, press, or ship-az."
+        "No user counts. No ARR. No awards. Type launch, press, or ship-az.",
+        "Waitlist nurture (Resend welcome HTML+text + weekly hole notes): NURTURE.md. Creator pitch criteria (after beta): CREATORS.md."
       ],
       "copy_es": [
         "Kit de lanzamiento (borrador). Texto completo: LAUNCH.md. Marca: BRAND.md. Checklist: MARKETING.md. Plan: SHIP_AZ.md Fase C.",
@@ -1339,7 +1348,8 @@
         "Borrador Show HN: selectores + prompt, Pages vs python, sin SLA inventado. Ver LAUNCH.md Post 3.",
         "Product Hunt después (A+B + promote): 1991 protocol · asistente 2026 · waitlist $19/mes. Ver LAUNCH.md Post 4.",
         "Nurture: bienvenida Resend + hole notes semanales en LAUNCH.md. Hace falta RESEND_API_KEY — sin spam.",
-        "Sin conteos de usuarios. Sin ARR. Sin premios. Escribe launch, press, o ship-az."
+        "Sin conteos de usuarios. Sin ARR. Sin premios. Escribe launch, press, o ship-az.",
+        "Nurture de waitlist (bienvenida Resend HTML+texto + notas semanales): NURTURE.md. Criterios de creators (después del beta): CREATORS.md."
       ],
       "note": "Type launch. Drafts only until A+B exit and promote.",
       "note_es": "Escribe launch. Solo borradores hasta salida A+B y promote."

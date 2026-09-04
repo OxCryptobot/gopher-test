@@ -1032,9 +1032,21 @@
     var gameOn = (path === "/fetch" || path === "/dig");
     var host = $("host");
     if (host) host.textContent = "gopher://gopher.ai:70" + path;
-    document.title = path === "/fetch"
-      ? "MAZE — GOPHER AI"
-      : (path === "/dig" ? "BURROW — GOPHER AI" : (path === "/" ? "GOPHER AI" : ("GOPHER AI " + path)));
+    document.title = (function (p) {
+      var titles = {
+        "/": "GOPHER AI — paid phone assistant · $19/mo waitlist",
+        "/pricing": "Pricing $19/month — GOPHER AI waitlist",
+        "/waitlist": "Waitlist — GOPHER AI phone assistant",
+        "/press": "Press kit — GOPHER AI",
+        "/ship-az": "Ship A→Z — GOPHER AI",
+        "/launch": "Launch kit — GOPHER AI",
+        "/deploy": "Deploy — GOPHER AI",
+        "/fetch": "MAZE — GOPHER AI",
+        "/dig": "BURROW — GOPHER AI"
+      };
+      if (titles[p]) return titles[p];
+      return "GOPHER AI " + p;
+    })(path);
     paintStaging();
     renderDir(path);
     paintWho();

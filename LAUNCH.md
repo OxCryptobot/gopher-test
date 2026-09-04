@@ -82,6 +82,8 @@ First hunter tip: join the waitlist on the hole. Checkout opens when billing is 
 Gallery: real screenshots of the directory and FETCH — no stock.
 ```
 
+Full Resend HTML+text + weekly template: **`NURTURE.md`**. Creators after beta: **`CREATORS.md`**.
+
 ## Waitlist nurture — welcome (Resend)
 
 ```
