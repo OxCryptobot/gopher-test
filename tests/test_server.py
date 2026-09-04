@@ -34,6 +34,9 @@ ENV_KEYS = (
     "GOPHER_TELEGRAM_API",
     "RESEND_API_KEY",
     "GOPHER_MAIL_FROM",
+    "RESEND_FROM",
+    "GOPHER_MAIL_HOOK",
+    "GOPHER_RESEND_API",
 )
 
 
@@ -147,8 +150,22 @@ class ServerTests(unittest.TestCase):
         self.assertIn("telegram parked", self.src)
         self.assertIn("TELEGRAM_BOT_TOKEN", self.src)
         self.assertIn("sendMessage", self.src)
+        self.assertIn("TELEGRAM_WEBHOOK_SECRET", self.src)
+        self.assertIn("telegram_is_start", self.src)
+        self.assertIn("TELEGRAM_HELP", self.src)
         self.assertIn("RESEND_API_KEY", self.src)
         self.assertIn("api.resend.com", self.src)
+        self.assertIn("waitlist_mail_bodies", self.src)
+        self.assertIn("send_waitlist_mail", self.src)
+        self.assertIn("mail parked", self.src)
+        self.assertIn("/api/mail", self.src)
+        self.assertIn("orders.jsonl", self.src)
+        self.assertIn("load_orders", self.src)
+        self.assertIn("looks_market", self.src)
+        self.assertIn("looks_trending", self.src)
+        self.assertIn("fetch_market_summary", self.src)
+        self.assertIn("fetch_trending", self.src)
+        self.assertIn("coinbase_spot", self.src)
         self.assertIn('"done": 83', self.src)
         self.assertIn("$19/month", self.src)
 
@@ -559,6 +576,20 @@ class CorsLiveTests(unittest.TestCase):
         code, hdrs = self._hdrs("GET", "/.env.local")
         self.assertEqual(code, 404)
 
+    def test_status_plugins_and_mail_parked(self) -> None:
+        code, raw, status = http("GET", self.base + "/api/status")
+        self.assertEqual(code, 200)
+        plugins = status.get("plugins") or {}
+        self.assertIs(plugins.get("ticker"), True)
+        self.assertIs(plugins.get("fng"), True)
+        self.assertIs(plugins.get("market"), True)
+        self.assertIs(plugins.get("trending"), True)
+        self.assertIs(plugins.get("telegram"), False)
+        self.assertEqual(status.get("telegram"), "parked")
+        code, raw, body = http("GET", self.base + "/api/mail")
+        self.assertEqual(code, 503)
+        self.assertEqual(body.get("error"), "mail parked")
+
 
 class TelegramWebhookTests(unittest.TestCase):
     @classmethod
@@ -635,6 +666,236 @@ class TelegramWebhookTests(unittest.TestCase):
             httpd.shutdown()
             httpd.server_close()
 
+    def test_start_sends_help_no_fake_username(self) -> None:
+        cap_port = free_port()
+        httpd = ThreadingHTTPServer(("127.0.0.1", cap_port), CaptureHandler)
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        CaptureHandler.last_body = {}
+        CaptureHandler.last_path = ""
+        try:
+            os.environ["TELEGRAM_BOT_TOKEN"] = "test-token"
+            os.environ["GOPHER_TELEGRAM_API"] = "http://127.0.0.1:%s" % cap_port
+            payload = json.dumps(
+                {"message": {"chat": {"id": 7}, "text": "/start@SomeBotName"}}
+            ).encode("utf-8")
+            code, raw, body = http(
+                "POST",
+                self.base + "/api/telegram/webhook",
+                data=payload,
+                headers={"Content-Type": "application/json", "Accept": "application/json"},
+            )
+            self.assertEqual(code, 200, raw)
+            self.assertIs(body.get("help"), True)
+            text = str(CaptureHandler.last_body.get("text") or "")
+            self.assertIn("GOPHER AI", text)
+            self.assertIn("$19/month", text)
+            self.assertIn("fetch btc", text.lower())
+            low = text.lower()
+            self.assertNotIn("@somebotname", low)
+            self.assertNotIn("t.me/", low)
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
+    def test_webhook_secret_required(self) -> None:
+        os.environ["TELEGRAM_BOT_TOKEN"] = "test-token"
+        os.environ["TELEGRAM_WEBHOOK_SECRET"] = "hole-secret"
+        payload = json.dumps({"message": {"chat": {"id": 1}, "text": "hi"}}).encode("utf-8")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/telegram/webhook",
+            data=payload,
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+        )
+        self.assertEqual(code, 403)
+        self.assertEqual(body.get("error"), "bad signature")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/telegram/webhook",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-Telegram-Bot-Api-Secret-Token": "hole-secret",
+            },
+        )
+        self.assertEqual(code, 200, raw)
+
+
+class ResendMailTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.mod = load_server()
+        cls.mod.Handler.log_message = lambda self, fmt, *args: None
+        cls.port = free_port()
+        cls.httpd = ThreadingHTTPServer(("127.0.0.1", cls.port), cls.mod.Handler)
+        cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = "http://127.0.0.1:%s" % cls.port
+        deadline = time.time() + 8
+        last = "not started"
+        while time.time() < deadline:
+            try:
+                code, raw, _ = http("GET", cls.base + "/health")
+                if code == 200:
+                    return
+                last = "health %s %r" % (code, raw)
+            except Exception as exc:
+                last = str(exc)
+                time.sleep(0.05)
+        raise RuntimeError("hole did not start: " + last)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+
+    def setUp(self) -> None:
+        self.guard = _EnvGuard()
+        for key in (
+            "RESEND_API_KEY",
+            "GOPHER_MAIL_FROM",
+            "RESEND_FROM",
+            "GOPHER_MAIL_HOOK",
+            "GOPHER_RESEND_API",
+        ):
+            os.environ.pop(key, None)
+
+    def tearDown(self) -> None:
+        self.guard.restore()
+
+    def test_mail_parked_503(self) -> None:
+        code, raw, body = http("GET", self.base + "/api/mail")
+        self.assertEqual(code, 503)
+        self.assertEqual(body.get("error"), "mail parked")
+        self.assertIs(body.get("mail"), False)
+
+    def test_resend_happy_path_html_and_text(self) -> None:
+        cap_port = free_port()
+        httpd = ThreadingHTTPServer(("127.0.0.1", cap_port), CaptureHandler)
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        CaptureHandler.last_body = {}
+        CaptureHandler.last_path = ""
+        try:
+            os.environ["RESEND_API_KEY"] = "re_test"
+            os.environ["GOPHER_MAIL_FROM"] = "waitlist@example.com"
+            os.environ["GOPHER_RESEND_API"] = "http://127.0.0.1:%s" % cap_port
+            email = "join-test@example.com"
+            ok = self.mod.post_resend_mail(email, "joined")
+            self.assertTrue(ok)
+            self.assertEqual(CaptureHandler.last_path, "/emails")
+            body = CaptureHandler.last_body
+            self.assertEqual(body.get("from"), "waitlist@example.com")
+            self.assertEqual(body.get("to"), [email])
+            self.assertIn("$19/month", body.get("text") or "")
+            self.assertIn("Waitlist confirmed", body.get("text") or "")
+            self.assertIn("<!DOCTYPE html>", body.get("html") or "")
+            self.assertIn("$19/month", body.get("html") or "")
+            self.assertNotIn("checkout is live", (body.get("text") or "").lower())
+            code, raw, status = http("GET", self.base + "/api/mail")
+            self.assertEqual(code, 200)
+            self.assertIs(status.get("mail"), True)
+            self.assertEqual(status.get("via"), "resend")
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
+    def test_prefer_resend_over_hook(self) -> None:
+        cap_port = free_port()
+        httpd = ThreadingHTTPServer(("127.0.0.1", cap_port), CaptureHandler)
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        CaptureHandler.last_path = ""
+        try:
+            os.environ["RESEND_API_KEY"] = "re_test"
+            os.environ["GOPHER_MAIL_FROM"] = "waitlist@example.com"
+            os.environ["GOPHER_RESEND_API"] = "http://127.0.0.1:%s" % cap_port
+            os.environ["GOPHER_MAIL_HOOK"] = "http://127.0.0.1:%s/hook-should-not-hit" % cap_port
+            self.mod.send_waitlist_mail("a@example.com", "joined")
+            self.assertEqual(CaptureHandler.last_path, "/emails")
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
+
+class PluginOrderLogTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.mod = load_server()
+        self.guard = _EnvGuard()
+        os.environ.pop("GOPHER_LLM_HOOK", None)
+
+    def tearDown(self) -> None:
+        self.guard.restore()
+
+    def test_looks_helpers(self) -> None:
+        self.assertTrue(self.mod.looks_market("market"))
+        self.assertTrue(self.mod.looks_market("crypto summary"))
+        self.assertFalse(self.mod.looks_market("fetch btc"))
+        self.assertTrue(self.mod.looks_trending("trending"))
+        self.assertTrue(self.mod.looks_trending("hot movers"))
+        self.assertFalse(self.mod.looks_trending("fetch btc"))
+
+    def test_fulfill_market_soft_fail(self) -> None:
+        real = self.mod.fetch_market_summary
+        self.mod.fetch_market_summary = lambda: None
+        try:
+            result = self.mod.fulfill_order("market")
+            self.assertEqual(result.get("log_kind"), "market")
+            self.assertEqual(result.get("http_code"), 200)
+            self.assertIs(result["http"].get("ok"), False)
+        finally:
+            self.mod.fetch_market_summary = real
+
+    def test_fulfill_trending_soft_fail(self) -> None:
+        real = self.mod.fetch_trending
+        self.mod.fetch_trending = lambda: None
+        try:
+            result = self.mod.fulfill_order("trending")
+            self.assertEqual(result.get("log_kind"), "trending")
+            self.assertIs(result["http"].get("ok"), False)
+        finally:
+            self.mod.fetch_trending = real
+
+    def test_fulfill_market_happy(self) -> None:
+        real = self.mod.fetch_market_summary
+        self.mod.fetch_market_summary = lambda: "Market summary\n\nBTC    1\nsource    okx"
+        try:
+            result = self.mod.fulfill_order("market summary")
+            self.assertEqual(result.get("log_kind"), "market")
+            self.assertIs(result["http"].get("ok"), True)
+            self.assertIn("Market", result["http"].get("title") or "")
+        finally:
+            self.mod.fetch_market_summary = real
+
+    def test_order_log_jsonl_roundtrip(self) -> None:
+        fd, path = tempfile.mkstemp(prefix="gopher-orders-", suffix=".jsonl")
+        os.close(fd)
+        old_path = self.mod.ORDERS_PATH
+        old_legacy = self.mod.ORDERS_LEGACY_PATH
+        try:
+            self.mod.ORDERS_PATH = path
+            self.mod.ORDERS_LEGACY_PATH = path + ".legacy-missing"
+            self.mod.save_orders([])
+            self.mod.log_order("probe order log", "ask", "queued in the hole.", order_id="abc123deadbeef")
+            rows = self.mod.load_orders()
+            self.assertTrue(rows)
+            self.assertEqual(rows[-1].get("q"), "probe order log")
+            self.assertEqual(rows[-1].get("id"), "abc123deadbeef")
+            with open(path, encoding="utf-8") as f:
+                lines = [ln for ln in f.read().splitlines() if ln.strip()]
+            self.assertTrue(lines)
+            parsed = json.loads(lines[-1])
+            self.assertEqual(parsed.get("q"), "probe order log")
+            self.assertNotIn("email", parsed)
+        finally:
+            self.mod.ORDERS_PATH = old_path
+            self.mod.ORDERS_LEGACY_PATH = old_legacy
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
 
 
 def main() -> int:
@@ -648,6 +909,8 @@ def main() -> int:
         suite.addTests(loader.loadTestsFromTestCase(EnvLoaderTests))
         suite.addTests(loader.loadTestsFromTestCase(CorsLiveTests))
         suite.addTests(loader.loadTestsFromTestCase(TelegramWebhookTests))
+        suite.addTests(loader.loadTestsFromTestCase(ResendMailTests))
+        suite.addTests(loader.loadTestsFromTestCase(PluginOrderLogTests))
         result = unittest.TextTestRunner(verbosity=2).run(suite)
         return 0 if result.wasSuccessful() else 1
     except AssertionError as exc:

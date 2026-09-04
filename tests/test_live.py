@@ -136,6 +136,9 @@ class LiveTests(unittest.TestCase):
             self.assertIs(status.get("sla"), False)
             plugins = status.get("plugins") or {}
             self.assertIs(plugins.get("ticker"), True)
+            self.assertIs(plugins.get("fng"), True)
+            self.assertIs(plugins.get("market"), True)
+            self.assertIs(plugins.get("trending"), True)
             self.assertIs(plugins.get("sms"), False)
             self.assertEqual(status.get("twilio"), "parked")
             self.assertIs(plugins.get("voice"), False)
@@ -176,6 +179,12 @@ class LiveTests(unittest.TestCase):
             self.assertEqual(body.get("error"), "telegram parked")
             self.assertIs(body.get("telegram"), False)
             self.assertIs(body.get("ok"), False)
+
+            code, raw, body = http("GET", base + "/api/mail")
+            self.assertEqual(code, 503)
+            self.assertIsInstance(body, dict)
+            self.assertEqual(body.get("error"), "mail parked")
+            self.assertIs(body.get("mail"), False)
 
             email = "live-%s@example.com" % uuid.uuid4().hex
             payload = json.dumps({"email": email}).encode("utf-8")

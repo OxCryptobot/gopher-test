@@ -20,7 +20,10 @@ from urllib.parse import parse_qs, urlparse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 WAITLIST_PATH = os.path.join(ROOT, "waitlist.json")
-ORDERS_PATH = os.path.join(ROOT, "orders.json")
+ORDERS_PATH = os.path.join(ROOT, "orders.jsonl")
+ORDERS_LEGACY_PATH = os.path.join(ROOT, "orders.json")
+ORDERS_KEEP = 200
+ORDERS_EXPORT = 40
 SCORES_PATH = os.path.join(ROOT, "scores.json")
 CHAMPIONS_PATH = os.path.join(ROOT, "champions.json")
 
@@ -62,7 +65,7 @@ def load_dotenv() -> None:
 load_dotenv()
 
 HOST = os.environ.get("GOPHER_HOST", "0.0.0.0")
-PORT = int(os.environ.get("GOPHER_PORT", "7070"))
+PORT = int(os.environ.get("GOPHER_PORT") or os.environ.get("PORT", "7070"))
 EMAIL_RE = re.compile(r"^[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}$", re.I)
 MAX_POST_BYTES = 8000
 WAITLIST_RATE_MAX = 8
@@ -70,6 +73,7 @@ WAITLIST_RATE_WINDOW = 3600.0
 HIDDEN = {
     "waitlist.json",
     "orders.json",
+    "orders.jsonl",
     "scores.json",
     "champions.json",
     "server.py",
@@ -132,7 +136,22 @@ FETCH_WORDS = {"PRICE", "TICKER", "FETCH", "QUOTE", "SPOT", "PX"}
 SKIP_WORDS = FETCH_WORDS | {
     "OF", "THE", "A", "AN", "FOR", "US", "USD", "USDT", "PLEASE", "GET", "SHOW", "ME", "LIVE",
     "FG", "FNG", "FEAR", "GREED", "INDEX",
+    "MARKET", "MARKETS", "SUMMARY", "CRYPTO", "TRENDING", "TREND", "HOT", "MOVERS", "NEWS",
 }
+MARKET_INSTS = ("BTC-USDT", "ETH-USDT", "SOL-USDT", "XRP-USDT", "DOGE-USDT")
+TELEGRAM_HELP = (
+    "GOPHER AI\n"
+    "\n"
+    "Send an order, for example:\n"
+    "- fetch btc\n"
+    "- fear greed\n"
+    "- market\n"
+    "- trending\n"
+    "\n"
+    "Public price: $19/month.\n"
+    "Waitlist is the door. Checkout is not live.\n"
+    "No bot username published here."
+)
 
 os.chdir(ROOT)
 
@@ -166,6 +185,41 @@ def load_waitlist() -> list:
 
 def save_waitlist(entries: list) -> None:
     save_list(WAITLIST_PATH, entries)
+
+
+def load_orders() -> list:
+    """Durable order log: JSONL preferred; migrate legacy orders.json once."""
+    rows: list = []
+    if os.path.exists(ORDERS_PATH):
+        try:
+            with open(ORDERS_PATH, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        row = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if isinstance(row, dict) and isinstance(row.get("q"), str) and row.get("q").strip():
+                        rows.append(row)
+        except OSError:
+            rows = []
+    elif os.path.exists(ORDERS_LEGACY_PATH):
+        legacy = load_list(ORDERS_LEGACY_PATH)
+        rows = [r for r in legacy if isinstance(r, dict) and isinstance(r.get("q"), str) and r.get("q").strip()]
+        if rows:
+            save_orders(rows)
+    return rows[-ORDERS_KEEP:]
+
+
+def save_orders(entries: list) -> None:
+    trimmed = [e for e in entries if isinstance(e, dict)][-ORDERS_KEEP:]
+    tmp = ORDERS_PATH + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        for row in trimmed:
+            f.write(json.dumps(row, separators=(",", ":"), ensure_ascii=False) + "\n")
+    os.replace(tmp, ORDERS_PATH)
 
 
 def cors_origin_ok(origin: str) -> bool:
@@ -257,6 +311,38 @@ def format_ticker(tick: dict) -> str:
     return "\n".join(lines)
 
 
+def coinbase_spot(inst_id: str) -> dict | None:
+    """Soft-fail Coinbase spot. Maps BTC-USDT -> BTC-USD."""
+    base = (inst_id or "").split("-")[0].strip().upper()
+    if not base or not base.isalnum():
+        return None
+    url = "https://api.coinbase.com/v2/prices/" + base + "-USD/spot"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "GOPHER/0.1", "Accept": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError, ValueError):
+        return None
+    data = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(data, dict):
+        return None
+    amount = data.get("amount")
+    if amount is None:
+        return None
+    return {"instId": base + "-USD", "last": str(amount), "source": "coinbase"}
+
+
+def fetch_ticker(inst_id: str) -> dict | None:
+    """OKX first, Coinbase spot soft-fail fallback."""
+    tick = okx_ticker(inst_id)
+    if tick:
+        return tick
+    return coinbase_spot(inst_id)
+
+
 def looks_fng(q: str) -> bool:
     s = re.sub(r"[^a-z0-9]+", " ", (q or "").lower()).strip()
     words = s.split()
@@ -305,16 +391,94 @@ def format_fng(row: dict) -> str:
     return "\n".join(lines)
 
 
-def mail_ready() -> bool:
-    return bool(
-        os.environ.get("GOPHER_MAIL_HOOK")
-        or os.environ.get("RESEND_API_KEY")
-        or os.environ.get("SENDGRID_API_KEY")
+def looks_market(q: str) -> bool:
+    s = re.sub(r"[^a-z0-9]+", " ", (q or "").lower()).strip()
+    words = s.split()
+    if not words:
+        return False
+    if "market" in words or "markets" in words:
+        return True
+    if "summary" in words and ("crypto" in words or "coin" in words):
+        return True
+    if s in ("summary", "crypto summary", "market summary"):
+        return True
+    return False
+
+
+def fetch_market_summary() -> str | None:
+    lines = ["Market summary", ""]
+    got = 0
+    for inst in MARKET_INSTS:
+        tick = fetch_ticker(inst)
+        if not tick:
+            continue
+        last = tick.get("last") or "?"
+        base = str(tick.get("instId") or inst).split("-")[0]
+        lines.append(f"{base:<6} {last}")
+        got += 1
+    if not got:
+        return None
+    lines.extend(["", "source    okx / coinbase public"])
+    return "\n".join(lines)
+
+
+def looks_trending(q: str) -> bool:
+    s = re.sub(r"[^a-z0-9]+", " ", (q or "").lower()).strip()
+    words = set(s.split())
+    if not words:
+        return False
+    if words & {"trending", "trend", "hot", "movers"}:
+        return True
+    if "news" in words and ("crypto" in words or "coin" in words):
+        return True
+    return False
+
+
+def fetch_trending() -> str | None:
+    """Soft-fail CoinGecko trending. No key. Fail quiet."""
+    url = "https://api.coingecko.com/api/v3/search/trending"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "GOPHER/0.1", "Accept": "application/json"},
     )
+    try:
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError, ValueError):
+        return None
+    coins = payload.get("coins") if isinstance(payload, dict) else None
+    if not isinstance(coins, list) or not coins:
+        return None
+    lines = ["Trending", ""]
+    n = 0
+    for entry in coins[:8]:
+        if not isinstance(entry, dict):
+            continue
+        item = entry.get("item") if isinstance(entry.get("item"), dict) else entry
+        if not isinstance(item, dict):
+            continue
+        sym = str(item.get("symbol") or "?").upper()
+        name = str(item.get("name") or "").strip() or "?"
+        lines.append(f"{sym:<8} {name}")
+        n += 1
+    if not n:
+        return None
+    lines.extend(["", "source    coingecko trending"])
+    return "\n".join(lines)
 
 
 def mail_from() -> str:
     return (os.environ.get("GOPHER_MAIL_FROM") or os.environ.get("RESEND_FROM") or "").strip()
+
+
+def resend_ready() -> bool:
+    key = (os.environ.get("RESEND_API_KEY") or "").strip()
+    return bool(key and mail_from())
+
+
+def mail_ready() -> bool:
+    """Ready when Resend (key + from) or GOPHER_MAIL_HOOK is set."""
+    return resend_ready() or bool((os.environ.get("GOPHER_MAIL_HOOK") or "").strip())
 
 
 def llm_ready() -> bool:
@@ -438,7 +602,7 @@ def apply_brain_reply(order_id: str, q: str, text: str) -> None:
     qn = (q or "").strip()[:280]
     snippet = re.sub(r"\s+", " ", (text or "")).strip()[:8000]
     with LOCK:
-        orders = load_list(ORDERS_PATH)
+        orders = load_orders()
         match = None
         if oid:
             for row in reversed(orders):
@@ -461,7 +625,7 @@ def apply_brain_reply(order_id: str, q: str, text: str) -> None:
             if snippet:
                 match["out"] = snippet
             match["at"] = _now()
-        save_list(ORDERS_PATH, orders)
+        save_orders(orders)
 
 
 def twilio_ready() -> bool:
@@ -488,7 +652,11 @@ def telegram_send(chat_id, text: str) -> bool:
     token = telegram_token()
     if not token or chat_id is None:
         return False
-    msg = re.sub(r"\s+", " ", (text or "")).strip()[:4000] or "queued in the hole."
+    # Keep newlines for /start help; collapse spaces within lines.
+    lines = []
+    for line in (text or "").splitlines() or [""]:
+        lines.append(re.sub(r"[ \t]+", " ", line).strip())
+    msg = "\n".join(lines).strip()[:4000] or "queued in the hole."
     url = telegram_api_base() + "/bot" + token + "/sendMessage"
     payload = json.dumps({"chat_id": chat_id, "text": msg}).encode("utf-8")
     req = urllib.request.Request(
@@ -523,6 +691,13 @@ def telegram_update_text(data: dict):
         cap = msg.get("caption")
         text = cap if isinstance(cap, str) else ""
     return chat_id, text.strip() if isinstance(text, str) else ""
+
+
+def telegram_is_start(text: str) -> bool:
+    """True for /start or /start@AnyBot. Do not invent or publish a bot username."""
+    first = ((text or "").strip().split() or [""])[0]
+    low = first.lower()
+    return low == "/start" or low.startswith("/start@")
 
 
 def mask_sms_number() -> str | None:
@@ -567,9 +742,9 @@ def log_order(q: str, kind: str, out: str = "", order_id: str = "") -> None:
     if snippet:
         row["out"] = snippet
     with LOCK:
-        orders = load_list(ORDERS_PATH)
+        orders = load_orders()
         orders.append(row)
-        save_list(ORDERS_PATH, orders)
+        save_orders(orders)
 
 
 def fulfill_order(q: str) -> dict:
@@ -612,12 +787,55 @@ def fulfill_order(q: str) -> dict:
             "short": text,
             "out": text,
         }
+    if looks_market(q):
+        text = fetch_market_summary()
+        if text:
+            short = "market summary (" + str(len(MARKET_INSTS)) + " symbols)"
+            return {
+                "q": q,
+                "log_kind": "market",
+                "http_code": 200,
+                "http": {"ok": True, "kind": "doc", "title": "0 Market", "text": text},
+                "short": short,
+                "out": short,
+            }
+        text = "could not fetch market summary from public tickers."
+        return {
+            "q": q,
+            "log_kind": "market",
+            "http_code": 200,
+            "http": {"ok": False, "kind": "doc", "title": "3 Error", "text": text},
+            "short": text,
+            "out": text,
+        }
+    if looks_trending(q):
+        text = fetch_trending()
+        if text:
+            short = "trending coins"
+            return {
+                "q": q,
+                "log_kind": "trending",
+                "http_code": 200,
+                "http": {"ok": True, "kind": "doc", "title": "0 Trending", "text": text},
+                "short": short,
+                "out": short,
+            }
+        text = "could not fetch trending from the public index."
+        return {
+            "q": q,
+            "log_kind": "trending",
+            "http_code": 200,
+            "http": {"ok": False, "kind": "doc", "title": "3 Error", "text": text},
+            "short": text,
+            "out": text,
+        }
     inst = parse_crypto(q)
     if inst:
-        tick = okx_ticker(inst)
+        tick = fetch_ticker(inst)
         if tick:
             text = format_ticker(tick)
-            short = inst + " last " + str(tick.get("last") or "?") + " (okx)"
+            src_name = "coinbase" if tick.get("source") == "coinbase" else "okx"
+            short = inst + " last " + str(tick.get("last") or "?") + " (" + src_name + ")"
             return {
                 "q": q,
                 "log_kind": "ticker",
@@ -694,22 +912,69 @@ def post_mail_hook(email: str, status: str) -> None:
 
 
 
-def post_resend_mail(email: str, status: str) -> None:
+def waitlist_mail_bodies() -> tuple[str, str]:
+    """Professional text + HTML waitlist join mail. $19/month. No fake checkout."""
+    text = (
+        "You're on the GOPHER AI waitlist.\n"
+        "\n"
+        "Waitlist confirmed.\n"
+        "Public price: $19/month.\n"
+        "Checkout is not live yet — waitlist is the door.\n"
+        "\n"
+        "We will email you when the paid phone assistant opens.\n"
+        "\n"
+        "— GOPHER AI\n"
+    )
+    html = (
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+        "<title>GOPHER AI waitlist</title></head>"
+        "<body style=\"margin:0;padding:0;background:#0b0f0c;color:#d7ffe3;"
+        "font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;\">"
+        "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+        "style=\"background:#0b0f0c;padding:32px 16px;\"><tr><td align=\"center\">"
+        "<table role=\"presentation\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" "
+        "style=\"max-width:560px;background:#121a14;border:1px solid #1e2e24;"
+        "border-radius:12px;padding:28px 24px;\">"
+        "<tr><td style=\"font-size:22px;letter-spacing:0.08em;color:#7CFFB2;"
+        "padding-bottom:12px;\">GOPHER AI</td></tr>"
+        "<tr><td style=\"font-size:16px;line-height:1.5;padding-bottom:8px;\">"
+        "You're on the waitlist.</td></tr>"
+        "<tr><td style=\"font-size:14px;line-height:1.6;color:#a8d4b8;padding-bottom:8px;\">"
+        "<strong style=\"color:#d7ffe3;\">Waitlist confirmed.</strong> "
+        "Public price: <strong style=\"color:#7CFFB2;\">$19/month</strong>.</td></tr>"
+        "<tr><td style=\"font-size:14px;line-height:1.6;color:#a8d4b8;padding-bottom:16px;\">"
+        "Checkout is not live yet — waitlist is the door. "
+        "We will email you when the paid phone assistant opens.</td></tr>"
+        "<tr><td style=\"font-size:12px;color:#6f8f7a;\">— GOPHER AI</td></tr>"
+        "</table></td></tr></table></body></html>"
+    )
+    return text, html
+
+
+def resend_api_url() -> str:
+    base = (os.environ.get("GOPHER_RESEND_API") or "https://api.resend.com").rstrip("/")
+    return base + "/emails"
+
+
+def post_resend_mail(email: str, status: str) -> bool:
     """Send waitlist join mail via Resend. No-op without key + from. Never log the key."""
     key = (os.environ.get("RESEND_API_KEY") or "").strip()
     frm = mail_from()
     if not key or not frm or status != "joined":
-        return
+        return False
+    text, html = waitlist_mail_bodies()
     payload = json.dumps(
         {
             "from": frm,
             "to": [email],
-            "subject": "GOPHER AI waitlist",
-            "text": "You're on the waitlist. GOPHER AI is $19/month. Checkout is not live yet. Waitlist is the door.",
+            "subject": "GOPHER AI — waitlist confirmed",
+            "text": text,
+            "html": html,
         }
     ).encode("utf-8")
     req = urllib.request.Request(
-        "https://api.resend.com/emails",
+        resend_api_url(),
         data=payload,
         headers={
             "Authorization": "Bearer " + key,
@@ -723,7 +988,18 @@ def post_resend_mail(email: str, status: str) -> None:
         with urllib.request.urlopen(req, timeout=4) as resp:
             resp.read()
     except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return False
+    return True
+
+
+def send_waitlist_mail(email: str, status: str) -> None:
+    """Prefer Resend, then GOPHER_MAIL_HOOK, else file-only. Never log secrets."""
+    if status != "joined":
         return
+    if resend_ready():
+        post_resend_mail(email, status)
+        return
+    post_mail_hook(email, status)
 
 
 def waitlist_rate_limited(ip: str) -> bool:
@@ -871,7 +1147,10 @@ class Handler(SimpleHTTPRequestHandler):
             self._tasks()
             return
         if path == "/api/orders":
-            self._orders()
+            self._orders(parse_qs(parsed.query or ""))
+            return
+        if path == "/api/mail":
+            self._mail_status()
             return
         if path == "/api/order":
             self._order_one(parse_qs(parsed.query or ""))
@@ -965,6 +1244,8 @@ class Handler(SimpleHTTPRequestHandler):
                 "plugins": {
                     "ticker": True,
                     "fng": True,
+                    "market": True,
+                    "trending": True,
                     "tasks": True,
                     "mail": mail,
                     "sms": sms,
@@ -999,11 +1280,29 @@ class Handler(SimpleHTTPRequestHandler):
         }
         self._json(200, payload)
 
-    def _orders(self) -> None:
+    def _mail_status(self) -> None:
+        """Probe for waitlist mail. 503 until Resend (key+from) or GOPHER_MAIL_HOOK."""
+        if mail_ready():
+            via = "resend" if resend_ready() else "hook"
+            self._json(200, {"ok": True, "mail": True, "via": via})
+            return
+        self._json(503, {"ok": False, "error": "mail parked", "mail": False})
+
+    def _orders(self, qs: dict | None = None) -> None:
+        """Export-friendly last N orders (no emails/secrets). Pages needs a public python host."""
+        limit = ORDERS_EXPORT
+        if isinstance(qs, dict):
+            raw = (qs.get("limit") or [None])[0]
+            try:
+                n = int(raw) if raw is not None else limit
+                if 1 <= n <= ORDERS_KEEP:
+                    limit = n
+            except (TypeError, ValueError):
+                pass
         with LOCK:
-            rows = load_list(ORDERS_PATH)
+            rows = load_orders()
         out = []
-        for entry in rows[-20:]:
+        for entry in rows[-limit:]:
             if not isinstance(entry, dict):
                 continue
             q = entry.get("q")
@@ -1034,7 +1333,7 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(400, {"ok": False, "error": "missing id"})
             return
         with LOCK:
-            rows = load_list(ORDERS_PATH)
+            rows = load_orders()
         for entry in reversed(rows):
             if not isinstance(entry, dict):
                 continue
@@ -1139,8 +1438,7 @@ class Handler(SimpleHTTPRequestHandler):
 
         body = {"ok": True, "status": status, "email": email}
         if status == "joined":
-            post_mail_hook(email, status)
-            post_resend_mail(email, status)
+            send_waitlist_mail(email, status)
         if wants_json(self):
             self._json(200, body)
         else:
@@ -1387,6 +1685,11 @@ class Handler(SimpleHTTPRequestHandler):
         if chat_id is None or not text:
             self._json(200, {"ok": True, "ignored": True})
             return
+        if telegram_is_start(text):
+            log_order("/start", "telegram", "help")
+            sent = telegram_send(chat_id, TELEGRAM_HELP)
+            self._json(200, {"ok": True, "sent": sent, "help": True})
+            return
         result = fulfill_order(text)
         q = result["q"] or text[:280]
         log_order(
@@ -1395,7 +1698,12 @@ class Handler(SimpleHTTPRequestHandler):
             result.get("out") or result.get("short") or "",
             order_id=result.get("id") or "",
         )
-        msg = (result.get("short") or "queued in the hole.")[:4000]
+        msg = (result.get("short") or result.get("out") or "queued in the hole.")[:4000]
+        # Prefer full doc text for ticker/fng/market when short is tiny
+        http = result.get("http") if isinstance(result.get("http"), dict) else {}
+        doc = http.get("text") if isinstance(http, dict) else None
+        if isinstance(doc, str) and doc.strip() and len(doc) <= 4000:
+            msg = doc.strip()
         sent = telegram_send(chat_id, msg)
         self._json(200, {"ok": True, "sent": sent})
 
@@ -1469,7 +1777,7 @@ def main() -> None:
     if not os.path.exists(WAITLIST_PATH):
         save_waitlist([])
     if not os.path.exists(ORDERS_PATH):
-        save_list(ORDERS_PATH, [])
+        save_orders([])
     if not os.path.exists(SCORES_PATH):
         save_list(SCORES_PATH, [])
     httpd = ThreadingHTTPServer((HOST, PORT), Handler)
