@@ -1036,6 +1036,8 @@
       var titles = {
         "/": "GOPHER AI — paid phone assistant · $19/mo waitlist",
         "/pricing": "Pricing $19/month — GOPHER AI waitlist",
+        "/checkout": "Checkout — GOPHER AI $19/month",
+        "/beta": "Beta invite — GOPHER AI select testers",
         "/waitlist": "Waitlist — GOPHER AI phone assistant",
         "/press": "Press kit — GOPHER AI",
         "/ship-az": "Ship A→Z — GOPHER AI",
@@ -1135,6 +1137,8 @@
     viewEl.innerHTML = "<h2>" + esc(doc.title || path) + "</h2>" + docHtml(doc);
     viewEl.focus();
     if (path === "/plugins") appendLivePlugins();
+    if (path === "/pricing" || path === "/checkout") appendCheckoutPanel();
+    if (path === "/beta" || path === "/invite") appendBetaPanel();
   }
 
   function shoutHud(msg, id) {
@@ -1258,8 +1262,9 @@
           "llm      " + ((d && d.llm) || "parked"),
           "telegram " + ((d && d.telegram) || "parked"),
           "price    $19/month",
-          "checkout parked",
-          "billing  parked"
+          "checkout " + ((d && d.checkout) || "parked"),
+          "billing  " + ((d && d.billing) || (p.billing ? "ready" : "parked")),
+          "invite   " + ((d && d.invite) || (p.invite ? "ready" : "parked"))
         ];
         if (el) el.textContent = lines.join("\n");
       })
@@ -1280,6 +1285,7 @@
           + " llm=" + ((d && d.llm) || "parked")
           + " telegram=" + ((d && d.telegram) || "parked")
           + " billing=" + (p.billing ? "ready" : "parked")
+          + " invite=" + (p.invite ? "ready" : "parked")
           + " twilio=" + ((d && d.twilio) || "parked")
           + " sla=" + (d && d.sla === true ? "true" : "false");
         var pre = document.createElement("pre");
@@ -1288,6 +1294,116 @@
         if (viewEl) viewEl.appendChild(pre);
       })
       .catch(function () { /* Pages: keep parked hole copy */ });
+  }
+  function appendCheckoutPanel() {
+    var wrap = document.createElement("div");
+    wrap.className = "menu-block";
+    wrap.id = "checkout-panel";
+    wrap.innerHTML = "<p class='info' id='checkout-copy'>checkout parked. waitlist is the door. $19/month.</p>";
+    if (viewEl) viewEl.appendChild(wrap);
+    fetch("/api/status", { headers: { Accept: "application/json" } })
+      .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
+      .then(function (d) {
+        var p = (d && d.plugins) || {};
+        var ready = !!(p.billing || d.billing === "ready" || d.checkout === "ready");
+        var copy = $("checkout-copy");
+        if (!ready) {
+          if (copy) copy.textContent = "checkout parked. waitlist is the door. $19/month.";
+          return;
+        }
+        if (copy) copy.textContent = "billing ready. $19/month subscription via checkout.";
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = "checkout-go";
+        btn.textContent = "CHECKOUT $19/MO";
+        btn.addEventListener("click", function () {
+          btn.disabled = true;
+          fetch("/api/checkout", {
+            method: "POST",
+            headers: { Accept: "application/json", "Content-Type": "application/json" },
+            body: "{}"
+          })
+            .then(function (res) { return res.json().then(function (body) { return { ok: res.ok, body: body }; }); })
+            .then(function (r) {
+              var url = r && r.body && r.body.url;
+              if (r.ok && url) {
+                window.location.href = url;
+                return;
+              }
+              if (copy) copy.textContent = (r.body && r.body.error) || "checkout parked";
+              btn.disabled = false;
+            })
+            .catch(function () {
+              if (copy) copy.textContent = "checkout parked";
+              btn.disabled = false;
+            });
+        });
+        wrap.appendChild(btn);
+      })
+      .catch(function () {
+        /* Pages / no python: keep parked copy */
+      });
+  }
+  function betaFlagOn() {
+    try { return localStorage.getItem("gopher_beta_v1") === "1"; } catch (e) { return false; }
+  }
+  function setBetaFlag(on) {
+    try { localStorage.setItem("gopher_beta_v1", on ? "1" : "0"); } catch (e) {}
+  }
+  function appendBetaPanel() {
+    var wrap = document.createElement("div");
+    wrap.className = "menu-block";
+    wrap.id = "beta-panel";
+    var flagged = betaFlagOn();
+    wrap.innerHTML =
+      "<p class='info' id='beta-copy'>" +
+      (flagged
+        ? "device beta flag gopher_beta_v1 is on. select testers only."
+        : "select testers. optional invite code, or device-only flag gopher_beta_v1. no fake emails.") +
+      "</p>" +
+      "<label class='prompt' for='beta-code'><span class='star'>*</span> invite code:</label>" +
+      "<div class='row'>" +
+      "<input id='beta-code' type='text' autocomplete='off' maxlength='64' placeholder='code'>" +
+      "<button type='button' id='beta-redeem'>REDEEM</button>" +
+      "</div>" +
+      "<p class='info dim' id='beta-status'></p>";
+    if (viewEl) viewEl.appendChild(wrap);
+    var btn = $("beta-redeem");
+    var st = $("beta-status");
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var codeEl = $("beta-code");
+        var code = codeEl ? String(codeEl.value || "").trim() : "";
+        if (!code) {
+          if (st) st.textContent = "enter a code, or set device flag only.";
+          return;
+        }
+        btn.disabled = true;
+        fetch("/api/invite/redeem", {
+          method: "POST",
+          headers: { Accept: "application/json", "Content-Type": "application/json" },
+          body: JSON.stringify({ code: code })
+        })
+          .then(function (res) { return res.json().then(function (body) { return { ok: res.ok, code: res.status, body: body }; }); })
+          .then(function (r) {
+            if (r.ok && r.body && r.body.ok) {
+              setBetaFlag(true);
+              if (st) st.textContent = "ok. gopher_beta_v1 on this device.";
+              var copy = $("beta-copy");
+              if (copy) copy.textContent = "device beta flag gopher_beta_v1 is on. select testers only.";
+            } else if (r.code === 503) {
+              if (st) st.textContent = "invite parked on python (no INVITE_CODES). device flag still optional.";
+            } else {
+              if (st) st.textContent = (r.body && r.body.error) || "bad code";
+            }
+            btn.disabled = false;
+          })
+          .catch(function () {
+            if (st) st.textContent = "python invite unreachable. you can still set device-only gopher_beta_v1.";
+            btn.disabled = false;
+          });
+      });
+    }
   }
   function paintOrders() {
     viewEl.hidden = false;
@@ -1610,7 +1726,7 @@
     if (id === "sms") return "parked. no SMS number. see plugins";
     if (id === "voice") return "parked. no voice number. see plugins";
     if (id === "mail") return "parked until RESEND_API_KEY or GOPHER_MAIL_HOOK. see plugins";
-    if (id === "billing") return "parked. no Stripe checkout. $19/month is public. see pricing";
+    if (id === "billing") return "parked until STRIPE keys. $19/month is public. see pricing / checkout";
     if (id === "telegram") return "parked until TELEGRAM_BOT_TOKEN. no bot username. see plugins";
     if (id === "prices") return "$19/month. waitlist is the door. see pricing";
     if (id === "domain") return "parked. no custom domain. see blueprint";

@@ -2,7 +2,7 @@
 
 Honest plan from **83/100** to a real ship. Public face: **GOPHER AI** only. Public price: **$19/month**. Waitlist is the door. Twilio is not required. Prefer Telegram + Resend. Stage on **gopher-test**; production stays frozen until promote.
 
-Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DEPLOY.md` (free host path), `PROMOTE.md` (staging→prod), `MARKETING.md` / `LAUNCH.md` / `NURTURE.md` / `CREATORS.md` (Phase C), `DISTRIBUTION.md` (Phase D), `DEMO.md` (stills; video not yet).
+Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DEPLOY.md` (free host path), `PROMOTE.md` (staging→prod), `MARKETING.md` / `LAUNCH.md` / `NURTURE.md` / `CREATORS.md` (Phase C), `DISTRIBUTION.md` (Phase D), `DEMO.md` (stills; video not yet), `BETA.md` (Phase E1 soft invite).
 
 ## Status now
 
@@ -16,7 +16,8 @@ Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DE
 - Production: https://oxcryptobot.github.io/gopher/ — **frozen** until promote
 - Free path: Pages (static) → python host (Render/Railway/Fly) → optional Telegram/Resend
 - Code ready, env/host parked: mail (77), Telegram, order log (85), more plugins (84)
-- Explicitly parked: SMS/voice (78/79), Stripe (81), cloud accounts (80), domain (76), SLA (83), store (86), hiring (95)
+- Explicitly parked: SMS/voice (78/79), Stripe (81) — **checkout scaffold code ready, needs keys**, cloud accounts (80), domain (76), SLA (83), store (86), hiring (95)
+- Soft invite code ready: `#/beta` / `BETA.md` (E1); still select testers only
 
 ## North star
 
@@ -49,7 +50,7 @@ Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DE
 | ID | Work | Notes |
 | --- | --- | --- |
 | **B1** | Mark 77 / 84 / 85 | Only when env+host prove live — never paper-ship |
-| **B2** | Stripe Checkout $19/mo (81) | Parked until ready; then refund (92) + DPA (93) copy **with counsel** |
+| **B2** | Stripe Checkout $19/mo (81) | **Code ready:** `GET`/`POST /api/checkout` → 503 `checkout parked` until `STRIPE_SECRET_KEY` + `STRIPE_PRICE_ID` ($19/mo price). Hole `#/checkout`. **Do not mark 81 done** until keys + live charge. Then refund (92) + DPA (93) **with counsel** |
 | **B3** | Cloud accounts (80) | Clerk (or similar) when money moves — device PBKDF2 is not cloud |
 | **B4** | Custom domain (76) | DNS + TLS; Vercel static optional |
 | **B5** | Uptime monitor (88) | External check; **not** a fake 99.9% |
@@ -88,7 +89,7 @@ Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DE
 
 | ID | Work |
 | --- | --- |
-| **E1** | Soft launch staging with TEST ribbon off for select testers (custom domain or passwordless invite) |
+| **E1** | Soft launch staging with TEST ribbon off for select testers | **Code ready:** `#/beta` + optional `INVITE_CODES` → `POST /api/invite/redeem` (503 until set); device flag `gopher_beta_v1`. See `BETA.md`. Custom domain still human. |
 | **E2** | Promote production **same commit** |
 | **E3** | Announce sequence: waitlist email → Telegram → X → HN → PH |
 | **E4** | Support: GitHub issues + waitlist reply; no fake phone support |
@@ -130,7 +131,7 @@ Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DE
 Waitlist → email proof (Resend) → Stripe $19/mo → cloud accounts → refund policy + DPA
 ```
 
-Do not open Stripe until mail + python host + beta invite work. Price is public; checkout is not live until B2.
+Do not open Stripe until mail + python host + beta invite work. Price is public; checkout scaffold returns 503 until Stripe keys (B2 code ready — item 81 still open).
 
 ## Do not invent
 
@@ -145,7 +146,7 @@ Do not open Stripe until mail + python host + beta invite work. Price is public;
 
 ## Immediate next 10 actions (ordered)
 
-1. **Agent / code (no secrets):** keep shipping docs + hole copy on **gopher-test** only (`SHIP_AZ.md`, `/ship-az`, OG, `LAUNCH.md`).
+1. **Agent / code (no secrets):** keep shipping docs + hole copy on **gopher-test** only (`SHIP_AZ.md`, `/ship-az`, `/checkout`, `/beta`, `BETA.md`, OG, `LAUNCH.md`).
 2. **Agent / code:** run tests; push **test** remote; never promote production until A+B exit.
 3. **You:** create free python host (Render/Railway/Fly); set `GOPHER_PUBLIC_URL`; confirm `/health`.
 4. **You:** add `RESEND_API_KEY` + `GOPHER_MAIL_FROM`; join waitlist once; confirm real mail.

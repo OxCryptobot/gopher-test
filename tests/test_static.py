@@ -49,7 +49,7 @@ class StaticTests(unittest.TestCase):
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v20", src)
+        self.assertIn("gopher-v21", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
@@ -61,7 +61,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn('id="thread"', html)
         self.assertIn("gopher_fav_v1", js)
         self.assertIn("gopher_use_v1", js)
-        self.assertIn("gopher-v20", read("sw.js"))
+        self.assertIn("gopher-v21", read("sw.js"))
         self.assertTrue(
             "SUG_MAX = 3" in js or "SUG_IDLE = 3" in js,
             "app.js should cap visible answers at 3",
@@ -107,7 +107,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
         self.assertIn("#chrome", css)
-        self.assertIn("gopher-v20", read("sw.js"))
+        self.assertIn("gopher-v21", read("sw.js"))
         self.assertIn('class="mascot"', html)
         self.assertIn("<pre", html)
         self.assertTrue(
@@ -137,7 +137,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn('q: "waitlist"', js)
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
-        self.assertIn("gopher-v20", read("sw.js"))
+        self.assertIn("gopher-v21", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")
@@ -205,7 +205,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("/api/order", js)
         self.assertIn("/api/orders", js)
         self.assertNotIn("GOPHER_LLM_KEY", js)
-        self.assertIn("gopher-v20", read("sw.js"))
+        self.assertIn("gopher-v21", read("sw.js"))
 
     def test_public_price_in_hole(self) -> None:
         hole = json.loads(read("hole.json"))
@@ -215,7 +215,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("waitlist", blob.lower())
         js = read("app.js")
         self.assertIn("$19/month", js)
-        self.assertIn("gopher-v20", read("sw.js"))
+        self.assertIn("gopher-v21", read("sw.js"))
 
     def test_no_banned_vendor_copy(self) -> None:
         banned = ("grok", "spacexai")
@@ -246,6 +246,31 @@ class StaticTests(unittest.TestCase):
         marketing = read("MARKETING.md")
         self.assertIn("share-card.svg", marketing)
         self.assertIn("DEMO.md", marketing)
+
+
+    def test_checkout_beta_holes(self) -> None:
+        hole = json.loads(read("hole.json"))
+        alias = hole.get("alias") or {}
+        self.assertEqual(alias.get("checkout"), "/checkout")
+        self.assertEqual(alias.get("beta"), "/beta")
+        self.assertEqual(alias.get("invite"), "/beta")
+        checkout = (hole.get("holes") or {}).get("/checkout") or {}
+        beta = (hole.get("holes") or {}).get("/beta") or {}
+        self.assertIn("parked", json.dumps(checkout).lower())
+        self.assertIn("$19", json.dumps(checkout))
+        self.assertIn("select testers", json.dumps(beta).lower())
+        self.assertIn("gopher_beta_v1", json.dumps(beta))
+        self.assertTrue(os.path.isfile(os.path.join(ROOT, "BETA.md")))
+        beta_md = read("BETA.md").lower()
+        self.assertIn("invite", beta_md)
+        self.assertIn("checkout parked", beta_md)
+        js = read("app.js")
+        self.assertIn("appendCheckoutPanel", js)
+        self.assertIn("appendBetaPanel", js)
+        self.assertIn("gopher_beta_v1", js)
+        self.assertIn("/api/checkout", js)
+        self.assertNotIn("STRIPE_SECRET_KEY", js)
+        self.assertIn("gopher-v21", read("sw.js"))
 
 
 

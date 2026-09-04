@@ -16,7 +16,7 @@ import urllib.request
 import uuid
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 WAITLIST_PATH = os.path.join(ROOT, "waitlist.json")
@@ -700,6 +700,118 @@ def telegram_is_start(text: str) -> bool:
     return low == "/start" or low.startswith("/start@")
 
 
+def stripe_secret() -> str:
+    return (os.environ.get("STRIPE_SECRET_KEY") or "").strip()
+
+
+def stripe_price_id() -> str:
+    return (
+        os.environ.get("STRIPE_PRICE_ID")
+        or os.environ.get("STRIPE_PRICE")
+        or ""
+    ).strip()
+
+
+def stripe_ready() -> bool:
+    """Ready when secret + price id are set. Price id must be the $19/month product."""
+    return bool(stripe_secret() and stripe_price_id())
+
+
+def stripe_api_base() -> str:
+    return (os.environ.get("GOPHER_STRIPE_API") or "https://api.stripe.com").rstrip("/")
+
+
+def public_base_url() -> str:
+    return (os.environ.get("GOPHER_PUBLIC_URL") or "").strip().rstrip("/")
+
+
+def create_checkout_session() -> tuple[bool, str, str | None]:
+    """Create a Stripe Checkout Session for the $19/month subscription.
+
+    Returns (ok, url_or_error, session_id). Never logs the secret.
+    STRIPE_PRICE_ID must point at the public $19/month price.
+    """
+    secret = stripe_secret()
+    price = stripe_price_id()
+    if not secret or not price:
+        return False, "checkout parked", None
+    base = public_base_url()
+    if not base:
+        return False, "GOPHER_PUBLIC_URL required for checkout", None
+    success = base + "/#/pricing?checkout=success"
+    cancel = base + "/#/pricing?checkout=cancel"
+    form = {
+        "mode": "subscription",
+        "line_items[0][price]": price,
+        "line_items[0][quantity]": "1",
+        "success_url": success,
+        "cancel_url": cancel,
+    }
+    url = stripe_api_base() + "/v1/checkout/sessions"
+    payload = urlencode(form).encode("utf-8")
+    auth = base64.b64encode((secret + ":").encode("utf-8")).decode("ascii")
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            "Authorization": "Basic " + auth,
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": "GOPHER/0.1",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            raw = resp.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as exc:
+        try:
+            exc.read()
+        except Exception:
+            pass
+        return False, "stripe checkout failed", None
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return False, "stripe checkout failed", None
+    try:
+        data = json.loads(raw) if raw else {}
+    except json.JSONDecodeError:
+        return False, "stripe checkout failed", None
+    if not isinstance(data, dict):
+        return False, "stripe checkout failed", None
+    session_url = data.get("url")
+    session_id = data.get("id")
+    if not isinstance(session_url, str) or not session_url.startswith("http"):
+        return False, "stripe checkout failed", None
+    sid = session_id if isinstance(session_id, str) else None
+    return True, session_url, sid
+
+
+def invite_codes_list() -> list[str]:
+    raw = (os.environ.get("INVITE_CODES") or "").strip()
+    if not raw:
+        return []
+    return [part.strip() for part in raw.split(",") if part.strip()]
+
+
+def invite_ready() -> bool:
+    return bool(invite_codes_list())
+
+
+def invite_code_hash(code: str) -> str:
+    return hashlib.sha256((code or "").strip().encode("utf-8")).hexdigest()
+
+
+def invite_code_ok(code: str) -> bool:
+    """Compare invite code against INVITE_CODES using hashed equality."""
+    if not isinstance(code, str) or not code.strip():
+        return False
+    want = invite_code_hash(code)
+    for item in invite_codes_list():
+        if hmac.compare_digest(invite_code_hash(item), want):
+            return True
+    return False
+
+
 def mask_sms_number() -> str | None:
     raw = (os.environ.get("TWILIO_NUMBER") or "").strip()
     if not raw:
@@ -1152,6 +1264,12 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/mail":
             self._mail_status()
             return
+        if path == "/api/checkout":
+            self._checkout()
+            return
+        if path == "/api/invite/redeem":
+            self._json(405, {"ok": False, "error": "POST a code to redeem."})
+            return
         if path == "/api/order":
             self._order_one(parse_qs(parsed.query or ""))
             return
@@ -1213,6 +1331,12 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/telegram/webhook":
             self._telegram_webhook()
             return
+        if path == "/api/checkout":
+            self._checkout()
+            return
+        if path == "/api/invite/redeem":
+            self._invite_redeem()
+            return
         self.send_error(404, "Not found")
 
     def do_OPTIONS(self) -> None:
@@ -1240,7 +1364,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "sla": False,
                 "progress": {"done": 83, "total": 100},
                 "price": "$19/month",
-                "checkout": "parked",
+                "checkout": "ready" if stripe_ready() else "parked",
                 "plugins": {
                     "ticker": True,
                     "fng": True,
@@ -1251,13 +1375,16 @@ class Handler(SimpleHTTPRequestHandler):
                     "sms": sms,
                     "voice": sms,
                     "telegram": telegram_ready(),
-                    "billing": False,
+                    "billing": stripe_ready(),
+                    "invite": invite_ready(),
                 },
                 "twilio": "ready" if sms else "parked",
                 "sms_number": mask_sms_number(),
                 "telegram": "ready" if telegram_ready() else "parked",
                 "mail": "ready" if mail else "parked",
                 "llm": "ready" if llm_ready() else "parked",
+                "billing": "ready" if stripe_ready() else "parked",
+                "invite": "ready" if invite_ready() else "parked",
             },
         )
 
@@ -1287,6 +1414,56 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(200, {"ok": True, "mail": True, "via": via})
             return
         self._json(503, {"ok": False, "error": "mail parked", "mail": False})
+
+    def _checkout(self) -> None:
+        """GET/POST checkout. 503 until STRIPE_SECRET_KEY + STRIPE_PRICE_ID.
+
+        When ready, POST creates a Checkout Session for the $19/month subscription.
+        Never put the Stripe secret in the client — only return the session URL.
+        """
+        if not stripe_ready():
+            self._json(503, {"ok": False, "error": "checkout parked", "billing": False})
+            return
+        method = (self.command or "GET").upper()
+        if method == "GET":
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "billing": True,
+                    "checkout": "ready",
+                    "price": "$19/month",
+                    "hint": "POST /api/checkout to create a session",
+                },
+            )
+            return
+        ok, url_or_err, sid = create_checkout_session()
+        if not ok:
+            code = 503 if url_or_err == "checkout parked" else 502
+            self._json(code, {"ok": False, "error": url_or_err, "billing": stripe_ready()})
+            return
+        payload = {"ok": True, "billing": True, "url": url_or_err, "price": "$19/month"}
+        if sid:
+            payload["id"] = sid
+        self._json(200, payload)
+
+    def _invite_redeem(self) -> None:
+        """POST {code}. 503 if INVITE_CODES unset. No fake emails."""
+        if not invite_ready():
+            self._json(503, {"ok": False, "error": "invite parked", "invite": False})
+            return
+        data, err = self._read_json()
+        if err:
+            self._json(400, {"ok": False, "error": err})
+            return
+        code = data.get("code") if isinstance(data, dict) else None
+        if not isinstance(code, str) or not code.strip():
+            self._json(400, {"ok": False, "error": "code required"})
+            return
+        if not invite_code_ok(code):
+            self._json(403, {"ok": False, "error": "bad code"})
+            return
+        self._json(200, {"ok": True, "invite": True, "flag": "gopher_beta_v1"})
 
     def _orders(self, qs: dict | None = None) -> None:
         """Export-friendly last N orders (no emails/secrets). Pages needs a public python host."""

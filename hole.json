@@ -64,7 +64,7 @@
     "price": "/pricing",
     "telegram": "/plugins",
     "resend": "/plugins",
-    "checkout": "/pricing",
+    "checkout": "/checkout",
     "refund": "/refund",
     "refunds": "/refund",
     "dpa": "/dpa",
@@ -83,7 +83,11 @@
     "reel": "/demo",
     "distribution": "/distribution",
     "dist": "/distribution",
-    "phase-d": "/distribution"
+    "phase-d": "/distribution",
+    "beta": "/beta",
+    "invite": "/beta",
+    "testers": "/beta",
+    "soft-launch": "/beta"
   },
   "holes": {
     "/": {
@@ -570,16 +574,16 @@
       "title_es": "Precios/",
       "copy": [
         "GOPHER AI is a paid phone assistant. $19/month.",
-        "Waitlist is the door. Checkout and billing are parked — no Stripe checkout yet.",
-        "Join the waitlist now. When checkout exists, people on the list hear first."
+        "Waitlist is the door. Checkout and billing are parked — no live Stripe checkout until keys are set.",
+        "Join the waitlist now. When checkout exists, people on the list hear first. Type checkout for the parked API hole."
       ],
       "copy_es": [
         "GOPHER AI es un asistente de teléfono de pago. $19 al mes.",
-        "La waitlist es la puerta. Cobro y checkout están aparcados — aún no hay checkout Stripe.",
-        "Entra a la lista de espera ahora. Cuando exista checkout, la lista se entera primero."
+        "La waitlist es la puerta. Cobro y checkout están aparcados — no hay checkout Stripe vivo hasta las claves.",
+        "Entra a la lista de espera ahora. Cuando exista checkout, la lista se entera primero. Escribe checkout para el hueco de la API aparcada."
       ],
-      "note": "Funnel: pricing → waitlist. Type waitlist. $19/month. Checkout parked. MAZE stays a free side quest.",
-      "note_es": "Embudo: pricing → waitlist. Escribe waitlist. $19 al mes. Checkout aparcado. MAZE sigue gratis."
+      "note": "Funnel: pricing → waitlist. Type waitlist. $19/month. Checkout parked (code ready, needs Stripe keys). MAZE stays a free side quest.",
+      "note_es": "Embudo: pricing → waitlist. Escribe waitlist. $19 al mes. Checkout aparcado (código listo, faltan claves Stripe). MAZE sigue gratis."
     },
     "/terms": {
       "title": "Terms/",
@@ -629,6 +633,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-09-04 — Phase B2 Stripe checkout scaffold (503 parked) + Phase E1 /beta invite redeem. Cache gopher-v21. Still 83/100 — item 81 not done.",
         "2026-09-04 — Phase D3 PWA + demo prep: /install UX, manifest waitlist/$19, press/share-card.svg, DEMO.md + /demo (video not yet), DISTRIBUTION.md. Cache gopher-v20. Still 83/100.",
         "2026-09-04 — Phase C marketing assets: NURTURE.md, CREATORS.md, SEO titles + sitemap waitlist/press/ship-az/launch/deploy. Cache gopher-v19. Still 83/100.",
         "2026-09-04 — SHIP A→Z blueprint (product + marketing + distribution). Hole /ship-az. Launch drafts. Cache gopher-v18. Still 83/100.",
@@ -649,6 +654,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-09-04 — Fase B2 scaffold Stripe checkout (503 aparcado) + Fase E1 /beta invite redeem. Caché gopher-v21. Sigue 83/100 — ítem 81 no cerrado.",
         "2026-09-04 — Phase D3 PWA + prep demo: UX /install, manifest waitlist/$19, press/share-card.svg, DEMO.md + /demo (video aún no), DISTRIBUTION.md. Caché gopher-v20. Sigue 83/100.",
         "2026-09-04 — Assets Phase C: NURTURE.md, CREATORS.md, títulos SEO + sitemap waitlist/press/ship-az/launch/deploy. Caché gopher-v19. Sigue 83/100.",
         "2026-09-04 — Plano SHIP A→Z (producto + marketing + distribución). Hueco /ship-az. Borradores launch. Caché gopher-v18. Sigue 83/100.",
@@ -1179,7 +1185,8 @@
         "The GOPHER prompt is always on. Suggestions always listed. Hosted model parked until GOPHER_LLM_HOOK is set.",
         "FETCH is search. DIG is a task from the 100. MAZE and BURROW are a side quest under Play/. Three answers under the prompt.",
         "Ship A→Z (product + marketing + distribution): SHIP_AZ.md — type ship-az.",
-        "Demo stills: DEMO.md (type demo). Distribution Phase D: DISTRIBUTION.md (type distribution). Video (97) not yet."
+        "Demo stills: DEMO.md (type demo). Distribution Phase D: DISTRIBUTION.md (type distribution). Video (97) not yet.",
+        "Stripe checkout scaffold: GET/POST /api/checkout → 503 checkout parked until keys. Soft invite: /beta + INVITE_CODES. Item 81 still open. Still 83/100."
       ],
       "copy_es": [
         "83 de 100. Hueco jugable 74/75. Teléfono de pago 9/25. Lo que falta es el producto duro, no el 17% del esfuerzo.",
@@ -1207,7 +1214,7 @@
         "telegram — parked until TELEGRAM_BOT_TOKEN. /start help, no bot username invented.",
         "mail waitlist — parked until RESEND_API_KEY + from (or GOPHER_MAIL_HOOK). Resend HTML+text.",
         "SMS / voice — parked. Twilio is not required. no number invented.",
-        "billing — parked. no Stripe checkout. public price $19/month on /pricing.",
+        "billing — parked until STRIPE_SECRET_KEY + STRIPE_PRICE_ID. GET/POST /api/checkout → 503 checkout parked. public price $19/month.",
         "identity — parked. device PBKDF2 only.",
         "host — GitHub Pages now. Vercel static later (free tier). not this batch."
       ],
@@ -1219,7 +1226,7 @@
         "telegram — aparcado hasta TELEGRAM_BOT_TOKEN. /start help, sin nombre de bot inventado.",
         "correo — aparcado hasta RESEND_API_KEY + from (o GOPHER_MAIL_HOOK). Resend HTML+texto.",
         "SMS / voz — aparcado. Twilio no es obligatorio. no hay número inventado.",
-        "cobro — aparcado. no hay checkout Stripe. precio público $19 al mes en /pricing.",
+        "cobro — aparcado hasta STRIPE_SECRET_KEY + STRIPE_PRICE_ID. GET/POST /api/checkout → 503 checkout parked. precio público $19 al mes.",
         "identidad — aparcado. solo PBKDF2 en el dispositivo.",
         "host — GitHub Pages ahora. Vercel estático después (plan gratis). no esta ola."
       ],
@@ -1352,7 +1359,8 @@
         "Money path: waitlist → email proof → Stripe $19/mo → cloud accounts → refund/DPA. Do not invent numbers, bot usernames, SLA%, or other prices.",
         "Type ship-az, ship, blueprint, deploy, or launch. Progress stays 83/100 until something truly ships.",
         "Phase C assets: MARKETING.md · LAUNCH.md · NURTURE.md · CREATORS.md. Type launch or press.",
-        "Phase D assets: DISTRIBUTION.md · DEMO.md · /install · press/share-card.svg. Type distribution or demo. PWA first; video not yet."
+        "Phase D assets: DISTRIBUTION.md · DEMO.md · /install · press/share-card.svg. Type distribution or demo. PWA first; video not yet.",
+        "Phase B2 code: /api/checkout 503 parked until Stripe keys (item 81 still open). Phase E1 code: /beta + POST /api/invite/redeem. See BETA.md."
       ],
       "copy_es": [
         "83/100. Jugable 74/75. Teléfono de pago 9/25. Staging en gopher-test. Producción congelada hasta promote. Plan completo: SHIP_AZ.md en el repo.",
@@ -1365,7 +1373,8 @@
         "Dinero: waitlist → prueba email → Stripe $19/mes → cuentas → reembolso/DPA. No inventar números, bots, SLA% ni otros precios.",
         "Escribe ship-az, ship, blueprint, deploy, o launch. El progreso sigue 83/100 hasta que algo shippee de verdad.",
         "Assets Phase C: MARKETING.md · LAUNCH.md · NURTURE.md · CREATORS.md. Escribe launch o press.",
-        "Assets Fase D: DISTRIBUTION.md · DEMO.md · /install · press/share-card.svg. Escribe distribution o demo. PWA primero; video aún no."
+        "Assets Fase D: DISTRIBUTION.md · DEMO.md · /install · press/share-card.svg. Escribe distribution o demo. PWA primero; video aún no.",
+        "Código Fase B2: /api/checkout 503 aparcado hasta claves Stripe (ítem 81 abierto). Código Fase E1: /beta + POST /api/invite/redeem. Ver BETA.md."
       ],
       "note": "Type ship-az / shipaz / az / gtm / roadmap. See SHIP_AZ.md, MARKETING.md, LAUNCH.md.",
       "note_es": "Escribe ship-az / shipaz / az / gtm / roadmap. Ver SHIP_AZ.md, MARKETING.md, LAUNCH.md."
@@ -1445,6 +1454,46 @@
       ],
       "note": "Type distribution / dist / phase-d. See DISTRIBUTION.md + SHIP_AZ.md + PROMOTE.md.",
       "note_es": "Escribe distribution / dist / phase-d. Ver DISTRIBUTION.md + SHIP_AZ.md + PROMOTE.md."
+    },
+    "/checkout": {
+      "title": "Checkout/",
+      "title_es": "Checkout/",
+      "copy": [
+        "Public price $19/month. Waitlist is the door.",
+        "Checkout is parked until STRIPE_SECRET_KEY and STRIPE_PRICE_ID are set on the python hole.",
+        "GET/POST /api/checkout returns HTTP 503 {ok:false, error:\"checkout parked\", billing:false} until then.",
+        "When billing is ready, POST /api/checkout creates a Stripe Checkout Session for the $19/month subscription. Success/cancel URLs use GOPHER_PUBLIC_URL. The Stripe secret never reaches the client.",
+        "Type pricing, waitlist, or checkout. Do not invent a live checkout URL."
+      ],
+      "copy_es": [
+        "Precio público $19 al mes. La waitlist es la puerta.",
+        "Checkout aparcado hasta STRIPE_SECRET_KEY y STRIPE_PRICE_ID en el hueco python.",
+        "GET/POST /api/checkout responde HTTP 503 {ok:false, error:\"checkout parked\", billing:false} hasta entonces.",
+        "Cuando el cobro esté listo, POST /api/checkout crea una sesión Stripe de $19/mes. Success/cancel usan GOPHER_PUBLIC_URL. El secreto Stripe nunca llega al cliente.",
+        "Escribe pricing, waitlist, o checkout. No inventes una URL de checkout viva."
+      ],
+      "note": "Type checkout. Code ready; needs Stripe keys. Item 81 stays open. See BETA.md / beta.",
+      "note_es": "Escribe checkout. Código listo; hacen falta claves Stripe. El ítem 81 sigue abierto. Ver BETA.md / beta."
+    },
+    "/beta": {
+      "title": "Beta/",
+      "title_es": "Beta/",
+      "copy": [
+        "Soft-tester invite (Phase E1). Select testers only — honest copy, no fake emails.",
+        "Optional INVITE_CODES on python (comma-separated). POST /api/invite/redeem with {code}. HTTP 503 invite parked until codes are set.",
+        "Device-only flag: localStorage gopher_beta_v1. Redeem sets it when python accepts a code.",
+        "Staging stays on gopher-test. Production frozen until promote. Progress stays 83/100.",
+        "Type beta or invite. See BETA.md and SHIP_AZ.md Phase E1."
+      ],
+      "copy_es": [
+        "Invitación soft-tester (Fase E1). Solo testers seleccionados — copy honesto, sin emails inventados.",
+        "INVITE_CODES opcional en python (separados por coma). POST /api/invite/redeem con {code}. HTTP 503 invite parked hasta que haya códigos.",
+        "Flag solo dispositivo: localStorage gopher_beta_v1. Redeem lo activa si python acepta el código.",
+        "Staging en gopher-test. Producción congelada hasta promote. El progreso sigue 83/100.",
+        "Escribe beta o invite. Ver BETA.md y SHIP_AZ.md Fase E1."
+      ],
+      "note": "Type beta / invite / testers. Soft launch select testers — not a public open beta.",
+      "note_es": "Escribe beta / invite / testers. Soft launch para testers seleccionados — no es beta abierta pública."
     }
   }
 }

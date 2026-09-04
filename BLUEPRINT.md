@@ -27,7 +27,7 @@ Type `blueprint` on the hole. Do not mark an item done until the real product ex
 - Twilio webhook endpoints on python: HTTP 503 until env is set. Twilio is not required.
 - Telegram webhook `POST /api/telegram/webhook`: HTTP 503 until `TELEGRAM_BOT_TOKEN`. No bot username invented.
 - Waitlist join mail via Resend if `RESEND_API_KEY` + from, or `GOPHER_MAIL_HOOK`. Parked otherwise.
-- Public price $19/month on `/pricing`. Waitlist is the door. Checkout/billing parked.
+- Public price $19/month on `/pricing`. Waitlist is the door. Checkout/billing parked (scaffold: `/api/checkout` → 503 until Stripe keys; `#/checkout`).
 
 
 ## Prompt / 100 tasks
@@ -52,7 +52,7 @@ Python `GOPHER_LLM_HOOK` + `GOPHER_LLM_KEY` fire the live bot webhook from this 
 | 78 | SMS number | parked | a number people can text | not required; Telegram first |
 | 79 | Voice in | parked | talk to the number, same thread | not required; Telegram first |
 | 80 | Cloud accounts | parked | not device-only PBKDF2 | identity (Clerk or similar) |
-| 81 | Billing | parked | a paid SKU that charges | Stripe checkout. Price is named ($19/month) |
+| 81 | Billing | code ready, needs Stripe keys | a paid SKU that charges | `GET`/`POST /api/checkout` 503 until `STRIPE_SECRET_KEY` + `STRIPE_PRICE_ID` ($19/month). Do not mark done yet |
 | 83 | SLA | parked | a written SLA | legal + ops |
 | 84 | Plugins | ticker + fng + market + trending on python | connected tools that fetch on a public host | Telegram/Resend parked until env |
 | 85 | Cloud order log | code ready (`orders.jsonl`) | off-device log of ask → answer on a public host | Pages has no python |
@@ -64,7 +64,7 @@ Python `GOPHER_LLM_HOOK` + `GOPHER_LLM_KEY` fire the live bot webhook from this 
 | 95 | Hiring | not hiring | real openings only | you |
 | 97 | Demo video | stills only | FETCH + directory, no stock | a capture |
 
-Shipped this wave: **82 published prices** — $19/month on `/pricing`. Waitlist is the door. Checkout parked.
+Shipped this wave: **82 published prices** — $19/month on `/pricing`. Waitlist is the door. Checkout parked (B2 scaffold code ready; item **81 still open** until keys).
 
 ## Wire order (do not skip)
 
@@ -76,7 +76,7 @@ Deploy runbook: `DEPLOY.md` and `#/deploy` (Pages → Render/Railway/Fly → poi
 2. **Free host** — GitHub Pages now. Vercel static (free tier) later; not this batch. Python brain on a free host.
 3. **Mail (77)** — Resend free tier join mail (`RESEND_API_KEY` + `GOPHER_MAIL_FROM`), then the waitlist is a product.
 4. **Telegram** — test channel via `POST /api/telegram/webhook` when `TELEGRAM_BOT_TOKEN` is set. In-app Ask stays. No bot username invented.
-5. **Billing (81, then 92–93)** — Stripe checkout for the named $19/month SKU. Price is public (82). Checkout still parked.
+5. **Billing (81, then 92–93)** — Stripe checkout for the named $19/month SKU. Price is public (82). Code: `/api/checkout` 503 until keys; still do not mark 81 done.
 6. **SMS + voice (78–79)** — not required. Stay parked. Prefer Telegram/email/Ask first. Do not invent a number.
 7. **Cloud accounts (80)** — replace local PBKDF2 when people pay.
 8. **Uptime (88)** — a monitor that is not this process’s `/health`.
@@ -96,9 +96,17 @@ Free test channel. `POST /api/telegram/webhook` returns HTTP 503 `{"ok":false,"e
 
 Waitlist join mail. Prefer Resend HTML+text when `RESEND_API_KEY` and `GOPHER_MAIL_FROM` (or `RESEND_FROM`) are set; else `GOPHER_MAIL_HOOK`; else file-only. `GET /api/mail` returns 503 `mail parked` until ready. Item 77 stays open until a real join mail is sent.
 
+## Stripe (Phase B2 scaffold)
+
+`GET` / `POST /api/checkout` returns HTTP 503 `{"ok":false,"error":"checkout parked","billing":false}` until `STRIPE_SECRET_KEY` and `STRIPE_PRICE_ID` (or `STRIPE_PRICE`) are set. The price id must be the public **$19/month** product. When set, POST creates a Checkout Session (`mode=subscription`); success/cancel URLs come from `GOPHER_PUBLIC_URL` (`/#/pricing?checkout=success|cancel`). Never put the Stripe secret in the client — only the session URL is returned. `GET /api/status` sets `plugins.billing` and `checkout` honestly. **Item 81 stays open** until real keys and a live charge path. Hole: `#/checkout`.
+
+## Soft invite (Phase E1)
+
+`#/beta` — select testers. Optional `INVITE_CODES` (comma-separated) → `POST /api/invite/redeem`. HTTP 503 `invite parked` until set. Device flag `gopher_beta_v1`. See `BETA.md`. No fake emails.
+
 ## What this wave wires (honest)
 
-- Public price $19/month on `/pricing`. Waitlist is the door. Checkout/billing parked (81).
+- Public price $19/month on `/pricing`. Waitlist is the door. Checkout/billing parked (81) — `/api/checkout` scaffold 503 until keys; `#/checkout` / `#/beta`.
 - Python hole live plugin flags on `GET /api/status` (ticker, fng, market, trending live; telegram/sms/voice/mail/billing parked unless env is set)
 - Fear/greed fetch on python (`fetch fg` / `fear greed` / `fng`)
 - Market summary (`market`) and CoinGecko trending (`trending`) soft-fail on python
@@ -107,7 +115,7 @@ Waitlist join mail. Prefer Resend HTML+text when `RESEND_API_KEY` and `GOPHER_MA
 - Waitlist mail: prefer Resend HTML+text (`RESEND_API_KEY` + from), then `GOPHER_MAIL_HOOK`, else file-only. `GET /api/mail` is 503 until ready. Item 77 stays open until a real join mail is sent.
 - Durable order log `orders.jsonl` (last N) + `GET /api/orders?limit=` export. Item 85 needs a public python host (Pages is not enough).
 - `#/blueprint` — this guide on the hole. Free path: Pages now, Vercel later, Telegram + Resend before Twilio.
-- `#/plugins` — ticker/fng/market/trending live on python, Telegram/mail parked until env, SMS/voice parked (no number), billing parked
+- `#/plugins` — ticker/fng/market/trending live on python, Telegram/mail parked until env, SMS/voice parked (no number), billing parked until Stripe keys; invite parked until `INVITE_CODES`
 - `#/orders` — last orders from python `GET /api/orders` (no emails). Pages: device queue only
 - `#/status` — `GET /api/status` when python is up. Not a 99.9% SLA
 

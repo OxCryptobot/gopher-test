@@ -23,6 +23,8 @@ REQUIRED_HOLES = (
     "/play",
     "/blueprint",
     "/plugins",
+    "/checkout",
+    "/beta",
 )
 BANNED = ("grok", "cursor", "spacexai")
 TEXT_KEYS = ("copy", "caps", "note", "title")
@@ -240,6 +242,22 @@ class HoleTests(unittest.TestCase):
         self.assertIn("phase d", xblob)
         self.assertIn("promote", xblob)
         self.assertIn("pwa", xblob)
+
+
+    def test_checkout_beta_aliases(self) -> None:
+        self.assertEqual(self.alias.get("checkout"), "/checkout")
+        self.assertEqual(self.alias.get("beta"), "/beta")
+        self.assertEqual(self.alias.get("invite"), "/beta")
+        checkout = self.holes.get("/checkout") or {}
+        blob = " ".join(flatten_text(checkout)).lower()
+        self.assertIn("parked", blob)
+        self.assertIn("$19", " ".join(flatten_text(checkout)))
+        self.assertIn("/api/checkout", blob.replace(" ", ""))
+        beta = self.holes.get("/beta") or {}
+        bblob = " ".join(flatten_text(beta)).lower()
+        self.assertIn("select testers", bblob)
+        self.assertIn("gopher_beta_v1", bblob)
+        self.assertTrue(os.path.isfile(os.path.join(ROOT, "BETA.md")))
 
 
 

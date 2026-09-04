@@ -37,6 +37,11 @@ ENV_KEYS = (
     "RESEND_FROM",
     "GOPHER_MAIL_HOOK",
     "GOPHER_RESEND_API",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_PRICE_ID",
+    "STRIPE_PRICE",
+    "GOPHER_STRIPE_API",
+    "INVITE_CODES",
 )
 
 
@@ -159,6 +164,17 @@ class ServerTests(unittest.TestCase):
         self.assertIn("send_waitlist_mail", self.src)
         self.assertIn("mail parked", self.src)
         self.assertIn("/api/mail", self.src)
+        self.assertIn("/api/checkout", self.src)
+        self.assertIn("checkout parked", self.src)
+        self.assertIn("stripe_ready", self.src)
+        self.assertIn("create_checkout_session", self.src)
+        self.assertIn("STRIPE_SECRET_KEY", self.src)
+        self.assertIn("STRIPE_PRICE_ID", self.src)
+        self.assertIn("/api/invite/redeem", self.src)
+        self.assertIn("invite parked", self.src)
+        self.assertIn("invite_code_ok", self.src)
+        self.assertIn("INVITE_CODES", self.src)
+        self.assertIn("gopher_beta_v1", self.src)
         self.assertIn("orders.jsonl", self.src)
         self.assertIn("load_orders", self.src)
         self.assertIn("looks_market", self.src)
@@ -585,10 +601,18 @@ class CorsLiveTests(unittest.TestCase):
         self.assertIs(plugins.get("market"), True)
         self.assertIs(plugins.get("trending"), True)
         self.assertIs(plugins.get("telegram"), False)
+        self.assertIs(plugins.get("billing"), False)
         self.assertEqual(status.get("telegram"), "parked")
+        self.assertEqual(status.get("checkout"), "parked")
+        self.assertEqual(status.get("billing"), "parked")
+        self.assertEqual(status.get("price"), "$19/month")
         code, raw, body = http("GET", self.base + "/api/mail")
         self.assertEqual(code, 503)
         self.assertEqual(body.get("error"), "mail parked")
+        code, raw, body = http("GET", self.base + "/api/checkout")
+        self.assertEqual(code, 503)
+        self.assertEqual(body.get("error"), "checkout parked")
+        self.assertIs(body.get("billing"), False)
 
 
 class TelegramWebhookTests(unittest.TestCase):
@@ -898,6 +922,176 @@ class PluginOrderLogTests(unittest.TestCase):
                 pass
 
 
+
+class StripeCaptureHandler(BaseHTTPRequestHandler):
+    last_headers: dict = {}
+    last_body: dict = {}
+    last_path = ""
+    last_raw = b""
+
+    def log_message(self, fmt: str, *args) -> None:
+        return
+
+    def do_POST(self) -> None:
+        n = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(n) if n else b""
+        StripeCaptureHandler.last_headers = {k: v for k, v in self.headers.items()}
+        StripeCaptureHandler.last_path = self.path
+        StripeCaptureHandler.last_raw = raw
+        try:
+            from urllib.parse import parse_qs
+            parsed = parse_qs(raw.decode("utf-8", errors="replace"), keep_blank_values=True)
+            StripeCaptureHandler.last_body = {k: (v[0] if v else "") for k, v in parsed.items()}
+        except Exception:
+            StripeCaptureHandler.last_body = {}
+        out = json.dumps(
+            {
+                "id": "cs_test_gopher",
+                "url": "https://checkout.stripe.com/c/pay/cs_test_gopher",
+                "object": "checkout.session",
+                "mode": "subscription",
+            }
+        ).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(out)))
+        self.end_headers()
+        self.wfile.write(out)
+
+
+class CheckoutInviteTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.mod = load_server()
+        cls.mod.Handler.log_message = lambda self, fmt, *args: None
+        cls.port = free_port()
+        cls.httpd = ThreadingHTTPServer(("127.0.0.1", cls.port), cls.mod.Handler)
+        cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = "http://127.0.0.1:%s" % cls.port
+        deadline = time.time() + 8
+        last = "not started"
+        while time.time() < deadline:
+            try:
+                code, raw, _ = http("GET", cls.base + "/health")
+                if code == 200:
+                    return
+                last = "health %s %r" % (code, raw)
+            except Exception as exc:
+                last = str(exc)
+                time.sleep(0.05)
+        raise RuntimeError("hole did not start: " + last)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+
+    def setUp(self) -> None:
+        self.guard = _EnvGuard()
+        for key in (
+            "STRIPE_SECRET_KEY",
+            "STRIPE_PRICE_ID",
+            "STRIPE_PRICE",
+            "GOPHER_STRIPE_API",
+            "GOPHER_PUBLIC_URL",
+            "INVITE_CODES",
+        ):
+            os.environ.pop(key, None)
+
+    def tearDown(self) -> None:
+        self.guard.restore()
+
+    def test_checkout_parked_503(self) -> None:
+        for method in ("GET", "POST"):
+            code, raw, body = http(
+                method,
+                self.base + "/api/checkout",
+                data=b"{}" if method == "POST" else None,
+                headers={"Content-Type": "application/json", "Accept": "application/json"},
+            )
+            self.assertEqual(code, 503, raw)
+            self.assertEqual(body.get("error"), "checkout parked")
+            self.assertIs(body.get("billing"), False)
+
+    def test_checkout_session_mocked(self) -> None:
+        cap_port = free_port()
+        httpd = ThreadingHTTPServer(("127.0.0.1", cap_port), StripeCaptureHandler)
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        StripeCaptureHandler.last_body = {}
+        StripeCaptureHandler.last_path = ""
+        try:
+            os.environ["STRIPE_SECRET_KEY"] = "sk_test_gopher"
+            os.environ["STRIPE_PRICE_ID"] = "price_test_19mo"
+            os.environ["GOPHER_PUBLIC_URL"] = "https://example.test/gopher"
+            os.environ["GOPHER_STRIPE_API"] = "http://127.0.0.1:%s" % cap_port
+            code, raw, status = http("GET", self.base + "/api/status")
+            self.assertEqual(code, 200)
+            self.assertIs((status.get("plugins") or {}).get("billing"), True)
+            self.assertEqual(status.get("checkout"), "ready")
+            code, raw, body = http("GET", self.base + "/api/checkout")
+            self.assertEqual(code, 200, raw)
+            self.assertIs(body.get("billing"), True)
+            code, raw, body = http(
+                "POST",
+                self.base + "/api/checkout",
+                data=b"{}",
+                headers={"Content-Type": "application/json", "Accept": "application/json"},
+            )
+            self.assertEqual(code, 200, raw)
+            self.assertIs(body.get("ok"), True)
+            self.assertEqual(body.get("url"), "https://checkout.stripe.com/c/pay/cs_test_gopher")
+            self.assertEqual(body.get("price"), "$19/month")
+            self.assertEqual(StripeCaptureHandler.last_path, "/v1/checkout/sessions")
+            form = StripeCaptureHandler.last_body
+            self.assertEqual(form.get("mode"), "subscription")
+            self.assertEqual(form.get("line_items[0][price]"), "price_test_19mo")
+            self.assertIn("checkout=success", form.get("success_url") or "")
+            self.assertIn("checkout=cancel", form.get("cancel_url") or "")
+            auth = StripeCaptureHandler.last_headers.get("Authorization") or ""
+            self.assertTrue(auth.startswith("Basic "), auth)
+            self.assertNotIn("sk_test_gopher", json.dumps(body))
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
+    def test_invite_parked_503(self) -> None:
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/invite/redeem",
+            data=b'{"code":"x"}',
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+        )
+        self.assertEqual(code, 503, raw)
+        self.assertEqual(body.get("error"), "invite parked")
+        self.assertIs(body.get("invite"), False)
+
+    def test_invite_redeem_ok_and_bad(self) -> None:
+        os.environ["INVITE_CODES"] = "alpha,beta-test"
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/invite/redeem",
+            data=b'{"code":"alpha"}',
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+        )
+        self.assertEqual(code, 200, raw)
+        self.assertIs(body.get("ok"), True)
+        self.assertEqual(body.get("flag"), "gopher_beta_v1")
+        code, raw, body = http(
+            "POST",
+            self.base + "/api/invite/redeem",
+            data=b'{"code":"nope"}',
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+        )
+        self.assertEqual(code, 403, raw)
+        self.assertEqual(body.get("error"), "bad code")
+        code, raw, status = http("GET", self.base + "/api/status")
+        self.assertEqual(code, 200)
+        self.assertIs((status.get("plugins") or {}).get("invite"), True)
+        self.assertEqual(status.get("invite"), "ready")
+
+
 def main() -> int:
     try:
         loader = unittest.defaultTestLoader
@@ -911,6 +1105,7 @@ def main() -> int:
         suite.addTests(loader.loadTestsFromTestCase(TelegramWebhookTests))
         suite.addTests(loader.loadTestsFromTestCase(ResendMailTests))
         suite.addTests(loader.loadTestsFromTestCase(PluginOrderLogTests))
+        suite.addTests(loader.loadTestsFromTestCase(CheckoutInviteTests))
         result = unittest.TextTestRunner(verbosity=2).run(suite)
         return 0 if result.wasSuccessful() else 1
     except AssertionError as exc:
@@ -919,6 +1114,7 @@ def main() -> int:
     except Exception as exc:
         print(exc, file=sys.stderr)
         return 1
+
 
 
 if __name__ == "__main__":
