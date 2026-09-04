@@ -1,5 +1,7 @@
 # GOPHER AI — missing product blueprint
 
+**Ship A→Z** (product + marketing + distribution from 83/100): see `SHIP_AZ.md`. Type `ship-az` on the hole.
+
 Honest bar: **83/100**. About 17% of the 100-list is still open, but remaining work is the HARD product, not 17% of effort.
 
 Two bars:

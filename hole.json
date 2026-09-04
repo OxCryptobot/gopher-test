@@ -69,7 +69,15 @@
     "refunds": "/refund",
     "dpa": "/dpa",
     "deploy": "/deploy",
-    "mail": "/plugins"
+    "mail": "/plugins",
+    "ship-az": "/ship-az",
+    "shipaz": "/ship-az",
+    "az": "/ship-az",
+    "go-to-market": "/ship-az",
+    "gtm": "/ship-az",
+    "roadmap": "/ship-az",
+    "launch": "/launch",
+    "marketing": "/launch"
   },
   "holes": {
     "/": {
@@ -339,6 +347,15 @@
           "path": "/deploy",
           "hint": "DEPLOY.md · free path",
           "hint_es": "DEPLOY.md · camino gratis"
+        },
+        {
+          "n": "16",
+          "type": "0",
+          "name": "Ship A-Z",
+          "name_es": "Ship A-Z",
+          "path": "/ship-az",
+          "hint": "SHIP_AZ.md · product+GTM",
+          "hint_es": "SHIP_AZ.md · producto+GTM"
         }
       ]
     },
@@ -586,6 +603,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-09-04 — SHIP A→Z blueprint (product + marketing + distribution). Hole /ship-az. Launch drafts. Cache gopher-v18. Still 83/100.",
         "2026-09-04 — Python harden: Telegram /start help, Resend HTML join mail, orders.jsonl, market+trending plugins. Still needs env/host. $19/month. 83/100.",
         "2026-09-04 — Public price $19/month on /pricing. Waitlist is the door. Checkout parked. Telegram/Resend wired parked. 83/100.",
         "2026-08-28 — Tasks/ is a tap catalog. BURROW 30 stages, gems, CSS scale. Mascot always on. 82/100.",
@@ -603,6 +621,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-09-04 — Plano SHIP A→Z (producto + marketing + distribución). Hueco /ship-az. Borradores launch. Caché gopher-v18. Sigue 83/100.",
         "2026-09-04 — Python endurecido: Telegram /start, mail Resend HTML, orders.jsonl, plugins market+trending. Aún necesita env/host. $19/mes. 83/100.",
         "2026-09-04 — Precio público $19 al mes en /pricing. La waitlist es la puerta. Checkout aparcado. Telegram/Resend cableados aparcados. 83/100.",
         "2026-08-28 — Tasks/ es un catálogo tappable. BURROW 30 etapas, gemas, escala CSS. Mascot siempre on. 82/100.",
@@ -824,11 +843,13 @@
       "title_es": "Ship/",
       "copy": [
         "Honest list as of 2026-09-04. Staging https://oxcryptobot.github.io/gopher-test/ already exists. Production https://oxcryptobot.github.io/gopher/ is frozen until promote. LIVE below is in this tree (stage on test, then promote). NEXT is not pretend-shipped.",
-        "Full 100-item phased list lives in SHIP.md. Type ship. Method: stage on test, then promote. Progress 83/100."
+        "Full 100-item phased list lives in SHIP.md. Type ship. Method: stage on test, then promote. Progress 83/100.",
+        "Full A→Z ship plan (product + GTM): SHIP_AZ.md — type ship-az."
       ],
       "copy_es": [
         "Lista honesta al 2026-09-04. Staging https://oxcryptobot.github.io/gopher-test/ ya existe. Producción https://oxcryptobot.github.io/gopher/ está congelada hasta promote. LIVE abajo está en este árbol (stage en test, luego promote). NEXT no está fingido como shipped.",
-        "La lista completa de 100 ítems por fases vive en SHIP.md. Escribe ship. Método: stage en test, luego promote. Progreso 83/100."
+        "La lista completa de 100 ítems por fases vive en SHIP.md. Escribe ship. Método: stage en test, luego promote. Progreso 83/100.",
+        "Plan A→Z completo (producto + GTM): SHIP_AZ.md — escribe ship-az."
       ],
       "caps": [
         "LIVE 100-item SHIP.md on the hole (type ship)",
@@ -849,6 +870,7 @@
         "LIVE public price $19/month on /pricing; waitlist is the door; checkout/billing parked",
         "LIVE Pages is static; python /health is the process; no fake uptime",
         "LIVE Deploy/ hole + DEPLOY.md — free path Pages → python host → optional Telegram/Resend (type deploy)",
+        "LIVE SHIP_AZ.md + /ship-az — product + marketing + distribution A→Z (type ship-az). Still 83/100",
         "NEXT custom domain, mail waitlist, SMS number, voice in, cloud accounts, billing, SLA, plugins, cloud order log, store listing",
         "NEXT a real uptime hole (not a fake 99.9%)",
         "LIVE i18n EN/ES (toggle, directory, FETCH/DIG shell, 29 doc bodies). Buttons stay EN",
@@ -874,6 +896,7 @@
         "LIVE precio público $19 al mes en /pricing; la waitlist es la puerta; checkout/cobro aparcados",
         "LIVE Pages es estático; python /health es el proceso; sin uptime inventado",
         "LIVE hueco Deploy/ + DEPLOY.md — camino gratis Pages → host python → Telegram/Resend opcional (escribe deploy)",
+        "LIVE SHIP_AZ.md + /ship-az — producto + marketing + distribución A→Z (escribe ship-az). Sigue 83/100",
         "NEXT dominio propio, lista de espera por mail, número SMS, voz de entrada, cuentas en la nube, facturación, SLA, plugins, log de pedidos en la nube, ficha de tienda",
         "NEXT un hueco de uptime de verdad (no un 99.9% inventado)",
         "LIVE i18n EN/ES (toggle, directorio, FETCH/DIG, 29 textos). Botones en EN",
@@ -886,11 +909,13 @@
       "title_es": "Prensa/",
       "copy": [
         "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. FETCH is search. DIG is do a task from the 100. The public hole is a numbered directory plus a prompt with three answers. MAZE and BURROW are a side quest (kill time between searches). Waitlist is open. Public price $19/month on /pricing. Checkout parked.",
-        "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark)."
+        "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark).",
+        "Launch drafts (4 posts + nurture): LAUNCH.md — type launch. Ship A→Z: type ship-az."
       ],
       "copy_es": [
         "GOPHER AI es un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. El hueco público es un directorio numerado más un prompt con tres respuestas. MAZE y BURROW son un side quest (mata el tiempo entre búsquedas). Lista de espera abierta. Precio público $19 al mes en /pricing. Checkout aparcado.",
-        "Capturas en este sitio, rutas relativas: press/home.png (directorio), press/fetch.png (FETCH), press/icon.png (marca)."
+        "Capturas en este sitio, rutas relativas: press/home.png (directorio), press/fetch.png (FETCH), press/icon.png (marca).",
+        "Borradores de launch (4 posts + nurture): LAUNCH.md — escribe launch. Ship A→Z: escribe ship-az."
       ],
       "note": "No user counts. No ARR. No awards. If we do not have the number, we do not print it.",
       "note_es": "Sin conteo de usuarios. Sin ARR. Sin premios. Si no tenemos el número, no lo imprimimos."
@@ -1106,7 +1131,8 @@
         "Pages cannot run server.py. Do not invent bot usernames, SMS numbers, or a 99.9% SLA. Full guide: BLUEPRINT.md. Type blueprint, deploy, plugins, orders, or status.",
         "Type tasks in the prompt, or open /tasks. Autoprompt ranks live selectors. Parked products stay parked.",
         "The GOPHER prompt is always on. Suggestions always listed. Hosted model parked until GOPHER_LLM_HOOK is set.",
-        "FETCH is search. DIG is a task from the 100. MAZE and BURROW are a side quest under Play/. Three answers under the prompt."
+        "FETCH is search. DIG is a task from the 100. MAZE and BURROW are a side quest under Play/. Three answers under the prompt.",
+        "Ship A→Z (product + marketing + distribution): SHIP_AZ.md — type ship-az."
       ],
       "copy_es": [
         "83 de 100. Hueco jugable 74/75. Teléfono de pago 9/25. Lo que falta es el producto duro, no el 17% del esfuerzo.",
@@ -1118,7 +1144,8 @@
         "Pages no corre server.py. No inventar bots, SMS ni un SLA.",
         "Escribe tasks en el prompt, o abre /tasks. El autoprompt ordena selectores vivos. Lo aparcado sigue aparcado.",
         "El prompt GOPHER está siempre on. Sugerencias siempre listadas. Modelo hospedado aparcado hasta GOPHER_LLM_HOOK.",
-        "FETCH es search. DIG es una tarea de las 100. MAZE y BURROW son un side quest bajo Play/. Tres respuestas bajo el prompt."
+        "FETCH es search. DIG es una tarea de las 100. MAZE y BURROW son un side quest bajo Play/. Tres respuestas bajo el prompt.",
+        "Ship A→Z (producto + marketing + distribución): SHIP_AZ.md — escribe ship-az."
       ]
     },
     "/plugins": {
@@ -1250,16 +1277,72 @@
         "Free deploy path. Full runbook: DEPLOY.md in the repo.",
         "1) GitHub Pages now (static hole). 2) Python brain on a free host (Render / Railway / Fly) running server.py. 3) Point hole.json brain at that https origin. 4) Optional Telegram / Resend env — empty stays parked. 5) Vercel static later (vercel.json ready).",
         "Twilio is never required. Do not invent a phone number or a bot username. Public price $19/month. Waitlist is the door. Checkout parked.",
-        "Type deploy, ship, or blueprint. Smoke: python3 scripts/smoke_env.py and GET /health on the python host."
+        "Type deploy, ship, or blueprint. Smoke: python3 scripts/smoke_env.py and GET /health on the python host.",
+        "A→Z ship plan: SHIP_AZ.md — type ship-az."
       ],
       "copy_es": [
         "Camino de deploy gratis. Runbook completo: DEPLOY.md en el repo.",
         "1) GitHub Pages ahora (hueco estático). 2) Cerebro python en un host gratis (Render / Railway / Fly) con server.py. 3) Apunta brain en hole.json a ese origen https. 4) Telegram / Resend opcionales — vacío = aparcado. 5) Vercel estático después (vercel.json listo).",
         "Twilio nunca es obligatorio. No inventes número ni nombre de bot. Precio público $19 al mes. La waitlist es la puerta. Checkout aparcado.",
-        "Escribe deploy, ship, o blueprint. Smoke: python3 scripts/smoke_env.py y GET /health en el host python."
+        "Escribe deploy, ship, o blueprint. Smoke: python3 scripts/smoke_env.py y GET /health en el host python.",
+        "Plan A→Z: SHIP_AZ.md — escribe ship-az."
       ],
       "note": "Type deploy. See DEPLOY.md, ship, blueprint. No secrets in client assets.",
       "note_es": "Escribe deploy. Ver DEPLOY.md, ship, blueprint. Sin secretos en assets del cliente."
+    },
+    "/ship-az": {
+      "title": "Ship A-Z/",
+      "title_es": "Ship A-Z/",
+      "copy": [
+        "83/100. Playable 74/75. Paid phone 9/25. Staging on gopher-test. Production frozen until promote. Full plan: SHIP_AZ.md in the repo.",
+        "Phase A (days 0–2): CI PAT, free python host + /health, point brain, Resend join mail, Telegram webhook, optional LLM hook.",
+        "Phase B (days 2–7): mark 77/84/85 only when live; Stripe $19/mo then refund+DPA with counsel; cloud accounts; domain; uptime (no fake 99.9%); demo video; legal. SMS/voice parked.",
+        "Phase C (from day 0): positioning, funnel+OG, 4 launch posts, waitlist nurture, creators, SEO, demo reel — type launch.",
+        "Phase D (days 5–21): owned channels, community, PWA first, partnerships after beta, PROMOTE.md, real metrics.",
+        "Phase E: soft launch testers → promote same commit → announce waitlist→Telegram→X→HN→PH → support via issues+mail → rollback if checkout/mail fails.",
+        "Phase F (week 2–8): waitlist→paid, SLA only if real, more plugins, optional Twilio later, hiring only if real roles.",
+        "Money path: waitlist → email proof → Stripe $19/mo → cloud accounts → refund/DPA. Do not invent numbers, bot usernames, SLA%, or other prices.",
+        "Type ship-az, ship, blueprint, deploy, or launch. Progress stays 83/100 until something truly ships."
+      ],
+      "copy_es": [
+        "83/100. Jugable 74/75. Teléfono de pago 9/25. Staging en gopher-test. Producción congelada hasta promote. Plan completo: SHIP_AZ.md en el repo.",
+        "Fase A (días 0–2): CI PAT, host python gratis + /health, apunta brain, mail Resend, webhook Telegram, LLM hook opcional.",
+        "Fase B (días 2–7): marcar 77/84/85 solo si está vivo; Stripe $19/mes luego reembolso+DPA con abogado; cuentas; dominio; uptime (sin 99.9% inventado); video demo; legal. SMS/voz aparcados.",
+        "Fase C (desde día 0): posicionamiento, funnel+OG, 4 posts, nurture waitlist, creadores, SEO, reel — escribe launch.",
+        "Fase D (días 5–21): canales propios, comunidad, PWA primero, partnerships después del beta, PROMOTE.md, métricas reales.",
+        "Fase E: soft launch → promote mismo commit → anuncio waitlist→Telegram→X→HN→PH → soporte issues+mail → rollback si falla checkout/mail.",
+        "Fase F (semanas 2–8): waitlist→pago, SLA solo si es real, más plugins, Twilio opcional después, contratación solo con roles reales.",
+        "Dinero: waitlist → prueba email → Stripe $19/mes → cuentas → reembolso/DPA. No inventar números, bots, SLA% ni otros precios.",
+        "Escribe ship-az, ship, blueprint, deploy, o launch. El progreso sigue 83/100 hasta que algo shippee de verdad."
+      ],
+      "note": "Type ship-az / shipaz / az / gtm / roadmap. See SHIP_AZ.md, MARKETING.md, LAUNCH.md.",
+      "note_es": "Escribe ship-az / shipaz / az / gtm / roadmap. Ver SHIP_AZ.md, MARKETING.md, LAUNCH.md."
+    },
+    "/launch": {
+      "title": "Launch/",
+      "title_es": "Launch/",
+      "copy": [
+        "Draft launch kit. Full text: LAUNCH.md. Brand: BRAND.md phosphor. Checklist: MARKETING.md. Plan: SHIP_AZ.md Phase C.",
+        "One-liner: GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol — search, then do the task.",
+        "X/Twitter draft: FETCH=search, DIG=task from the 100, $19/month, waitlist is the door, 1991 protocol / 2026 interface. See LAUNCH.md Post 1.",
+        "Reddit draft: Show the directory UX, side quest vs product, honest parked checkout/SMS. See LAUNCH.md Post 2.",
+        "Show HN draft: selectors + prompt, what works on Pages vs python env, no fake SLA. See LAUNCH.md Post 3.",
+        "Product Hunt later (after A+B + promote): tagline 1991 protocol · 2026 phone assistant · $19/mo waitlist. See LAUNCH.md Post 4.",
+        "Nurture: Resend welcome + weekly hole notes template in LAUNCH.md. Needs RESEND_API_KEY — no spam.",
+        "No user counts. No ARR. No awards. Type launch, press, or ship-az."
+      ],
+      "copy_es": [
+        "Kit de lanzamiento (borrador). Texto completo: LAUNCH.md. Marca: BRAND.md. Checklist: MARKETING.md. Plan: SHIP_AZ.md Fase C.",
+        "One-liner: GOPHER AI es un asistente de teléfono de pago llamado así por el protocolo Gopher de 1991 — busca, luego haz la tarea.",
+        "Borrador X/Twitter: FETCH=search, DIG=tarea de las 100, $19/mes, waitlist es la puerta. Ver LAUNCH.md Post 1.",
+        "Borrador Reddit: UX del directorio, side quest vs producto, checkout/SMS aparcados con honestidad. Ver LAUNCH.md Post 2.",
+        "Borrador Show HN: selectores + prompt, Pages vs python, sin SLA inventado. Ver LAUNCH.md Post 3.",
+        "Product Hunt después (A+B + promote): 1991 protocol · asistente 2026 · waitlist $19/mes. Ver LAUNCH.md Post 4.",
+        "Nurture: bienvenida Resend + hole notes semanales en LAUNCH.md. Hace falta RESEND_API_KEY — sin spam.",
+        "Sin conteos de usuarios. Sin ARR. Sin premios. Escribe launch, press, o ship-az."
+      ],
+      "note": "Type launch. Drafts only until A+B exit and promote.",
+      "note_es": "Escribe launch. Solo borradores hasta salida A+B y promote."
     }
   }
 }
