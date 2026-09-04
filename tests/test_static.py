@@ -37,13 +37,19 @@ class StaticTests(unittest.TestCase):
         raw = read("manifest.json")
         data = json.loads(raw)
         self.assertEqual(data.get("name"), "GOPHER AI")
+        self.assertEqual(data.get("short_name"), "GOPHER")
+        self.assertEqual(data.get("theme_color"), "#070908")
+        self.assertEqual(data.get("background_color"), "#070908")
+        desc = (data.get("description") or "").lower()
+        self.assertIn("waitlist", desc)
+        self.assertIn("$19", data.get("description") or "")
         icons = data.get("icons")
         self.assertIsInstance(icons, list)
         self.assertTrue(icons, "manifest.json icons is empty")
 
     def test_sw_cache_name(self) -> None:
         src = read("sw.js")
-        self.assertIn("gopher-v19", src)
+        self.assertIn("gopher-v20", src)
         self.assertIn("tasks.json", src)
 
     def test_prompt_suggest(self) -> None:
@@ -55,7 +61,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn('id="thread"', html)
         self.assertIn("gopher_fav_v1", js)
         self.assertIn("gopher_use_v1", js)
-        self.assertIn("gopher-v19", read("sw.js"))
+        self.assertIn("gopher-v20", read("sw.js"))
         self.assertTrue(
             "SUG_MAX = 3" in js or "SUG_IDLE = 3" in js,
             "app.js should cap visible answers at 3",
@@ -101,7 +107,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
         self.assertIn("#chrome", css)
-        self.assertIn("gopher-v19", read("sw.js"))
+        self.assertIn("gopher-v20", read("sw.js"))
         self.assertIn('class="mascot"', html)
         self.assertIn("<pre", html)
         self.assertTrue(
@@ -131,7 +137,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn('q: "waitlist"', js)
         self.assertIn("SUG_IDLE = 3", js)
         self.assertIn("SUG_MAX = 3", js)
-        self.assertIn("gopher-v19", read("sw.js"))
+        self.assertIn("gopher-v20", read("sw.js"))
 
     def test_game_exports(self) -> None:
         src = read("game.js")
@@ -199,7 +205,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("/api/order", js)
         self.assertIn("/api/orders", js)
         self.assertNotIn("GOPHER_LLM_KEY", js)
-        self.assertIn("gopher-v19", read("sw.js"))
+        self.assertIn("gopher-v20", read("sw.js"))
 
     def test_public_price_in_hole(self) -> None:
         hole = json.loads(read("hole.json"))
@@ -209,7 +215,7 @@ class StaticTests(unittest.TestCase):
         self.assertIn("waitlist", blob.lower())
         js = read("app.js")
         self.assertIn("$19/month", js)
-        self.assertIn("gopher-v19", read("sw.js"))
+        self.assertIn("gopher-v20", read("sw.js"))
 
     def test_no_banned_vendor_copy(self) -> None:
         banned = ("grok", "spacexai")
@@ -218,6 +224,29 @@ class StaticTests(unittest.TestCase):
             for token in banned:
                 self.assertNotIn(token, src, name + " has " + token)
             self.assertNotIn("cursor", src, name + " has cursor")
+
+    def test_share_card_and_demo_docs(self) -> None:
+        card = os.path.join(ROOT, "press", "share-card.svg")
+        self.assertTrue(os.path.isfile(card), "press/share-card.svg missing")
+        svg = open(card, encoding="utf-8").read()
+        self.assertIn("#070908", svg)
+        self.assertIn("#39ff14", svg)
+        self.assertIn("GOPHER AI", svg)
+        self.assertIn("$19/mo", svg)
+        self.assertIn("waitlist", svg.lower())
+        demo = read("DEMO.md").lower()
+        self.assertIn("video not yet", demo)
+        self.assertIn("shots/", demo)
+        self.assertIn("fetch", demo)
+        dist = read("DISTRIBUTION.md").lower()
+        self.assertIn("phase d", dist)
+        self.assertIn("promote.md", dist)
+        self.assertIn("ship_az", dist)
+        self.assertIn("pwa", dist)
+        marketing = read("MARKETING.md")
+        self.assertIn("share-card.svg", marketing)
+        self.assertIn("DEMO.md", marketing)
+
 
 
 def main() -> int:

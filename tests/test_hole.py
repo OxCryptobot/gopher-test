@@ -218,6 +218,29 @@ class HoleTests(unittest.TestCase):
         self.assertNotIn("79. [x]", text)
         self.assertNotIn("81. [x]", text)
 
+    def test_install_demo_distribution_holes(self) -> None:
+        self.assertEqual(self.alias.get("install"), "/install")
+        self.assertEqual(self.alias.get("pwa"), "/install")
+        self.assertEqual(self.alias.get("demo"), "/demo")
+        self.assertEqual(self.alias.get("distribution"), "/distribution")
+        self.assertEqual(self.alias.get("dist"), "/distribution")
+        install = self.holes.get("/install") or {}
+        blob = " ".join(flatten_text(install)).lower()
+        self.assertIn("pwa", blob)
+        self.assertIn("waitlist", blob)
+        self.assertIn("$19", " ".join(flatten_text(install)))
+        self.assertIn("home screen", blob)
+        demo = self.holes.get("/demo") or {}
+        dblob = " ".join(flatten_text(demo)).lower()
+        self.assertIn("video not yet", dblob)
+        self.assertIn("shots/", dblob)
+        self.assertIn("share-card", dblob)
+        dist = self.holes.get("/distribution") or {}
+        xblob = " ".join(flatten_text(dist)).lower()
+        self.assertIn("phase d", xblob)
+        self.assertIn("promote", xblob)
+        self.assertIn("pwa", xblob)
+
 
 
 def main() -> int:

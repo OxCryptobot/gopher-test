@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="GOPHER AI share card">
+  <rect width="1200" height="630" fill="#070908"/>
+  <rect x="48" y="48" width="1104" height="534" fill="none" stroke="#39ff14" stroke-width="2" opacity="0.35"/>
+  <text x="600" y="250" text-anchor="middle" font-family="ui-monospace, SF Mono, Cascadia Code, IBM Plex Mono, Menlo, Consolas, Courier New, monospace" font-size="72" fill="#39ff14" letter-spacing="8">GOPHER AI</text>
+  <text x="600" y="340" text-anchor="middle" font-family="ui-monospace, SF Mono, Cascadia Code, IBM Plex Mono, Menlo, Consolas, Courier New, monospace" font-size="36" fill="#b8ff9a" letter-spacing="4">$19/mo · waitlist</text>
+  <text x="600" y="420" text-anchor="middle" font-family="ui-monospace, SF Mono, Cascadia Code, IBM Plex Mono, Menlo, Consolas, Courier New, monospace" font-size="22" fill="#1a7a12" letter-spacing="2">1991 protocol · 2026 interface</text>
+  <text x="600" y="520" text-anchor="middle" font-family="ui-monospace, SF Mono, Cascadia Code, IBM Plex Mono, Menlo, Consolas, Courier New, monospace" font-size="18" fill="#2bc414">oxcryptobot.github.io/gopher</text>
+</svg>

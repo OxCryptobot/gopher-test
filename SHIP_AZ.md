@@ -2,7 +2,7 @@
 
 Honest plan from **83/100** to a real ship. Public face: **GOPHER AI** only. Public price: **$19/month**. Waitlist is the door. Twilio is not required. Prefer Telegram + Resend. Stage on **gopher-test**; production stays frozen until promote.
 
-Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DEPLOY.md` (free host path), `PROMOTE.md` (staging→prod), `MARKETING.md` / `LAUNCH.md` / `NURTURE.md` / `CREATORS.md` (Phase C).
+Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DEPLOY.md` (free host path), `PROMOTE.md` (staging→prod), `MARKETING.md` / `LAUNCH.md` / `NURTURE.md` / `CREATORS.md` (Phase C), `DISTRIBUTION.md` (Phase D), `DEMO.md` (stills; video not yet).
 
 ## Status now
 
@@ -69,9 +69,9 @@ Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DE
 | **C4** | Waitlist nurture: Resend welcome + weekly “hole notes” — `NURTURE.md` (no spam) |
 | **C5** | Influencer/creator list criteria — `CREATORS.md` (crypto twitter, retro web, indie hackers; no fake metrics) |
 | **C6** | SEO: sitemap, humans.txt, press hole, unique titles — finish keywords |
-| **C7** | Demo stills → short demo reel (97) |
+| **C7** | Demo stills → short demo reel (97) — `DEMO.md` / `#/demo`; video not yet |
 
-**Assets checklist:** OG meta · press blurb · 4 posts · nurture email (`NURTURE.md`) · creators criteria (`CREATORS.md`) · share card · demo stills · `MARKETING.md`
+**Assets checklist:** OG meta · press blurb · 4 posts · nurture email (`NURTURE.md`) · creators criteria (`CREATORS.md`) · share card (`press/share-card.svg`) · demo stills (`DEMO.md`) · `MARKETING.md` · `DISTRIBUTION.md`
 
 ### Phase D — Distribution (days 5–21)
 
@@ -79,10 +79,10 @@ Companion docs: `BLUEPRINT.md` (missing product), `SHIP.md` (100-item list), `DE
 | --- | --- |
 | **D1** | Owned: site + Telegram bot + email list |
 | **D2** | Community: public GitHub, Show HN, Indie Hackers, relevant Discords (rules-respecting) |
-| **D3** | App: PWA install first; native store (86) only after product sticks |
+| **D3** | App: PWA install first (`/install`, manifest); native store (86) only after product sticks |
 | **D4** | Partnerships: protocol/retro blogs, crypto newsletter swaps — **after** beta |
 | **D5** | Promote runbook: `PROMOTE.md` staging→production only when A+B exit met |
-| **D6** | Metrics that matter: waitlist joins, Telegram DAU, paid conversions (after Stripe) — not vanity |
+| **D6** | Metrics that matter: waitlist joins, Telegram DAU, paid conversions (after Stripe) — not vanity — see `DISTRIBUTION.md` |
 
 ### Phase E — Launch day runbook
 

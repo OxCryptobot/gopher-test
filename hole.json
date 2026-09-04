@@ -77,7 +77,13 @@
     "gtm": "/ship-az",
     "roadmap": "/ship-az",
     "launch": "/launch",
-    "marketing": "/launch"
+    "marketing": "/launch",
+    "demo": "/demo",
+    "demos": "/demo",
+    "reel": "/demo",
+    "distribution": "/distribution",
+    "dist": "/distribution",
+    "phase-d": "/distribution"
   },
   "holes": {
     "/": {
@@ -358,6 +364,24 @@
           "path": "/ship-az",
           "hint": "SHIP_AZ.md · product+GTM",
           "hint_es": "SHIP_AZ.md · producto+GTM"
+        },
+        {
+          "n": "17",
+          "type": "0",
+          "name": "Demo",
+          "name_es": "Demo",
+          "path": "/demo",
+          "hint": "stills · video not yet",
+          "hint_es": "stills · video aún no"
+        },
+        {
+          "n": "18",
+          "type": "0",
+          "name": "Distribution",
+          "name_es": "Distribución",
+          "path": "/distribution",
+          "hint": "Phase D checklist",
+          "hint_es": "checklist Fase D"
         }
       ]
     },
@@ -605,6 +629,7 @@
       "title": "Changelog/",
       "title_es": "Cambios/",
       "copy": [
+        "2026-09-04 — Phase D3 PWA + demo prep: /install UX, manifest waitlist/$19, press/share-card.svg, DEMO.md + /demo (video not yet), DISTRIBUTION.md. Cache gopher-v20. Still 83/100.",
         "2026-09-04 — Phase C marketing assets: NURTURE.md, CREATORS.md, SEO titles + sitemap waitlist/press/ship-az/launch/deploy. Cache gopher-v19. Still 83/100.",
         "2026-09-04 — SHIP A→Z blueprint (product + marketing + distribution). Hole /ship-az. Launch drafts. Cache gopher-v18. Still 83/100.",
         "2026-09-04 — Python harden: Telegram /start help, Resend HTML join mail, orders.jsonl, market+trending plugins. Still needs env/host. $19/month. 83/100.",
@@ -624,6 +649,7 @@
         "2026-08-27 — first public hole."
       ],
       "copy_es": [
+        "2026-09-04 — Phase D3 PWA + prep demo: UX /install, manifest waitlist/$19, press/share-card.svg, DEMO.md + /demo (video aún no), DISTRIBUTION.md. Caché gopher-v20. Sigue 83/100.",
         "2026-09-04 — Assets Phase C: NURTURE.md, CREATORS.md, títulos SEO + sitemap waitlist/press/ship-az/launch/deploy. Caché gopher-v19. Sigue 83/100.",
         "2026-09-04 — Plano SHIP A→Z (producto + marketing + distribución). Hueco /ship-az. Borradores launch. Caché gopher-v18. Sigue 83/100.",
         "2026-09-04 — Python endurecido: Telegram /start, mail Resend HTML, orders.jsonl, plugins market+trending. Aún necesita env/host. $19/mes. 83/100.",
@@ -913,15 +939,17 @@
       "title_es": "Prensa/",
       "copy": [
         "GOPHER AI is a paid phone assistant named after the 1991 Gopher protocol. FETCH is search. DIG is do a task from the 100. The public hole is a numbered directory plus a prompt with three answers. MAZE and BURROW are a side quest (kill time between searches). Waitlist is open. Public price $19/month on /pricing. Checkout parked.",
-        "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark).",
-        "Launch drafts (4 posts + nurture): LAUNCH.md — type launch. Ship A→Z: type ship-az.",
+        "Shots on this site, relative paths: press/home.png (directory), press/fetch.png (FETCH), press/icon.png (mark), press/share-card.svg (GOPHER AI · $19/mo · waitlist).",
+        "Demo stills inventory: DEMO.md — type demo. Video not yet.",
+        "Launch drafts (4 posts + nurture): LAUNCH.md — type launch. Ship A→Z: type ship-az. Distribution Phase D: type distribution.",
         "Nurture drafts: NURTURE.md. Creator criteria (after beta): CREATORS.md. Checklist: MARKETING.md."
       ],
       "copy_es": [
         "GOPHER AI es un asistente de teléfono de pago, llamado así por el protocolo Gopher de 1991. FETCH es search. DIG es hacer una tarea de las 100. El hueco público es un directorio numerado más un prompt con tres respuestas. MAZE y BURROW son un side quest (mata el tiempo entre búsquedas). Lista de espera abierta. Precio público $19 al mes en /pricing. Checkout aparcado.",
-        "Capturas en este sitio, rutas relativas: press/home.png (directorio), press/fetch.png (FETCH), press/icon.png (marca).",
-        "Borradores de launch (4 posts + nurture): LAUNCH.md — escribe launch. Ship A→Z: escribe ship-az.",
-        "Borradores nurture: NURTURE.md. Criterios creators (después del beta): CREATORS.md. Checklist: MARKETING.md."
+        "Capturas: press/home.png, press/fetch.png, press/icon.png, press/share-card.svg (GOPHER AI · $19/mo · waitlist).",
+        "Inventario de stills: DEMO.md — escribe demo. Video aún no.",
+        "Borradores launch: LAUNCH.md — escribe launch. Ship A→Z: escribe ship-az. Distribución Fase D: escribe distribution.",
+        "Nurture: NURTURE.md. Creators: CREATORS.md. Checklist: MARKETING.md."
       ],
       "note": "No user counts. No ARR. No awards. If we do not have the number, we do not print it.",
       "note_es": "Sin conteo de usuarios. Sin ARR. Sin premios. Si no tenemos el número, no lo imprimimos."
@@ -980,25 +1008,37 @@
       "title": "Install/",
       "title_es": "Instalar/",
       "copy": [
-        "Put this hole on a phone home screen as a PWA. That is a bookmark with an icon, not a store app and not the paid phone assistant.",
+        "Add GOPHER AI to your phone home screen. PWA = bookmark with an icon. Not an App Store build. Not the paid phone line.",
+        "What you get offline-capable: the directory, FETCH search UI, DIG/tasks, MAZE/BURROW side quest, waitlist form. Manifest name: GOPHER AI. Theme #070908.",
+        "Paid phone assistant is $19/month. Waitlist is the door — type waitlist after you install. Checkout parked. No SMS number invented.",
         "Production: https://oxcryptobot.github.io/gopher/",
-        "Staging: https://oxcryptobot.github.io/gopher-test/ — TEST HOLE, not production. Install the URL you mean."
+        "Staging: https://oxcryptobot.github.io/gopher-test/ — TEST HOLE. Install the URL you mean; do not mix hosts."
       ],
       "copy_es": [
-        "Pon este hueco en la pantalla de inicio del teléfono como PWA. Es un marcador con icono, no una app de tienda ni el asistente de teléfono de pago.",
+        "Añade GOPHER AI a la pantalla de inicio. PWA = marcador con icono. No es una app de tienda. No es la línea de teléfono de pago.",
+        "Qué funciona: directorio, FETCH search, DIG/tareas, side quest MAZE/BURROW, formulario waitlist. Manifest: GOPHER AI. Tema #070908.",
+        "El asistente de pago es $19 al mes. La waitlist es la puerta — escribe waitlist después de instalar. Checkout aparcado. Sin número SMS inventado.",
         "Producción: https://oxcryptobot.github.io/gopher/",
-        "Staging: https://oxcryptobot.github.io/gopher-test/ — HUECO TEST, no producción. Instala la URL que quieres."
+        "Staging: https://oxcryptobot.github.io/gopher-test/ — HUECO TEST. Instala la URL que quieres; no mezcles hosts."
       ],
       "steps": [
-        "iPhone (Safari): open the hole, tap Share, tap Add to Home Screen, add.",
-        "Android Chrome: open the hole, tap Install app, or the menu then Add to Home screen."
+        "Open production (or the host you mean). Hard-refresh once after a cache bump.",
+        "iPhone Safari: Share → Add to Home Screen → Add. Look for the phosphor g icon.",
+        "Android Chrome: Install app if offered, or menu → Add to Home screen.",
+        "Desktop Chrome/Edge: install icon in the address bar when the browser offers it.",
+        "Open the icon. Type pricing, then waitlist. $19/month. Checkout parked.",
+        "If INSTALL appears in the hole chrome, tap it — that is the beforeinstallprompt path."
       ],
       "steps_es": [
-        "iPhone (Safari): abre el hueco, pulsa Compartir, pulsa Añadir a pantalla de inicio, añade.",
-        "Android Chrome: abre el hueco, pulsa Instalar app, o el menú luego Añadir a pantalla de inicio."
+        "Abre producción (o el host que quieres). Hard-refresh tras un bump de caché.",
+        "iPhone Safari: Compartir → Añadir a pantalla de inicio → Añadir. Icono g en phosphor.",
+        "Android Chrome: Instalar app si aparece, o menú → Añadir a pantalla de inicio.",
+        "Chrome/Edge escritorio: icono de instalar en la barra cuando el navegador lo ofrezca.",
+        "Abre el icono. Escribe pricing, luego waitlist. $19 al mes. Checkout aparcado.",
+        "Si ves INSTALL en el chrome del hueco, púlsa — es beforeinstallprompt."
       ],
-      "note": "Type install or pwa. Staging and production are different hosts. Do not mix them.",
-      "note_es": "Escribe install o pwa. Staging y producción son hosts distintos. No los mezcles."
+      "note": "Type install or pwa. Bookmark with icon — not the paid assistant. Staging ≠ production.",
+      "note_es": "Escribe install o pwa. Marcador con icono — no el asistente de pago. Staging ≠ producción."
     },
     "/promote": {
       "title": "Promote/",
@@ -1138,7 +1178,8 @@
         "Type tasks in the prompt, or open /tasks. Autoprompt ranks live selectors. Parked products stay parked.",
         "The GOPHER prompt is always on. Suggestions always listed. Hosted model parked until GOPHER_LLM_HOOK is set.",
         "FETCH is search. DIG is a task from the 100. MAZE and BURROW are a side quest under Play/. Three answers under the prompt.",
-        "Ship A→Z (product + marketing + distribution): SHIP_AZ.md — type ship-az."
+        "Ship A→Z (product + marketing + distribution): SHIP_AZ.md — type ship-az.",
+        "Demo stills: DEMO.md (type demo). Distribution Phase D: DISTRIBUTION.md (type distribution). Video (97) not yet."
       ],
       "copy_es": [
         "83 de 100. Hueco jugable 74/75. Teléfono de pago 9/25. Lo que falta es el producto duro, no el 17% del esfuerzo.",
@@ -1151,7 +1192,8 @@
         "Escribe tasks en el prompt, o abre /tasks. El autoprompt ordena selectores vivos. Lo aparcado sigue aparcado.",
         "El prompt GOPHER está siempre on. Sugerencias siempre listadas. Modelo hospedado aparcado hasta GOPHER_LLM_HOOK.",
         "FETCH es search. DIG es una tarea de las 100. MAZE y BURROW son un side quest bajo Play/. Tres respuestas bajo el prompt.",
-        "Ship A→Z (producto + marketing + distribución): SHIP_AZ.md — escribe ship-az."
+        "Ship A→Z (producto + marketing + distribución): SHIP_AZ.md — escribe ship-az.",
+        "Stills demo: DEMO.md (escribe demo). Distribución Fase D: DISTRIBUTION.md (escribe distribution). Video (97) aún no."
       ]
     },
     "/plugins": {
@@ -1309,7 +1351,8 @@
         "Phase F (week 2–8): waitlist→paid, SLA only if real, more plugins, optional Twilio later, hiring only if real roles.",
         "Money path: waitlist → email proof → Stripe $19/mo → cloud accounts → refund/DPA. Do not invent numbers, bot usernames, SLA%, or other prices.",
         "Type ship-az, ship, blueprint, deploy, or launch. Progress stays 83/100 until something truly ships.",
-        "Phase C assets: MARKETING.md · LAUNCH.md · NURTURE.md · CREATORS.md. Type launch or press."
+        "Phase C assets: MARKETING.md · LAUNCH.md · NURTURE.md · CREATORS.md. Type launch or press.",
+        "Phase D assets: DISTRIBUTION.md · DEMO.md · /install · press/share-card.svg. Type distribution or demo. PWA first; video not yet."
       ],
       "copy_es": [
         "83/100. Jugable 74/75. Teléfono de pago 9/25. Staging en gopher-test. Producción congelada hasta promote. Plan completo: SHIP_AZ.md en el repo.",
@@ -1321,7 +1364,8 @@
         "Fase F (semanas 2–8): waitlist→pago, SLA solo si es real, más plugins, Twilio opcional después, contratación solo con roles reales.",
         "Dinero: waitlist → prueba email → Stripe $19/mes → cuentas → reembolso/DPA. No inventar números, bots, SLA% ni otros precios.",
         "Escribe ship-az, ship, blueprint, deploy, o launch. El progreso sigue 83/100 hasta que algo shippee de verdad.",
-        "Assets Phase C: MARKETING.md · LAUNCH.md · NURTURE.md · CREATORS.md. Escribe launch o press."
+        "Assets Phase C: MARKETING.md · LAUNCH.md · NURTURE.md · CREATORS.md. Escribe launch o press.",
+        "Assets Fase D: DISTRIBUTION.md · DEMO.md · /install · press/share-card.svg. Escribe distribution o demo. PWA primero; video aún no."
       ],
       "note": "Type ship-az / shipaz / az / gtm / roadmap. See SHIP_AZ.md, MARKETING.md, LAUNCH.md.",
       "note_es": "Escribe ship-az / shipaz / az / gtm / roadmap. Ver SHIP_AZ.md, MARKETING.md, LAUNCH.md."
@@ -1353,6 +1397,54 @@
       ],
       "note": "Type launch. Drafts only until A+B exit and promote.",
       "note_es": "Escribe launch. Solo borradores hasta salida A+B y promote."
+    },
+    "/demo": {
+      "title": "Demo/",
+      "title_es": "Demo/",
+      "copy": [
+        "Demo prep for SHIP item 97. Stills exist. Video not yet — do not pretend a reel shipped.",
+        "Inventory and capture steps: DEMO.md in the repo. Type demo.",
+        "Stills on this hole (relative): shots/app-home.png (directory), shots/app-fetch.png (FETCH/MAZE), shots/hero.png, shots/ai-live.png, play-* and play2-* sequences.",
+        "Press pack: press/home.png, press/fetch.png, press/icon.png. Share card: press/share-card.svg — GOPHER AI · $19/mo · waitlist.",
+        "How to film later: production hole, FETCH search (fetch btc), directory home, optional MAZE B-roll labeled side quest, pricing→waitlist at $19/month. No stock. No TEST ribbon as the product.",
+        "When a short reel exists, link it here and mark 97. Until then: stills only."
+      ],
+      "copy_es": [
+        "Prep de demo para SHIP ítem 97. Hay stills. Video aún no — no fingir un reel shipped.",
+        "Inventario y captura: DEMO.md en el repo. Escribe demo.",
+        "Stills: shots/app-home.png, shots/app-fetch.png, shots/hero.png, shots/ai-live.png, secuencias play-* / play2-*.",
+        "Prensa: press/home.png, press/fetch.png, press/icon.png. Tarjeta: press/share-card.svg — GOPHER AI · $19/mo · waitlist.",
+        "Para filmar después: hueco producción, FETCH search, directorio, MAZE opcional como side quest, pricing→waitlist a $19/mes. Sin stock. Sin cinta TEST como producto.",
+        "Cuando exista un reel corto, enlázalo aquí y marca 97. Hasta entonces: solo stills."
+      ],
+      "note": "Type demo / reel. Video not yet. Progress stays 83/100.",
+      "note_es": "Escribe demo / reel. Video aún no. El progreso sigue 83/100."
+    },
+    "/distribution": {
+      "title": "Distribution/",
+      "title_es": "Distribución/",
+      "copy": [
+        "Phase D checklist. Full text: DISTRIBUTION.md. Plan: SHIP_AZ.md Phase D. Promote: PROMOTE.md.",
+        "D1 Owned — site + Telegram + email (Telegram/Resend parked until env).",
+        "D2 Community — GitHub, Show HN, Indie Hackers, Discords; drafts in LAUNCH.md.",
+        "D3 PWA first — type install. Native store only after product sticks.",
+        "D4 Partnerships after beta — CREATORS.md.",
+        "D5 Promote only on A+B exit — PROMOTE.md same commit.",
+        "D6 Real metrics only — waitlist joins, Telegram DAU, paid after Stripe. No vanity.",
+        "Public price $19/month. Waitlist is the door. Progress 83/100."
+      ],
+      "copy_es": [
+        "Checklist Fase D. Texto: DISTRIBUTION.md. Plan: SHIP_AZ.md Fase D. Promote: PROMOTE.md.",
+        "D1 Propios — sitio + Telegram + correo (aparcados hasta env).",
+        "D2 Comunidad — GitHub, Show HN, Indie Hackers; borradores en LAUNCH.md.",
+        "D3 PWA primero — escribe install. Tienda nativa solo si el producto pega.",
+        "D4 Partnerships después del beta — CREATORS.md.",
+        "D5 Promote solo con salida A+B — PROMOTE.md mismo commit.",
+        "D6 Métricas reales — waitlist, Telegram DAU, pagos tras Stripe. Sin vanidad.",
+        "Precio público $19 al mes. La waitlist es la puerta. Progreso 83/100."
+      ],
+      "note": "Type distribution / dist / phase-d. See DISTRIBUTION.md + SHIP_AZ.md + PROMOTE.md.",
+      "note_es": "Escribe distribution / dist / phase-d. Ver DISTRIBUTION.md + SHIP_AZ.md + PROMOTE.md."
     }
   }
 }

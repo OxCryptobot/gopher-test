@@ -1041,6 +1041,9 @@
         "/ship-az": "Ship A→Z — GOPHER AI",
         "/launch": "Launch kit — GOPHER AI",
         "/deploy": "Deploy — GOPHER AI",
+        "/install": "Install PWA — GOPHER AI",
+        "/demo": "Demo stills — GOPHER AI (video not yet)",
+        "/distribution": "Distribution Phase D — GOPHER AI",
         "/fetch": "MAZE — GOPHER AI",
         "/dig": "BURROW — GOPHER AI"
       };
