@@ -11,6 +11,27 @@ import textwrap
 from pathlib import Path
 
 
+def _fsync_dir(dir_path: Path) -> None:
+    """Best-effort fsync of a directory.
+
+    Fsyncing the replacement file's data does not guarantee the directory
+    entry produced by ``os.replace`` survives a crash; the containing
+    directory must be fsynced too. Unsupported on some platforms (e.g.
+    Windows, where directories cannot be opened for fsync), so failures are
+    swallowed rather than treated as fatal.
+    """
+    try:
+        dir_fd = os.open(str(dir_path), os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(dir_fd)
+    except OSError:
+        pass
+    finally:
+        os.close(dir_fd)
+
+
 class ASTPatcher:
     """Apply validated, definition-scoped replacements to Python source."""
 
@@ -95,10 +116,13 @@ class ASTPatcher:
         try:
             with os.fdopen(fd, "w", encoding="utf-8", newline="") as temporary_file:
                 temporary_file.write(updated)
+                temporary_file.flush()
+                os.fsync(temporary_file.fileno())
             os.chmod(temporary_path, original_mode)
             if source_path.read_bytes() != raw:
                 raise RuntimeError(f"file changed during patch: {source_path}")
             os.replace(temporary_path, source_path)
+            _fsync_dir(source_path.parent)
         except BaseException:
             try:
                 os.unlink(temporary_path)
