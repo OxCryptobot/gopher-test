@@ -28,7 +28,14 @@ an existing `JsonlEventStore` file replays the full history and reconstructs
 identical task state, dependencies, metadata, and status after a process
 restart or crash. The JSONL loader tolerates a truncated trailing line (an
 interrupted write), discarding only the incomplete final event rather than
-losing prior history.
+losing prior history. Event persistence happens before in-process state is
+mutated, so a storage failure (e.g. disk full) fails the operation atomically
+instead of leaving live state ahead of the durable log. An OS-level advisory
+lock guards each read and write against torn access from another process (or
+another `JsonlEventStore` instance) touching the same file, and a loaded log
+is validated as a strict, gap-free `1..N` sequence, raising immediately if
+corruption or an uncoordinated second writer is detected rather than silently
+reconstructing incorrect state.
 
 Verifier commands run with a private network namespace and a disposable copy of
 the requested workspace. The copy omits `.git`, `.env`, `.envrc`, and `.env.*`
