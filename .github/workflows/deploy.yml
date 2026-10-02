@@ -1,0 +1,39 @@
+name: deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Set ONE of: secret FLY_API_TOKEN (Fly.io) or secret RENDER_DEPLOY_HOOK (Render).
+# Set repo variable GOPHER_PUBLIC_URL to the live https origin for the post-deploy check.
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      PUBLIC_URL: ${{ vars.GOPHER_PUBLIC_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends bubblewrap libseccomp2 util-linux
+      - run: pip install pytest && python -m pytest -q
+      - name: No deploy target configured
+        if: ${{ env.FLY_API_TOKEN == '' && env.RENDER_DEPLOY_HOOK == '' }}
+        run: echo "::warning::Set FLY_API_TOKEN or RENDER_DEPLOY_HOOK; nothing was deployed."
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        if: ${{ env.FLY_API_TOKEN != '' }}
+      - run: flyctl deploy --remote-only
+        if: ${{ env.FLY_API_TOKEN != '' }}
+      - run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK"
+        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
+      - name: Verify live
+        if: ${{ env.PUBLIC_URL != '' }}
+        run: |
+          for i in $(seq 1 12); do
+            curl -fsS "$PUBLIC_URL/health" && exit 0
+            sleep 10
+          done
+          exit 1

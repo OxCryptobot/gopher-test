@@ -34,6 +34,10 @@ http://127.0.0.1:7070/
 
 Copy `.env.example` to `.env` for webhook env (gitignored). GitHub Pages reads optional public `brain` from `hole.json` (empty = matcher only; never put secrets in the client).
 
+## Agent evaluation
+
+Run `python3 scripts/agent_eval.py` for offline, scripted checks of agent repair flow, permissions, path confinement, loop detection, and step limits. These checks exercise orchestration and safeguards, not live model quality.
+
 ## Promote
 
 See [PROMOTE.md](PROMOTE.md). Short version: test on staging, run `python3 tests/test_*.py`, push `gopher-test`, then the same commit to production `gopher`.

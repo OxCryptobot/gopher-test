@@ -1,0 +1,18 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends bubblewrap libseccomp2 util-linux
+      - run: pip install pytest
+      - run: python -m pytest -q
+      - run: python scripts/agent_eval.py
+      - run: python scripts/e2e.py
