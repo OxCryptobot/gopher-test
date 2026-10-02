@@ -164,13 +164,36 @@ class JsonlEventStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
 
+    def _fsync_dir(self) -> None:
+        """Best-effort fsync of the parent directory.
+
+        Fsyncing a file's data does not guarantee the directory entry that
+        makes it discoverable survives a crash; the containing directory
+        must be fsynced too. This is unsupported on some platforms (e.g.
+        Windows, where directories cannot be opened for fsync), so failures
+        here are swallowed rather than treated as fatal.
+        """
+        try:
+            dir_fd = os.open(str(self.path.parent), os.O_RDONLY)
+        except OSError:
+            return
+        try:
+            os.fsync(dir_fd)
+        except OSError:
+            pass
+        finally:
+            os.close(dir_fd)
+
     def append(self, event: TaskEvent) -> None:
         line = json.dumps(event.to_dict(), separators=(",", ":"), sort_keys=True)
         with self._lock:
+            file_existed = self.path.exists()
             with open(self.path, "a", encoding="utf-8") as handle:
                 handle.write(line + "\n")
                 handle.flush()
                 os.fsync(handle.fileno())
+            if not file_existed:
+                self._fsync_dir()
 
     def load(self) -> list[TaskEvent]:
         with self._lock:
@@ -245,9 +268,13 @@ class TaskGraph:
             timestamp=time.time(),
             **details,
         )
+        # Persist before mutating in-memory state: if the store raises (e.g. disk
+        # full), the event was never made durable, so it must not be applied
+        # in-process either. Applying first would let a write failure leave live
+        # state silently ahead of what a replay from the store would reconstruct.
+        self._store.append(event)
         self._apply(event)
         self._events.append(event)
-        self._store.append(event)
         return event
 
     def add_task(

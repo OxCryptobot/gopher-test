@@ -7,6 +7,7 @@ import socket
 import tempfile
 import time
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from agent_runtime import (
@@ -181,6 +182,66 @@ class AgentRuntimeTests(unittest.TestCase):
             self.assertEqual(record["payload"]["description"], "inspect root")
             self.assertEqual(record["payload"]["priority"], 3)
             self.assertEqual(record["payload"]["metadata"], {"k": "v"})
+
+    def test_emit_does_not_mutate_state_when_store_append_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "events.jsonl")
+            store = JsonlEventStore(path)
+            graph = TaskGraph(event_store=store)
+            graph.add_task("explore", "inspect root")
+
+            with patch.object(store, "append", side_effect=OSError("disk full")):
+                with self.assertRaises(OSError):
+                    graph.add_task("plan", "design patch")
+
+            # The failed task_created event must not have been applied in-process,
+            # since it was never made durable.
+            self.assertEqual(sorted(graph.tasks()), ["explore"])
+            self.assertEqual(len(graph.events()), 1)
+
+            with patch.object(store, "append", side_effect=OSError("disk full")):
+                with self.assertRaises(OSError):
+                    graph.update_status("explore", TaskState.planned)
+
+            self.assertEqual(graph.get_status("explore"), TaskState.queued)
+            self.assertEqual(len(graph.events()), 1)
+
+            # The store itself only has the one durably persisted event.
+            reloaded = TaskGraph(event_store=JsonlEventStore(path))
+            self.assertEqual(sorted(reloaded.tasks()), ["explore"])
+            self.assertEqual(reloaded.get_status("explore"), TaskState.queued)
+
+    def test_jsonl_event_store_fsyncs_parent_directory_on_first_write(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "nested", "events.jsonl")
+            store = JsonlEventStore(path)
+
+            with patch("os.fsync") as mock_fsync, patch("os.open", wraps=os.open) as mock_open:
+                graph = TaskGraph(event_store=store)
+                graph.add_task("explore", "inspect root")
+
+            # The parent directory is opened (read-only) and fsynced exactly once,
+            # for the first write that creates the file.
+            dir_opens = [
+                call
+                for call in mock_open.call_args_list
+                if call.args and call.args[0] == str(Path(path).parent)
+            ]
+            self.assertEqual(len(dir_opens), 1)
+            # One fsync for the file's data, one for the parent directory entry.
+            self.assertEqual(mock_fsync.call_count, 2)
+
+            with patch("os.fsync") as mock_fsync, patch("os.open", wraps=os.open) as mock_open:
+                graph.add_task("plan", "design patch")
+
+            # The file already exists, so only the file's data is fsynced again.
+            dir_opens = [
+                call
+                for call in mock_open.call_args_list
+                if call.args and call.args[0] == str(Path(path).parent)
+            ]
+            self.assertEqual(dir_opens, [])
+            self.assertEqual(mock_fsync.call_count, 1)
 
     def test_memory_store_expiration(self) -> None:
         memory = MemoryStore()
