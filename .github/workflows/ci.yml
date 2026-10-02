@@ -12,6 +12,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends bubblewrap libseccomp2 util-linux
+      - name: Allow unprivileged user namespaces for bubblewrap
+        run: |
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
       - run: pip install pytest
       - run: python -m pytest -q
       - run: python scripts/agent_eval.py
