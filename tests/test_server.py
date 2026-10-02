@@ -10,12 +10,14 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import shutil
 import socket
 import sys
 import tempfile
 import threading
 import time
 import unittest
+import unittest.mock
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -936,6 +938,44 @@ class PluginOrderLogTests(unittest.TestCase):
             except OSError:
                 pass
 
+    def test_save_orders_and_save_list_fsync_data_and_dir(self) -> None:
+        """save_orders/save_list must fsync the temp file and the parent dir.
+
+        A rename that lands on disk without the preceding write (or the
+        directory entry) being fsynced is not actually durable: a crash
+        right after ``os.replace`` can still lose the "saved" data even
+        though the call already returned.
+        """
+        calls: list = []
+        real_fsync = os.fsync
+        real_replace = os.replace
+
+        def spy_fsync(fd):
+            calls.append(("fsync", fd))
+            return real_fsync(fd)
+
+        def spy_replace(src, dst):
+            calls.append(("replace", src, dst))
+            return real_replace(src, dst)
+
+        tmpdir = tempfile.mkdtemp(prefix="gopher-durable-")
+        path = os.path.join(tmpdir, "scores.json")
+        try:
+            with unittest.mock.patch.object(os, "fsync", side_effect=spy_fsync), unittest.mock.patch.object(
+                os, "replace", side_effect=spy_replace
+            ):
+                self.mod.save_list(path, [{"a": 1}])
+            kinds = [c[0] for c in calls]
+            # The file's data fsync must happen before the atomic rename,
+            # and the parent directory must be fsynced after it.
+            self.assertEqual(kinds.count("fsync"), 2)
+            self.assertEqual(kinds.count("replace"), 1)
+            self.assertLess(kinds.index("fsync"), kinds.index("replace"))
+            self.assertLess(kinds.index("replace"), len(kinds) - 1)
+            with open(path, encoding="utf-8") as f:
+                self.assertEqual(json.load(f), [{"a": 1}])
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 class StripeCaptureHandler(BaseHTTPRequestHandler):
