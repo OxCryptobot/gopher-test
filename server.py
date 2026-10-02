@@ -180,12 +180,49 @@ def load_list(path: str) -> list:
         return []
 
 
-def save_list(path: str, entries: list) -> None:
+def _fsync_dir(path: str) -> None:
+    """Best-effort fsync of a file's parent directory.
+
+    Fsyncing a file's data does not guarantee the directory entry that makes
+    a rename visible survives a crash; the containing directory must be
+    fsynced too. Unsupported on some platforms, so failures are swallowed.
+    """
+    try:
+        dir_fd = os.open(os.path.dirname(os.path.abspath(path)) or ".", os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(dir_fd)
+    except OSError:
+        pass
+    finally:
+        os.close(dir_fd)
+
+
+def _atomic_write(path: str, write_body) -> None:
+    """Write via a temp file, fsync its data, atomically rename, fsync the dir.
+
+    Without this, a crash between the plain write and the rename (or right
+    after it) can lose data despite ``os.replace`` looking "complete" --
+    either the temp file's bytes were never flushed to disk, or the rename
+    itself was never made durable. Used for every on-disk store this process
+    treats as a record of real activity (orders, waitlist signups, scores).
+    """
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
+        write_body(f)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+    _fsync_dir(path)
+
+
+def save_list(path: str, entries: list) -> None:
+    def _write(f):
         json.dump(entries, f, indent=2)
         f.write("\n")
-    os.replace(tmp, path)
+
+    _atomic_write(path, _write)
 
 
 def load_waitlist() -> list:
@@ -224,11 +261,12 @@ def load_orders() -> list:
 
 def save_orders(entries: list) -> None:
     trimmed = [e for e in entries if isinstance(e, dict)][-ORDERS_KEEP:]
-    tmp = ORDERS_PATH + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
+
+    def _write(f):
         for row in trimmed:
             f.write(json.dumps(row, separators=(",", ":"), ensure_ascii=False) + "\n")
-    os.replace(tmp, ORDERS_PATH)
+
+    _atomic_write(ORDERS_PATH, _write)
 
 
 def cors_origin_ok(origin: str) -> bool:
