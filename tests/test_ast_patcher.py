@@ -108,6 +108,48 @@ class ASTPatcherTests(unittest.TestCase):
 
             self.assertEqual(path.read_bytes(), b"def target():\r\n    return 2\r\n")
 
+    def test_file_replacement_fsyncs_data_and_dir_before_and_after_rename(self) -> None:
+        """A crash right after replace_file_symbol returns must not lose the edit.
+
+        That requires fsyncing the temp file's data before the rename and
+        fsyncing the parent directory after it, mirroring the durability
+        fix already applied to JsonlEventStore and server.py's save_*.
+        """
+        import os
+        import unittest.mock as mock
+
+        calls: list = []
+        real_fsync = os.fsync
+        real_replace = os.replace
+
+        def spy_fsync(fd):
+            calls.append(("fsync", fd))
+            return real_fsync(fd)
+
+        def spy_replace(src, dst):
+            calls.append(("replace", src, dst))
+            return real_replace(src, dst)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "module.py"
+            path.write_text("def target():\n    return 1\n", encoding="utf-8")
+
+            with mock.patch.object(os, "fsync", side_effect=spy_fsync), mock.patch.object(
+                os, "replace", side_effect=spy_replace
+            ):
+                self.patcher.replace_file_symbol(
+                    path,
+                    "target",
+                    "def target():\n    return 2",
+                )
+
+            kinds = [c[0] for c in calls]
+            self.assertEqual(kinds.count("fsync"), 2)
+            self.assertEqual(kinds.count("replace"), 1)
+            self.assertLess(kinds.index("fsync"), kinds.index("replace"))
+            self.assertLess(kinds.index("replace"), len(kinds) - 1)
+            self.assertIn("return 2", path.read_text(encoding="utf-8"))
+
 
 if __name__ == "__main__":
     unittest.main()
