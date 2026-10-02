@@ -12,6 +12,7 @@ import ctypes.util
 from dataclasses import dataclass, field
 from enum import Enum
 import errno
+import json
 import os
 import shlex
 import shutil
@@ -22,7 +23,7 @@ import time
 import uuid
 from collections import deque
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Protocol
 
 from planner import Planner
 
@@ -94,26 +95,160 @@ class TaskEvent:
     previous_state: TaskState | None = None
     new_state: TaskState | None = None
     dependency_id: str | None = None
+    payload: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to a JSON-safe dict for a durable event store."""
+        return {
+            "sequence": self.sequence,
+            "task_id": self.task_id,
+            "event_type": self.event_type,
+            "timestamp": self.timestamp,
+            "previous_state": self.previous_state.value if self.previous_state else None,
+            "new_state": self.new_state.value if self.new_state else None,
+            "dependency_id": self.dependency_id,
+            "payload": self.payload,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "TaskEvent":
+        return cls(
+            sequence=data["sequence"],
+            task_id=data["task_id"],
+            event_type=data["event_type"],
+            timestamp=data["timestamp"],
+            previous_state=TaskState(data["previous_state"]) if data.get("previous_state") else None,
+            new_state=TaskState(data["new_state"]) if data.get("new_state") else None,
+            dependency_id=data.get("dependency_id"),
+            payload=dict(data.get("payload") or {}),
+        )
+
+
+class EventStore(Protocol):
+    """Durable storage for a TaskGraph's append-only event log."""
+
+    def append(self, event: TaskEvent) -> None: ...
+
+    def load(self) -> list[TaskEvent]: ...
+
+
+class InMemoryEventStore:
+    """Process-local, non-durable event store; the default TaskGraph backend.
+
+    Matches the original behaviour: events live only as long as the process.
+    """
+
+    def __init__(self) -> None:
+        self._events: list[TaskEvent] = []
+
+    def append(self, event: TaskEvent) -> None:
+        self._events.append(event)
+
+    def load(self) -> list[TaskEvent]:
+        return list(self._events)
+
+
+class JsonlEventStore:
+    """Durable, append-only event store backed by a JSON Lines file.
+
+    Each event is written as its own line and fsynced before ``append``
+    returns, so a crash mid-write can lose at most the last, not-yet-synced
+    event rather than corrupting earlier history. ``load`` stops at (and
+    discards) a truncated or corrupt trailing line instead of failing the
+    whole replay, so a graph can always be reconstructed up to the last
+    durable event.
+    """
+
+    def __init__(self, path: str | os.PathLike[str]) -> None:
+        self.path = Path(path)
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
+
+    def append(self, event: TaskEvent) -> None:
+        line = json.dumps(event.to_dict(), separators=(",", ":"), sort_keys=True)
+        with self._lock:
+            with open(self.path, "a", encoding="utf-8") as handle:
+                handle.write(line + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+
+    def load(self) -> list[TaskEvent]:
+        with self._lock:
+            if not self.path.exists():
+                return []
+            raw = self.path.read_text(encoding="utf-8")
+        events: list[TaskEvent] = []
+        for line in raw.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError:
+                break  # truncated/corrupt trailing write from a crash; stop here
+            events.append(TaskEvent.from_dict(data))
+        return events
 
 
 class TaskGraph:
-    """A dependency-aware task graph with explicit task-state transitions."""
+    """A dependency-aware task graph with explicit task-state transitions.
 
-    def __init__(self) -> None:
+    State is event-sourced: every mutation is captured as an immutable
+    ``TaskEvent``, folded into in-memory state via :meth:`_apply`, and handed
+    to an ``EventStore``. By default the store is process-local
+    (``InMemoryEventStore``), matching the original in-memory-only behaviour.
+    Pass a ``JsonlEventStore`` (or any ``EventStore``) to make the graph
+    durable: its full history is replayed from the store on construction, so
+    a new ``TaskGraph`` pointed at the same store reconstructs identical
+    state after a process restart or crash.
+    """
+
+    def __init__(self, event_store: EventStore | None = None) -> None:
         self._lock = threading.RLock()
         self._tasks: dict[str, Task] = {}
         self._events: list[TaskEvent] = []
+        self._store = event_store or InMemoryEventStore()
+        for event in self._store.load():
+            self._apply(event)
+            self._events.append(event)
 
-    def _record_event(self, task_id: str, event_type: str, **details: Any) -> None:
-        self._events.append(
-            TaskEvent(
-                sequence=len(self._events) + 1,
-                task_id=task_id,
-                event_type=event_type,
-                timestamp=time.time(),
-                **details,
+    def _apply(self, event: TaskEvent) -> None:
+        """Fold a single event into in-memory task state.
+
+        This is the sole source of truth for how an event type changes the
+        graph; both live mutation (via :meth:`_emit`) and replay from a
+        durable store call it, so the two can never drift out of sync.
+        """
+        if event.event_type == "task_created":
+            payload = event.payload
+            self._tasks[event.task_id] = Task(
+                id=event.task_id,
+                name=event.task_id,
+                description=payload.get("description", ""),
+                dependencies=set(payload.get("dependencies") or ()),
+                priority=payload.get("priority", 0),
+                status=TaskState.queued,
+                metadata=dict(payload.get("metadata") or {}),
             )
+        elif event.event_type == "dependency_added":
+            self._tasks[event.task_id].dependencies.add(event.dependency_id)
+        elif event.event_type == "status_changed":
+            self._tasks[event.task_id].status = event.new_state
+        else:
+            raise ValueError(f"cannot apply unknown event type: {event.event_type!r}")
+
+    def _emit(self, task_id: str, event_type: str, **details: Any) -> TaskEvent:
+        event = TaskEvent(
+            sequence=len(self._events) + 1,
+            task_id=task_id,
+            event_type=event_type,
+            timestamp=time.time(),
+            **details,
         )
+        self._apply(event)
+        self._events.append(event)
+        self._store.append(event)
+        return event
 
     def add_task(
         self,
@@ -131,17 +266,17 @@ class TaskGraph:
             missing = dependency_ids - self._tasks.keys()
             if missing:
                 raise ValueError(f"unknown dependency: {min(missing)}")
-            task = Task(
-                id=task_id,
-                name=task_id,
-                description=description,
-                dependencies=dependency_ids,
-                priority=priority,
-                metadata=dict(metadata or {}),
+            self._emit(
+                task_id,
+                "task_created",
+                payload={
+                    "description": description,
+                    "priority": priority,
+                    "dependencies": sorted(dependency_ids),
+                    "metadata": dict(metadata or {}),
+                },
             )
-            self._tasks[task_id] = task
-            self._record_event(task_id, "task_created", new_state=task.status)
-            return task
+            return self._tasks[task_id]
 
     def add_dependency(self, task_id: str, dependency_id: str) -> None:
         with self._lock:
@@ -158,7 +293,8 @@ class TaskGraph:
             except ValueError:
                 task.dependencies.remove(dependency_id)
                 raise
-            self._record_event(task_id, "dependency_added", dependency_id=dependency_id)
+            task.dependencies.discard(dependency_id)  # _emit re-applies it via _apply
+            self._emit(task_id, "dependency_added", dependency_id=dependency_id)
 
     def update_status(self, task_id: str, new_state: TaskState) -> TaskState:
         with self._lock:
@@ -173,14 +309,13 @@ class TaskGraph:
                     f"invalid state transition for {task_id}: {task.status.value} -> {new_state.value}"
                 )
             previous_state = task.status
-            task.status = new_state
-            self._record_event(
+            self._emit(
                 task_id,
                 "status_changed",
                 previous_state=previous_state,
                 new_state=new_state,
             )
-            return task.status
+            return new_state
 
     def get_status(self, task_id: str) -> TaskState:
         with self._lock:
@@ -516,8 +651,8 @@ class AgentRuntime:
     states, dependency checks, memory retention, validation, and task execution.
     """
 
-    def __init__(self) -> None:
-        self.graph = TaskGraph()
+    def __init__(self, event_store: EventStore | None = None) -> None:
+        self.graph = TaskGraph(event_store=event_store)
         self.memory = MemoryStore()
         self.verifier = Verifier()
         self._lock = threading.RLock()
@@ -594,6 +729,9 @@ class AgentRuntime:
 
 __all__ = [
     "AgentRuntime",
+    "EventStore",
+    "InMemoryEventStore",
+    "JsonlEventStore",
     "MemoryStore",
     "TaskGraph",
     "TaskEvent",

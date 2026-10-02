@@ -12,14 +12,23 @@ This project now includes a minimal but production-oriented runtime for a best-i
 
 ## Included primitives
 
-- TaskGraph: dependency-aware task ordering, state transitions, and an append-only in-memory lifecycle event log
+- TaskGraph: dependency-aware task ordering, state transitions, and an append-only, event-sourced lifecycle log
 - MemoryStore: lightweight persistent retention with expiration
 - Verifier: bubblewrap-isolated validation with structured output
 - AgentRuntime: orchestrator assembling the above into one runtime model
 
 The task event log records task creation, dependency additions, and state
-transitions in order. It is process-local and is not yet a durable event-sourced
-store.
+transitions in order. All graph state is derived by folding these events
+through a single `_apply` function, used both for live mutations and for
+replay, so the two paths can never drift apart. Event storage is pluggable
+via the `EventStore` protocol: `InMemoryEventStore` (the default) keeps the
+log in process memory, while `JsonlEventStore` persists each event as a
+fsynced JSON line on disk. Pointing a new `TaskGraph` (or `AgentRuntime`) at
+an existing `JsonlEventStore` file replays the full history and reconstructs
+identical task state, dependencies, metadata, and status after a process
+restart or crash. The JSONL loader tolerates a truncated trailing line (an
+interrupted write), discarding only the incomplete final event rather than
+losing prior history.
 
 Verifier commands run with a private network namespace and a disposable copy of
 the requested workspace. The copy omits `.git`, `.env`, `.envrc`, and `.env.*`
@@ -42,7 +51,6 @@ This foundation is designed for extension into a full agent operating system wit
 - planner and re-planner modules
 - repository semantic indexing
 - subagents and specialized workers
-- durable event-sourced execution history
 - review and extend the verifier's sandbox policy
 - multi-provider routing
 - model/tool cost accounting
