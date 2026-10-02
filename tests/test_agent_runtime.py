@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import fcntl
 import os
 import json
 import socket
 import tempfile
+import threading
 import time
 import unittest
 from pathlib import Path
@@ -124,8 +126,6 @@ class AgentRuntimeTests(unittest.TestCase):
             self.assertEqual(len(third.events()), len(restarted.events()))
 
     def test_jsonl_event_store_survives_concurrent_appends(self) -> None:
-        import threading as _threading
-
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "events.jsonl")
             graph = TaskGraph(event_store=JsonlEventStore(path))
@@ -139,7 +139,7 @@ class AgentRuntimeTests(unittest.TestCase):
                 except Exception as exc:  # pragma: no cover - failure path only
                     errors.append(exc)
 
-            threads = [_threading.Thread(target=worker, args=(i,)) for i in range(16)]
+            threads = [threading.Thread(target=worker, args=(i,)) for i in range(16)]
             for thread in threads:
                 thread.start()
             for thread in threads:
@@ -242,6 +242,89 @@ class AgentRuntimeTests(unittest.TestCase):
             ]
             self.assertEqual(dir_opens, [])
             self.assertEqual(mock_fsync.call_count, 1)
+
+    def test_jsonl_event_store_append_holds_exclusive_flock(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "events.jsonl")
+            store = JsonlEventStore(path)
+            graph = TaskGraph(event_store=store)
+            graph.add_task("seed", "seed task")  # ensure the file exists first
+
+            lock_held = threading.Event()
+            release = threading.Event()
+            real_fsync = os.fsync
+
+            def blocking_fsync(fd: int) -> None:
+                # append() takes flock before writing/fsyncing; block here (while
+                # still holding the lock) so a concurrent locker can observe contention.
+                real_fsync(fd)
+                lock_held.set()
+                release.wait(timeout=5)
+
+            with patch("os.fsync", side_effect=blocking_fsync):
+                writer = threading.Thread(target=graph.add_task, args=("during-lock", "task"))
+                writer.start()
+                try:
+                    self.assertTrue(lock_held.wait(timeout=5), "append never reached fsync")
+
+                    # A second, independent open of the same file must not be able to
+                    # take an exclusive lock while append() is still holding one.
+                    fd = os.open(path, os.O_RDONLY)
+                    try:
+                        with self.assertRaises(BlockingIOError):
+                            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    finally:
+                        os.close(fd)
+                finally:
+                    release.set()
+                    writer.join(timeout=5)
+
+            # Once released, the lock is free again and the write completed normally.
+            fd = os.open(path, os.O_RDONLY)
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.flock(fd, fcntl.LOCK_UN)
+            finally:
+                os.close(fd)
+            self.assertIn("during-lock", graph.tasks())
+
+    def test_jsonl_event_store_rejects_sequence_gap(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "events.jsonl")
+            graph = TaskGraph(event_store=JsonlEventStore(path))
+            graph.add_task("explore", "inspect root")
+            graph.add_task("plan", "design patch")
+
+            # Simulate corruption (or a second, uncoordinated writer) by deleting
+            # the middle event's line, leaving sequences 1, 3 instead of 1, 2.
+            with open(path, encoding="utf-8") as handle:
+                lines = handle.readlines()
+            records = [json.loads(line) for line in lines]
+            records[1]["sequence"] = 3
+            with open(path, "w", encoding="utf-8") as handle:
+                for record in records:
+                    handle.write(json.dumps(record) + "\n")
+
+            with self.assertRaises(ValueError):
+                TaskGraph(event_store=JsonlEventStore(path))
+
+    def test_jsonl_event_store_rejects_duplicate_sequence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "events.jsonl")
+            graph = TaskGraph(event_store=JsonlEventStore(path))
+            graph.add_task("explore", "inspect root")
+            graph.update_status("explore", TaskState.planned)
+
+            with open(path, encoding="utf-8") as handle:
+                lines = handle.readlines()
+            records = [json.loads(line) for line in lines]
+            records[1]["sequence"] = records[0]["sequence"]  # duplicate, not out of order
+            with open(path, "w", encoding="utf-8") as handle:
+                for record in records:
+                    handle.write(json.dumps(record) + "\n")
+
+            with self.assertRaises(ValueError):
+                TaskGraph(event_store=JsonlEventStore(path))
 
     def test_memory_store_expiration(self) -> None:
         memory = MemoryStore()

@@ -14,6 +14,11 @@ from enum import Enum
 import errno
 import json
 import os
+
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - POSIX-only; this runtime targets Linux
+    fcntl = None
 import shlex
 import shutil
 import subprocess
@@ -157,6 +162,17 @@ class JsonlEventStore:
     discards) a truncated or corrupt trailing line instead of failing the
     whole replay, so a graph can always be reconstructed up to the last
     durable event.
+
+    This store assumes a single writer process at a time (mirroring
+    ``TaskGraph``'s single in-process writer, serialized by its own lock).
+    An OS-level advisory lock (``flock``) additionally guards against two
+    separate processes -- or two separate ``JsonlEventStore`` instances in
+    the same process -- racing on the same file: ``append`` takes an
+    exclusive lock for the duration of the write, and ``load`` takes a
+    shared lock so it never observes a write in progress. This does not
+    protect against concurrent *writers* corrupting each other's sequence
+    numbers (each ``TaskGraph`` computes sequence numbers from its own
+    in-memory event count), only against interleaved/torn reads and writes.
     """
 
     def __init__(self, path: str | os.PathLike[str]) -> None:
@@ -189,9 +205,12 @@ class JsonlEventStore:
         with self._lock:
             file_existed = self.path.exists()
             with open(self.path, "a", encoding="utf-8") as handle:
+                if fcntl is not None:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
                 handle.write(line + "\n")
                 handle.flush()
                 os.fsync(handle.fileno())
+                # The lock is released implicitly when the handle closes below.
             if not file_existed:
                 self._fsync_dir()
 
@@ -199,7 +218,11 @@ class JsonlEventStore:
         with self._lock:
             if not self.path.exists():
                 return []
-            raw = self.path.read_text(encoding="utf-8")
+            with open(self.path, encoding="utf-8") as handle:
+                if fcntl is not None:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_SH)
+                raw = handle.read()
+                # The lock is released implicitly when the handle closes below.
         events: list[TaskEvent] = []
         for line in raw.splitlines():
             line = line.strip()
@@ -210,7 +233,31 @@ class JsonlEventStore:
             except json.JSONDecodeError:
                 break  # truncated/corrupt trailing write from a crash; stop here
             events.append(TaskEvent.from_dict(data))
+        _validate_sequence_integrity(events)
         return events
+
+
+def _validate_sequence_integrity(events: list[TaskEvent]) -> None:
+    """Fail loudly if a loaded event log is not a clean 1..N sequence.
+
+    A gap, duplicate, or out-of-order sequence number cannot arise from a
+    single well-behaved writer (sequences are assigned as a strictly
+    increasing, gap-free counter) or from the truncated-tail crash case
+    (already handled by stopping at the first undecodable line). If one is
+    seen, the log has been corrupted or concurrently written by more than
+    one writer, and silently replaying it would reconstruct incorrect task
+    state without any indication something went wrong.
+    """
+    expected = 1
+    for event in events:
+        if event.sequence != expected:
+            raise ValueError(
+                "corrupt event log: expected sequence "
+                f"{expected} but found {event.sequence} for task {event.task_id!r} "
+                f"({event.event_type!r}); the log may have been truncated mid-file, "
+                "edited, or written by more than one writer"
+            )
+        expected += 1
 
 
 class TaskGraph:
