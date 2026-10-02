@@ -9,7 +9,15 @@ import time
 import unittest
 from unittest.mock import patch
 
-from agent_runtime import AgentRuntime, MemoryStore, TaskGraph, TaskState, Verifier
+from agent_runtime import (
+    AgentRuntime,
+    InMemoryEventStore,
+    JsonlEventStore,
+    MemoryStore,
+    TaskGraph,
+    TaskState,
+    Verifier,
+)
 
 
 class AgentRuntimeTests(unittest.TestCase):
@@ -77,6 +85,102 @@ class AgentRuntimeTests(unittest.TestCase):
 
         events.clear()
         self.assertEqual(len(graph.events()), 4)
+
+    def test_task_graph_defaults_to_in_memory_event_store(self) -> None:
+        graph = TaskGraph()
+        graph.add_task("first", "first task")
+        self.assertIsInstance(graph._store, InMemoryEventStore)  # type: ignore[attr-defined]
+
+    def test_jsonl_event_store_replays_full_graph_state_after_restart(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "events.jsonl")
+
+            graph = TaskGraph(event_store=JsonlEventStore(path))
+            graph.add_task("explore", "inspect root", priority=2, metadata={"kind": "analysis"})
+            graph.add_task("plan", "design patch")
+            graph.add_dependency("plan", "explore")
+            graph.update_status("explore", TaskState.planned)
+            graph.update_status("explore", TaskState.executing)
+            graph.update_status("explore", TaskState.verifying)
+            graph.update_status("explore", TaskState.completed)
+
+            # A fresh TaskGraph over the same durable store reconstructs identical state,
+            # simulating a process restart or crash recovery.
+            restarted = TaskGraph(event_store=JsonlEventStore(path))
+            self.assertEqual(sorted(restarted.tasks()), ["explore", "plan"])
+            self.assertEqual(restarted.get_status("explore"), TaskState.completed)
+            self.assertEqual(restarted.get_status("plan"), TaskState.queued)
+            self.assertEqual(restarted.tasks()["plan"].dependencies, {"explore"})
+            self.assertEqual(restarted.tasks()["explore"].metadata, {"kind": "analysis"})
+            self.assertEqual(restarted.tasks()["explore"].priority, 2)
+            self.assertEqual(restarted.topological_order(), ["explore", "plan"])
+            self.assertEqual(len(restarted.events()), len(graph.events()))
+
+            # Continuing to mutate the restarted graph appends to the same durable log.
+            restarted.update_status("plan", TaskState.planned)
+            third = TaskGraph(event_store=JsonlEventStore(path))
+            self.assertEqual(third.get_status("plan"), TaskState.planned)
+            self.assertEqual(len(third.events()), len(restarted.events()))
+
+    def test_jsonl_event_store_survives_concurrent_appends(self) -> None:
+        import threading as _threading
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "events.jsonl")
+            graph = TaskGraph(event_store=JsonlEventStore(path))
+            graph.add_task("root", "root task")
+
+            errors: list[Exception] = []
+
+            def worker(i: int) -> None:
+                try:
+                    graph.add_task(f"child-{i}", "child task", dependencies=["root"])
+                except Exception as exc:  # pragma: no cover - failure path only
+                    errors.append(exc)
+
+            threads = [_threading.Thread(target=worker, args=(i,)) for i in range(16)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+            self.assertEqual(errors, [])
+            reloaded = TaskGraph(event_store=JsonlEventStore(path))
+            self.assertEqual(len(reloaded.tasks()), 17)
+            self.assertEqual(len(reloaded.events()), 17)
+            self.assertEqual(len({event.sequence for event in reloaded.events()}), 17)
+
+    def test_jsonl_event_store_tolerates_truncated_trailing_line(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "events.jsonl")
+            graph = TaskGraph(event_store=JsonlEventStore(path))
+            graph.add_task("explore", "inspect root")
+            graph.update_status("explore", TaskState.planned)
+
+            # Simulate a crash mid-write: a truncated, non-JSON trailing line.
+            with open(path, "a", encoding="utf-8") as handle:
+                handle.write('{"sequence": 3, "task_id": "explore", "event_typ')
+
+            recovered = TaskGraph(event_store=JsonlEventStore(path))
+            self.assertEqual(sorted(recovered.tasks()), ["explore"])
+            self.assertEqual(recovered.get_status("explore"), TaskState.planned)
+            self.assertEqual(len(recovered.events()), 2)
+
+    def test_jsonl_event_store_round_trips_task_event_payload(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "events.jsonl")
+            store = JsonlEventStore(path)
+            graph = TaskGraph(event_store=store)
+            graph.add_task("explore", "inspect root", priority=3, dependencies=[], metadata={"k": "v"})
+
+            with open(path, encoding="utf-8") as handle:
+                lines = handle.readlines()
+            self.assertEqual(len(lines), 1)
+            record = json.loads(lines[0])
+            self.assertEqual(record["event_type"], "task_created")
+            self.assertEqual(record["payload"]["description"], "inspect root")
+            self.assertEqual(record["payload"]["priority"], 3)
+            self.assertEqual(record["payload"]["metadata"], {"k": "v"})
 
     def test_memory_store_expiration(self) -> None:
         memory = MemoryStore()
