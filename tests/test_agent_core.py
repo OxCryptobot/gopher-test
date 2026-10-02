@@ -93,6 +93,22 @@ class ToolTests(unittest.TestCase):
                 self.reg.call("read_file", {"path": p})
         self.assertNotIn("SECRET", self.reg.call("grep", {"pattern": "SECRET"}))
 
+    def test_envrc_and_env_variants_blocked_but_example_allowed(self) -> None:
+        (self.root / ".envrc").write_text("export SECRET=shh\n")
+        (self.root / ".env.local").write_text("SECRET=shh\n")
+        (self.root / ".env.example").write_text("SECRET=placeholder\n")
+
+        for p in (".envrc", ".env.local"):
+            with self.assertRaises(ToolError):
+                self.reg.call("read_file", {"path": p})
+        # .env.example has no real secrets and must stay readable.
+        self.assertIn("placeholder", self.reg.call("read_file", {"path": ".env.example"}))
+
+        hits = self.reg.call("grep", {"pattern": "SECRET|placeholder"})
+        self.assertNotIn(".envrc", hits)
+        self.assertNotIn(".env.local", hits)
+        self.assertIn(".env.example", hits)
+
     def test_symlink_escape_blocked(self) -> None:
         (self.root / "ln").symlink_to("/etc")
         with self.assertRaises(ToolError):

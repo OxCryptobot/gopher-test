@@ -46,6 +46,28 @@ def _clip(data: str | bytes | None) -> str:
     return data[: _MAX_OUTPUT // 2] + "\n...[truncated]...\n" + data[-_MAX_OUTPUT // 2 :]
 
 
+def is_protected_filename(name: str) -> bool:
+    """True if ``name`` (a single path component) is a secret or VCS file.
+
+    This is the single source of truth for what counts as sensitive, shared
+    by every component that must never expose it: ``Verifier`` excludes
+    these from the disposable sandbox copy it runs commands against, and
+    ``agent_tools.Workspace`` denies reading, searching, or editing them.
+    Defining the rule in exactly one place means a new caller can't
+    accidentally reintroduce a gap by reimplementing (and subtly
+    mismatching) the check.
+
+    Covers ``.git``, ``.env``, ``.envrc``, and ``.env.*`` variants, except
+    ``.env.example`` (a template with no real secrets, safe to read).
+    """
+    return (
+        name == ".git"
+        or name == ".env"
+        or name == ".envrc"
+        or (name.startswith(".env.") and name != ".env.example")
+    )
+
+
 class TaskState(str, Enum):
     queued = "queued"
     analyzing = "analyzing"
@@ -579,14 +601,7 @@ class Verifier:
 
         def ignore_sensitive(directory: str, names: list[str]) -> set[str]:
             del directory
-            return {
-                name
-                for name in names
-                if name == ".git"
-                or name == ".env"
-                or name == ".envrc"
-                or (name.startswith(".env.") and name != ".env.example")
-            }
+            return {name for name in names if is_protected_filename(name)}
 
         try:
             with tempfile.TemporaryDirectory(prefix="agent-verify-") as temporary_root:
@@ -812,4 +827,5 @@ __all__ = [
     "TaskState",
     "Verifier",
     "VerificationResult",
+    "is_protected_filename",
 ]

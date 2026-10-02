@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-from agent_runtime import Verifier
+from agent_runtime import Verifier, is_protected_filename
 from ast_patcher import ASTPatcher
 
 _TYPES = {"string": str, "integer": int, "boolean": bool, "number": (int, float)}
@@ -91,7 +91,7 @@ class Workspace:
         if path != self.root and self.root not in path.parents:
             raise ToolError("path escapes workspace")
         parts = path.relative_to(self.root).parts
-        if any(p == ".git" or p == ".env" or p.startswith(".env.") for p in parts):
+        if any(is_protected_filename(p) for p in parts):
             raise ToolError("path is protected")
         return path
 
@@ -117,7 +117,7 @@ class Workspace:
                 break
             if not f.is_file() or f.is_symlink() or any(part in _SKIP for part in f.relative_to(self.root).parts):
                 continue
-            if f.name.startswith(".env"):
+            if any(is_protected_filename(part) for part in f.relative_to(self.root).parts):
                 continue
             try:
                 for n, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
