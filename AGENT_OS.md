@@ -47,6 +47,11 @@ descriptors, and CPU time bounded by the verification timeout (up to 60 seconds)
 core dumps are disabled. A seccomp filter denies tracing, namespace changes,
 mount operations, kernel interfaces, and module management.
 
+The same `.git`/`.env`/`.envrc`/`.env.*` rule is defined once, as
+`is_protected_filename`, and shared by the Verifier's sandbox copy and by
+`agent_tools.Workspace`'s `read_file`/`grep`/`edit_symbol` path checks, so the
+two can't drift into inconsistent policies.
+
 ## Why this matters
 
 Most agent systems fail not because they lack a single tool, but because they lack a disciplined control plane. The runtime here introduces the minimum necessary structure to keep the system honest: no state transitions without policy, no completion without validation, and no memory that survives forever without decay.
