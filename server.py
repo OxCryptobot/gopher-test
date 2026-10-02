@@ -103,6 +103,15 @@ CSP = (
     "object-src 'none'; "
     "base-uri 'self'"
 )
+CORS_HOST_SUFFIXES = (
+    ".github.io",
+    ".github.dev",
+    ".pages.dev",
+    ".vercel.app",
+    ".netlify.app",
+    ".fly.dev",
+    ".localtest.me",
+)
 LOCK = threading.Lock()
 WAITLIST_HITS: dict[str, list[float]] = {}
 STARTED_AT = time.time()
@@ -232,10 +241,33 @@ def cors_origin_ok(origin: str) -> bool:
         return False
     if parsed.scheme not in ("http", "https"):
         return False
-    host = (parsed.hostname or "").lower()
-    if host in ("localhost", "127.0.0.1"):
+    host = (parsed.hostname or "").lower().rstrip(".")
+    if not host:
+        return False
+
+    allowed = {
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0",
+        "::1",
+        "oxcryptobot.github.io",
+        "www.oxcryptobot.github.io",
+    }
+    extra = os.environ.get("GOPHER_ALLOWED_ORIGINS") or ""
+    for part in extra.split(","):
+        item = part.strip()
+        if not item:
+            continue
+        try:
+            extra_parsed = urlparse(item)
+        except ValueError:
+            continue
+        extra_host = (extra_parsed.hostname or "").lower().rstrip(".")
+        if extra_host:
+            allowed.add(extra_host)
+    if host in allowed:
         return True
-    if host == "oxcryptobot.github.io":
+    if any(host.endswith(suffix) for suffix in CORS_HOST_SUFFIXES):
         return True
     return False
 

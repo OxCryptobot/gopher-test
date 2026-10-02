@@ -212,6 +212,21 @@ class ServerTests(unittest.TestCase):
         self.assertIn("Content-Type, Accept, Authorization", self.src)
         self.assertIn("cors_origin_ok", self.src)
 
+    def test_cors_origin_allowlist_expands_for_pages_and_env(self) -> None:
+        mod = load_server()
+        self.assertTrue(mod.cors_origin_ok("https://oxcryptobot.github.io"))
+        self.assertTrue(mod.cors_origin_ok("https://www.oxcryptobot.github.io"))
+        self.assertTrue(mod.cors_origin_ok("https://gopher-preview.pages.dev"))
+        self.assertFalse(mod.cors_origin_ok("https://evil.example.com"))
+
+        os.environ["GOPHER_ALLOWED_ORIGINS"] = "https://app.example.com, https://api.example.com"
+        try:
+            self.assertTrue(mod.cors_origin_ok("https://app.example.com"))
+            self.assertTrue(mod.cors_origin_ok("https://api.example.com"))
+            self.assertFalse(mod.cors_origin_ok("https://evil.example.com"))
+        finally:
+            os.environ.pop("GOPHER_ALLOWED_ORIGINS", None)
+
 
 class CaptureHandler(BaseHTTPRequestHandler):
     last_headers: dict = {}
